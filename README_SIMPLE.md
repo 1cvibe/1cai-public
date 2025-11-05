@@ -30,7 +30,7 @@ Telegram бот, который помогает 1С разработчикам:
 ### Вариант 1: Попробовать готового бота
 
 1. Откройте Telegram
-2. Найдите `@your_bot_name` 
+2. Найдите бота (см. раздел "Контакты" ниже)
 3. Нажмите `/start`
 4. Готово! Попробуйте `/search расчет НДС`
 
@@ -74,8 +74,8 @@ python src/telegram/bot_minimal.py
 
 **Что-то не работает?**
 1. Проверьте [FAQ.md](FAQ.md) - может ответ уже есть
-2. Найдите в [Issues](https://github.com/your-repo/issues) - может кто-то уже спрашивал
-3. Создайте новый [Issue](https://github.com/your-repo/issues/new) - мы поможем!
+2. Найдите в [Issues](https://github.com/DmitrL-dev/1cai/issues) - может кто-то уже спрашивал
+3. Создайте новый [Issue](https://github.com/DmitrL-dev/1cai/issues/new) - мы поможем!
 
 **Хотите помочь проекту?**
 - ⭐ Поставьте звезду на GitHub

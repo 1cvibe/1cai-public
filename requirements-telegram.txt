@@ -21,4 +21,11 @@ openai>=1.0.0  # OpenAI Whisper API
 # openai-whisper  # Local Whisper (требует ffmpeg)
 # vosk  # Offline STT
 
+# OCR для распознавания документов
+chandra-ocr>=0.1.0  # Chandra OCR для таблиц, форм, рукописного текста
+
+# Optional: Tesseract (fallback OCR)
+# pytesseract  # Tesseract wrapper
+# Pillow  # Image processing
+
 

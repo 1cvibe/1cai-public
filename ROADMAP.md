@@ -330,7 +330,7 @@
 - **GitHub Projects** - kanban board
 - **Milestones** - GitHub milestones
 - **Releases** - changelog в GitHub releases
-- **Telegram канал** - [@ai1c_news](https://t.me/ai1c_news) - weekly updates
+- **GitHub Releases** - check for updates
 
 ---
 
@@ -339,8 +339,8 @@
 **Что вы хотите видеть в приоритете?**
 
 - 👍 Upvote issues на GitHub
-- 💡 Предлагайте идеи в [Discussions](https://github.com/your-repo/discussions)
-- 📧 Напишите: roadmap@your-domain.com
+- 💡 Предлагайте идеи в [Discussions](https://github.com/DmitrL-dev/1cai/discussions)
+- 📧 Напишите: Issues на GitHub
 
 **Топ-5 requested features идут в следующий milestone!**
 

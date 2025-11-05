@@ -78,6 +78,8 @@ temp/
 # Personal data
 RESUME_*.md
 *resume*.txt
+*RESUME*.md
+RESUME_IT_DIRECTOR.md
 
 # Archive and backups
 archive/

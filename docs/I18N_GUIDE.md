@@ -386,9 +386,8 @@ t("some.missing.key")  # → RU версия или [some.missing.key]
 ## 📞 Контакты
 
 **Вопросы по i18n:**
-- GitHub: Issues с тегом `i18n`
-- Telegram: @ai1c_support
-- Email: i18n@1c-ai.dev
+- GitHub: [Issues](https://github.com/DmitrL-dev/1cai/issues) с тегом `i18n`
+- Discussions: [GitHub Discussions](https://github.com/DmitrL-dev/1cai/discussions)
 
 ---
 

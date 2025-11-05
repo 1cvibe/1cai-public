@@ -354,9 +354,7 @@ tail -f logs/telegram_bot.log
 **Голосовые запросы работают плохо?**
 
 Напишите нам:
-- Telegram: @ai1c_support
-- GitHub: Issues
-- Email: support@1c-ai.dev
+- GitHub: [Issues](https://github.com/DmitrL-dev/1cai/issues) с тегом `voice`
 
 **Укажите:**
 1. Что сказали (текст)

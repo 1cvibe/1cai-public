@@ -32,6 +32,9 @@ beautifulsoup4==4.12.2
 # langchain==0.1.0
 # langchain-openai==0.0.2
 
+# OCR (implemented)
+chandra-ocr>=0.1.0  # Document OCR - tables, forms, handwriting
+
 # Vector Search (planned - Stage 1)
 # qdrant-client==1.7.0
 

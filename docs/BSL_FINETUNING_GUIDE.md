@@ -528,9 +528,8 @@ results = ab_test(
 
 **Нужна помощь с fine-tuning?**
 
-- GitHub Discussions: [Fine-tuning thread]
-- Telegram: @ai1c_ml_support
-- Email: ml@1c-ai.dev
+- GitHub: [Issues](https://github.com/DmitrL-dev/1cai/issues) с тегом `ml`
+- Discussions: [GitHub Discussions](https://github.com/DmitrL-dev/1cai/discussions)
 
 **Хотите поделиться примерами?**
 

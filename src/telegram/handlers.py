@@ -17,6 +17,7 @@ from src.telegram.formatters import TelegramFormatter
 from src.telegram.rate_limiter import RateLimiter
 from src.telegram.config import config
 from src.services.speech_to_text_service import get_stt_service
+from src.services.ocr_service import get_ocr_service, DocumentType
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -346,9 +347,127 @@ async def handle_voice(message: Message):
         )
 
 
+@router.message(F.photo)
+async def handle_photo(message: Message):
+    """Обработка фотографий - OCR распознавание документов 📸"""
+    
+    # Rate limiting
+    if not await check_rate_limit(message):
+        return
+    
+    # Получаем фото наилучшего качества
+    photo = message.photo[-1]
+    
+    await message.answer("📸 Распознаю документ через OCR...")
+    
+    try:
+        # Получаем OCR сервис
+        ocr_service = get_ocr_service()
+        
+        # Скачиваем фото
+        photo_file = await message.bot.get_file(photo.file_id)
+        
+        # Создаем временный файл
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
+            await message.bot.download_file(photo_file.file_path, tmp_file)
+            tmp_path = tmp_file.name
+        
+        try:
+            # Определяем тип документа из caption (если есть)
+            caption = message.caption or ""
+            doc_type = DocumentType.AUTO
+            
+            if "договор" in caption.lower() or "contract" in caption.lower():
+                doc_type = DocumentType.CONTRACT
+            elif "счет" in caption.lower() or "invoice" in caption.lower():
+                doc_type = DocumentType.INVOICE
+            elif "накладная" in caption.lower() or "waybill" in caption.lower():
+                doc_type = DocumentType.WAYBILL
+            elif "акт" in caption.lower():
+                doc_type = DocumentType.ACT
+            
+            # Показываем предварительное время
+            estimate = ocr_service.estimate_processing_time(tmp_path)
+            if estimate > 5:
+                await message.answer(
+                    f"⏱️ Примерное время обработки: ~{estimate} секунд\n"
+                    f"Пожалуйста, подождите..."
+                )
+            
+            # OCR распознавание
+            ocr_result = await ocr_service.process_image(
+                tmp_path,
+                document_type=doc_type
+            )
+            
+            if not ocr_result.text:
+                await message.reply(
+                    "🤔 Не удалось распознать текст на изображении.\n\n"
+                    "Возможные причины:\n"
+                    "• Плохое качество фото\n"
+                    "• Слишком мелкий текст\n"
+                    "• Нестандартный формат\n\n"
+                    "Попробуйте сделать фото еще раз с лучшим освещением."
+                )
+                return
+            
+            # Формируем ответ
+            response = f"✅ **Документ распознан!**\n\n"
+            response += f"📊 Уверенность: {ocr_result.confidence*100:.1f}%\n"
+            response += f"📝 Символов: {len(ocr_result.text)}\n\n"
+            
+            # Если есть структурированные данные
+            if ocr_result.structured_data:
+                response += "**Извлечено:**\n"
+                
+                for key, value in ocr_result.structured_data.items():
+                    if value and key != "raw_response":
+                        response += f"• {key}: {value}\n"
+                
+                response += "\n"
+            
+            # Показываем первые 500 символов текста
+            text_preview = ocr_result.text[:500]
+            if len(ocr_result.text) > 500:
+                text_preview += "..."
+            
+            response += f"**Распознанный текст:**\n```\n{text_preview}\n```\n\n"
+            
+            # Подсказки по использованию
+            response += "💡 **Что дальше?**\n"
+            response += "• Скопируйте текст для использования\n"
+            response += "• Задайте вопрос по документу\n"
+            response += "• Попросите создать документ 1С на основе данных\n"
+            
+            await message.reply(response, parse_mode=ParseMode.MARKDOWN)
+            
+            logger.info(
+                f"OCR processed for user {message.from_user.id}: "
+                f"{len(ocr_result.text)} chars, confidence: {ocr_result.confidence:.2f}"
+            )
+            
+        finally:
+            # Удаляем временный файл
+            try:
+                os.unlink(tmp_path)
+            except Exception as e:
+                logger.warning(f"Failed to delete temp file: {e}")
+        
+    except Exception as e:
+        logger.error(f"OCR handling error: {e}")
+        await message.reply(
+            "❌ Ошибка обработки изображения\n\n"
+            "Попробуйте:\n"
+            "• Отправить фото еще раз\n"
+            "• Использовать другой формат (JPG, PNG)\n"
+            "• Написать текстом или /help",
+            parse_mode=ParseMode.MARKDOWN
+        )
+
+
 @router.message(F.document)
 async def handle_document(message: Message):
-    """Обработка файлов (.bsl, .os)"""
+    """Обработка файлов (.bsl, .os, .pdf)"""
     
     # Rate limiting
     if not await check_rate_limit(message):
@@ -356,23 +475,70 @@ async def handle_document(message: Message):
     
     document = message.document
     
-    # Проверка расширения
+    # Проверка: PDF для OCR или BSL для анализа
+    if document.file_name.endswith(('.pdf', '.png', '.jpg', '.jpeg')):
+        # OCR обработка
+        await message.answer("📄 Распознаю документ через OCR...")
+        
+        try:
+            ocr_service = get_ocr_service()
+            
+            # Скачиваем файл
+            doc_file = await message.bot.get_file(document.file_id)
+            
+            with tempfile.NamedTemporaryFile(
+                delete=False,
+                suffix=Path(document.file_name).suffix
+            ) as tmp_file:
+                await message.bot.download_file(doc_file.file_path, tmp_file)
+                tmp_path = tmp_file.name
+            
+            try:
+                # OCR
+                ocr_result = await ocr_service.process_image(tmp_path)
+                
+                # Аналогично обработке фото
+                response = f"✅ **Файл распознан: {document.file_name}**\n\n"
+                response += f"📊 Уверенность: {ocr_result.confidence*100:.1f}%\n"
+                response += f"📝 Символов: {len(ocr_result.text)}\n\n"
+                
+                text_preview = ocr_result.text[:500]
+                if len(ocr_result.text) > 500:
+                    text_preview += "..."
+                
+                response += f"**Текст:**\n```\n{text_preview}\n```"
+                
+                await message.reply(response, parse_mode=ParseMode.MARKDOWN)
+                
+            finally:
+                os.unlink(tmp_path)
+        
+        except Exception as e:
+            logger.error(f"OCR document error: {e}")
+            await message.reply(
+                "❌ Ошибка обработки документа\n\n"
+                "Попробуйте другой файл или формат",
+                parse_mode=ParseMode.MARKDOWN
+            )
+        
+        return
+    
+    # BSL файлы
     if not document.file_name.endswith(('.bsl', '.os', '.txt')):
         await message.reply(
-            "❌ Поддерживаются только файлы: .bsl, .os, .txt"
+            "❌ Поддерживаются файлы:\n"
+            "• .bsl, .os, .txt - для анализа кода\n"
+            "• .pdf, .jpg, .png - для OCR распознавания"
         )
         return
     
-    await message.answer("📄 Анализирую файл...")
+    await message.answer("📄 Анализирую BSL код...")
     
     try:
         # TODO: Скачать файл и проанализировать
-        # file = await message.bot.download(document)
-        # code = file.read().decode('utf-8')
-        
         await message.reply(
             "✅ Файл получен!\n\n"
-            "🚧 Анализ файлов в разработке...\n"
+            "🚧 Анализ BSL файлов в разработке...\n"
             "Скоро будет доступно: code review, поиск проблем, рефакторинг",
             parse_mode=ParseMode.MARKDOWN
         )
