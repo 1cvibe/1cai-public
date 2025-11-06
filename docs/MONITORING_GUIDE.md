@@ -448,8 +448,9 @@ docker run -d --name datadog \
 См. [monitoring/grafana/dashboards/](../monitoring/grafana/dashboards/)
 
 - `system_overview.json` - главный dashboard
-- `ai_agents.json` - AI performance
-- `database.json` - DB metrics
+- `business_metrics.json` - бизнес метрики
+- `celery_monitoring.json` - очереди задач
+- `system_monitoring.json` - мониторинг системы
 
 ---
 

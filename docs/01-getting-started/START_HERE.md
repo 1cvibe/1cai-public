@@ -69,13 +69,13 @@ notepad .env
 # У вас уже есть данные в knowledge_base/*.json
 
 # Шаг 1: JSON → PostgreSQL
-python migrate_json_to_postgres.py
+python scripts/migrations/migrate_json_to_postgres.py
 
 # Шаг 2: PostgreSQL → Neo4j
-python migrate_postgres_to_neo4j.py
+python scripts/migrations/migrate_postgres_to_neo4j.py
 
 # Шаг 3: Векторизация в Qdrant
-python migrate_to_qdrant.py
+python scripts/migrations/migrate_to_qdrant.py
 ```
 
 ### 5. Загрузить AI модель

@@ -67,8 +67,11 @@ docker-compose up -d
 
 ### 2. Run Backend:
 ```bash
-cd code/py_server
-python mcp_server.py
+# Вариант 1: MCP Server (для Claude Desktop)
+python src/ai/mcp_server.py
+
+# Вариант 2: FastAPI Server (REST API)
+python src/main.py
 ```
 
 ### 3. Code Execution (NEW!):
