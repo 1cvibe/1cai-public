@@ -1,5 +1,8 @@
 # Enterprise 1C AI Development Stack
 # Python Dependencies
+# 
+# Python Version Required: 3.11+
+# Install: pip install -r requirements.txt
 
 # Core
 python-dotenv==1.0.0
@@ -31,9 +34,10 @@ beautifulsoup4==4.12.2
 transformers>=4.36.0  # For DeepSeek-OCR, Qwen-Coder models
 torch>=2.1.0  # PyTorch для AI моделей
 accelerate>=0.25.0  # Для оптимизации загрузки моделей
-# openai==1.3.7  # Optional
-# langchain==0.1.0  # Optional
-# langchain-openai==0.0.2  # Optional
+sentence-transformers>=2.2.2  # For embeddings (required for semantic search)
+openai>=1.3.0  # OpenAI API (required for GPT-4, Whisper)
+# langchain>=0.1.0  # Optional - for AI orchestration
+# langchain-openai>=0.0.2  # Optional - for LangChain + OpenAI
 
 # OCR (implemented)
 # DeepSeek-OCR используется через transformers (см. выше)
