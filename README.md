@@ -208,7 +208,7 @@ python src/telegram/bot_minimal.py
 
 **Готово!** Бот работает в Telegram.
 
-[Полная инструкция →](TELEGRAM_SETUP.md)
+[Полная инструкция →](docs/01-getting-started/telegram-setup.md)
 
 ---
 
@@ -569,7 +569,7 @@ kubectl apply -f k8s/
 python src/telegram/bot_minimal.py
 ```
 
-**Подробнее:** [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md)
+**Подробнее:** [DEPLOYMENT_INSTRUCTIONS.md](docs/01-getting-started/DEPLOYMENT_INSTRUCTIONS.md)
 
 ---
 
