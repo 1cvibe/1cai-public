@@ -8,6 +8,14 @@ __pycache__/
 env/
 venv/
 ENV/
+
+# Secrets and keys
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets/
 build/
 develop-eggs/
 dist/
