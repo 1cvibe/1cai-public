@@ -550,39 +550,6 @@ Contributions приветствуются!
 
 ---
 
-## 📖 Roadmap
-
-### ✅ Реализовано (2024):
-
-- ✅ Telegram Bot с AI
-- ✅ MCP Server (Cursor/VSCode)
-- ✅ EDT Plugin (базовый)
-- ✅ Voice Queries (Speech-to-Text)
-- ✅ Multi-language (RU + EN)
-- ✅ Marketplace API
-- ✅ OCR Integration (Chandra)
-- ✅ 8 AI Agents
-- ✅ Full infrastructure (Docker, K8s, CI/CD)
-- ✅ Enterprise security (OAuth2, RBAC, Audit)
-
-### 🎯 Q1 2025:
-
-- [ ] Public Launch (1000+ users)
-- [ ] BSL Fine-tuned model
-- [ ] EDT Plugin full release
-- [ ] Beta testing всех features
-
-### 🚀 Q2-Q3 2025:
-
-- [ ] 5,000+ users
-- [ ] International expansion
-- [ ] Enterprise clients
-- [ ] Plugin marketplace активность
-
-[Полный Roadmap →](ROADMAP.md)
-
----
-
 ## 🌟 Highlights
 
 ### Что делает этот проект особенным:
