@@ -81,6 +81,13 @@ RESUME_*.md
 *RESUME*.md
 RESUME_IT_DIRECTOR.md
 
+# Temporary session reports (not for publication)
+ГОТОВО_*.md
+ИНСТРУКЦИЯ_*.md
+АРХИТЕКТУРА_*.md
+ПРОЕКТ_*.md
+READY_FOR_GITHUB.txt
+
 # Archive and backups
 archive/
 archive_*/
