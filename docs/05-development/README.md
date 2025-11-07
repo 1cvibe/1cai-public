@@ -73,6 +73,13 @@ python scripts/manage_roles.py grant-permission user-1 marketplace:approve
 - Записи сохраняются в таблицах `user_roles` и `user_permissions`
 - Для REST-управления используйте endpoints `/admin/users/{user_id}/roles` и `/permissions` (требуется роль `admin`)
 
+### CI Pipeline
+
+- Workflow `.github/workflows/comprehensive-testing.yml` выполняет `python scripts/run_migrations.py` перед интеграционными тестами (использует сервисный PostgreSQL/Redis).
+- Для корректного прогона локальных интеграционных тестов задайте `TEST_DATABASE_URL` и запустите `python scripts/run_migrations.py` вручную.
+
+CI: Do  run run migrations? Wait already there. Need to insert new note earlier near audit? we changed line but feed else. Maybe better to add new section below.
+
 ## 🔑 Аутентификация (JWT)
 
 Используйте Bearer токены для защищённых endpoints:
