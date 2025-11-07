@@ -64,6 +64,9 @@ docker-compose up -d
 
 # Check status
 docker-compose ps
+
+# Apply database migrations (one time)
+docker-compose run --rm migrations
 ```
 
 You should see:

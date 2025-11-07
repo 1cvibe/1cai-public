@@ -154,6 +154,9 @@ cp env.example .env
 docker-compose -f docker-compose.yml \
                -f docker-compose.stage1.yml up -d
 
+# Шаг 3.1: Применить миграции (один раз)
+docker-compose run --rm migrations
+
 # Шаг 4: Дождаться инициализации (~2-3 минуты)
 docker-compose logs -f
 

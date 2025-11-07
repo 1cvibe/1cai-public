@@ -29,6 +29,9 @@ cd "C:\Users\chg\Downloads\package (1)"
 # Запускаем базы данных через Docker
 docker-compose up -d postgres redis
 
+# Однократно применяем миграции (если запускаете backend)
+docker-compose run --rm migrations
+
 # Проверяем, что запустились
 docker-compose ps
 ```

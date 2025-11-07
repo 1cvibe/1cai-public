@@ -31,6 +31,8 @@ version: '3.8'
 #   docker-compose -f docker-compose.yml -f docker-compose.stage1.yml up -d \
 #     postgres redis neo4j qdrant ollama
 #
+# 💡 После первого запуска выполните `docker-compose run --rm migrations`
+#
 # ═══════════════════════════════════════════════════════════════════════════
 
 services:
