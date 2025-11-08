@@ -13,7 +13,7 @@ import jwt
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.security.audit import AuditLogger, get_audit_logger
 from src.security.roles import enrich_user_from_db
@@ -26,15 +26,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token", auto_error=False)
 class AuthSettings(BaseSettings):
     """Authentication configuration (loaded from environment variables)."""
 
-    jwt_secret: str = Field(default="CHANGE_ME", env="JWT_SECRET")
-    jwt_algorithm: str = Field(default="HS256", env="JWT_ALGORITHM")
-    access_token_expire_minutes: int = Field(default=60, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
-    demo_users: Optional[str] = Field(default=None, env="AUTH_DEMO_USERS")
-    service_tokens: Optional[str] = Field(default=None, env="SERVICE_API_TOKENS")
+    jwt_secret: str = Field(default="CHANGE_ME")
+    jwt_algorithm: str = Field(default="HS256")
+    access_token_expire_minutes: int = Field(default=60)
+    demo_users: Optional[str] = Field(default=None)
+    service_tokens: Optional[str] = Field(default=None)
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 class TokenResponse(BaseModel):
