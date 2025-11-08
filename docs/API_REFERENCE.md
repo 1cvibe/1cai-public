@@ -304,6 +304,39 @@ List available plugins. Cached в Redis на 5 минут для повышен�
 **Errors:**
 - `404` — плагин не найден.
 
+### POST /api/marketplace/plugins/{plugin_id}/artifact
+
+Загружает ZIP-артефакт плагина в S3/MinIO и привязывает его к записи marketplace. Доступно автору плагина и администраторам.
+
+**Request:**
+- `Content-Type: multipart/form-data`
+- Form field `file` — архив, максимум `MARKETPLACE_MAX_ARTIFACT_SIZE_MB` мегабайт (по умолчанию 25 MB).
+
+```bash
+curl -X POST http://localhost:8000/marketplace/plugins/sql-optimizer-v2/artifact \
+  -H "Authorization: Bearer <JWT>" \
+  -F "file=@dist/sql-optimizer-v2.zip"
+```
+
+**Response:**
+```json
+{
+  "id": "sql-optimizer-v2",
+  "name": "SQL Optimizer v2",
+  "artifact_path": "marketplace/sql-optimizer-v2/8b2c.../sql-optimizer-v2.zip",
+  "download_url": "/marketplace/plugins/sql-optimizer-v2/download",
+  "updated_at": "2025-11-08T21:10:33.512Z",
+  "status": "pending"
+}
+```
+
+**Errors:**
+- `400` — файл пустой.
+- `403` — нет прав на обновление плагина.
+- `404` — плагин не найден.
+- `413` — файл превышает допустимый размер.
+- `503` — объектное хранилище не настроено.
+
 ### GET /api/marketplace/trending
 
 Возвращает трендовые плагины. Данные кэшируются в Redis и пересчитываются планировщиком раз в 5 минут (настраивается переменной `MARKETPLACE_CACHE_REFRESH_MINUTES`).

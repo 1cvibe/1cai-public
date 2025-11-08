@@ -78,10 +78,14 @@ async def lifespan(app: FastAPI):
     app.state.redis = redis_client
     logger.info("✅ Redis client connected")
 
+    bucket = os.getenv("AWS_S3_BUCKET") or os.getenv("MINIO_DEFAULT_BUCKET", "")
     storage_config = {
-        "bucket": os.getenv("AWS_S3_BUCKET", ""),
+        "bucket": bucket,
         "region": os.getenv("AWS_S3_REGION", ""),
-        "endpoint": os.getenv("AWS_S3_ENDPOINT"),
+        "endpoint": os.getenv("AWS_S3_ENDPOINT") or os.getenv("MINIO_ENDPOINT"),
+        "access_key": os.getenv("AWS_ACCESS_KEY_ID") or os.getenv("MINIO_ROOT_USER"),
+        "secret_key": os.getenv("AWS_SECRET_ACCESS_KEY") or os.getenv("MINIO_ROOT_PASSWORD"),
+        "create_bucket": os.getenv("AWS_S3_CREATE_BUCKET", "true").lower() not in {"0", "false", "no"},
     }
 
     marketplace_repo = MarketplaceRepository(

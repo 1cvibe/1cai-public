@@ -8,6 +8,7 @@ Production readiness improvements:
 """
 
 import logging
+import os
 import uuid
 from typing import Dict, List, Optional, Any
 from datetime import datetime
@@ -23,6 +24,8 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/marketplace", tags=["marketplace"])
 audit_logger = get_audit_logger()
+
+MAX_ARTIFACT_SIZE_BYTES = int(os.getenv("MARKETPLACE_MAX_ARTIFACT_SIZE_MB", "25")) * 1024 * 1024
 
 
 def get_marketplace_repository(request: Request) -> MarketplaceRepository:
@@ -364,6 +367,77 @@ async def update_plugin(
         action="marketplace.plugin.update",
         target=plugin_id,
         metadata={"fields": list(update_data.keys())},
+    )
+
+    return PluginResponse(**updated)
+
+
+@router.post("/plugins/{plugin_id}/artifact", response_model=PluginResponse, status_code=201)
+async def upload_plugin_artifact(
+    plugin_id: str,
+    file: UploadFile = File(...),
+    current_user: CurrentUser = Depends(get_current_user),
+    repo: MarketplaceRepository = Depends(get_marketplace_repository),
+):
+    """
+    Загрузка артефакта плагина в S3/MinIO хранилище.
+
+    Требуется автор (или администратор).
+    """
+
+    plugin = await repo.get_plugin(plugin_id)
+    if not plugin:
+        raise HTTPException(status_code=404, detail="Plugin not found")
+
+    if not _check_authorization(current_user, plugin):
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to update this plugin",
+        )
+
+    data = await file.read()
+    try:
+        await file.close()
+    except Exception:  # pragma: no cover - best effort
+        pass
+
+    if not data:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty")
+    if len(data) > MAX_ARTIFACT_SIZE_BYTES:
+        max_mb = MAX_ARTIFACT_SIZE_BYTES // (1024 * 1024)
+        raise HTTPException(
+            status_code=413,
+            detail=f"Artifact exceeds maximum size of {max_mb} MB",
+        )
+
+    try:
+        updated = await repo.store_artifact(
+            plugin_id=plugin_id,
+            data=data,
+            filename=file.filename or f"{plugin_id}.zip",
+            content_type=file.content_type,
+        )
+    except RuntimeError as exc:
+        logger.error("Artifact upload failed for %s: %s", plugin_id, exc)
+        raise HTTPException(
+            status_code=503,
+            detail="Object storage is not configured or unavailable",
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:  # pragma: no cover - unexpected
+        logger.exception("Unexpected error while uploading artifact for %s", plugin_id)
+        raise HTTPException(status_code=500, detail="Failed to store artifact") from exc
+
+    audit_logger.log_action(
+        actor=current_user.user_id,
+        action="marketplace.plugin.artifact.upload",
+        target=plugin_id,
+        metadata={
+            "filename": file.filename,
+            "content_type": file.content_type,
+            "size": len(data),
+        },
     )
 
     return PluginResponse(**updated)

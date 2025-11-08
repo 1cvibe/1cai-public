@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import json
 import os
+import asyncio
 from datetime import datetime
+import re
+import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
@@ -44,7 +47,16 @@ class MarketplaceRepository:
         self.pool = pool
         self.cache = cache
         self.storage_config = storage_config or {}
+        if "create_bucket" not in self.storage_config:
+            self.storage_config["create_bucket"] = True
+        elif not isinstance(self.storage_config["create_bucket"], bool):
+            self.storage_config["create_bucket"] = str(self.storage_config["create_bucket"]).lower() not in {
+                "false",
+                "0",
+                "no",
+            }
         self._s3_client = None
+        self._bucket_verified = False
 
     async def init(self) -> None:
         if asyncpg is None:
@@ -227,6 +239,63 @@ class MarketplaceRepository:
         async with self.pool.acquire() as conn:
             record = await conn.fetchrow(query, *values)
         await self._invalidate_caches()
+        return self._record_to_plugin(record)
+
+    async def store_artifact(
+        self,
+        plugin_id: str,
+        data: bytes,
+        filename: str,
+        content_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        if not data:
+            raise ValueError("Artifact data is empty")
+        if not self._s3_available:
+            raise RuntimeError("Object storage is not configured for marketplace artifacts")
+
+        await self._ensure_bucket()
+
+        object_key = self._build_object_key(plugin_id, filename)
+
+        loop = asyncio.get_running_loop()
+
+        def _upload() -> None:
+            client = self._get_s3_client()
+            if client is None:
+                raise RuntimeError("S3 client is not available")
+            put_kwargs: Dict[str, Any] = {
+                "Bucket": self.storage_config["bucket"],
+                "Key": object_key,
+                "Body": data,
+            }
+            if content_type:
+                put_kwargs["ContentType"] = content_type
+            client.put_object(**put_kwargs)
+
+        try:
+            await loop.run_in_executor(None, _upload)
+        except (BotoCoreError, ClientError) as exc:
+            raise RuntimeError(f"Failed to upload artifact: {exc}") from exc
+
+        async with self.pool.acquire() as conn:
+            record = await conn.fetchrow(
+                """
+                UPDATE marketplace_plugins
+                SET artifact_path = $2,
+                    download_url = $3,
+                    updated_at = NOW()
+                WHERE plugin_id = $1
+                RETURNING *
+                """,
+                plugin_id,
+                object_key,
+                f"/marketplace/plugins/{plugin_id}/download",
+            )
+
+        if not record:
+            raise ValueError("Plugin not found")
+
+        await self._invalidate_caches(plugin_id)
         return self._record_to_plugin(record)
 
     async def get_plugin(self, plugin_id: str) -> Optional[Dict[str, Any]]:
@@ -786,17 +855,65 @@ class MarketplaceRepository:
     @property
     def _s3_available(self) -> bool:
         has_bucket = bool(self.storage_config.get("bucket"))
-        return has_bucket and (boto3 is not None or self._s3_client is not None)
+        has_credentials = bool(
+            self.storage_config.get("access_key")
+            or os.getenv("AWS_ACCESS_KEY_ID")
+        ) and bool(
+            self.storage_config.get("secret_key")
+            or os.getenv("AWS_SECRET_ACCESS_KEY")
+        )
+        return has_bucket and has_credentials and (boto3 is not None or self._s3_client is not None)
 
     def _get_s3_client(self):
         if not self._s3_available:
             return None
         if self._s3_client is None:
+            access_key = self.storage_config.get("access_key") or os.getenv("AWS_ACCESS_KEY_ID")
+            secret_key = self.storage_config.get("secret_key") or os.getenv("AWS_SECRET_ACCESS_KEY")
             session = boto3.session.Session(
-                aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-                region_name=self.storage_config.get("region"),
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+                region_name=self.storage_config.get("region") or None,
             )
-            endpoint_url = self.storage_config.get("endpoint")
+            endpoint_url = self.storage_config.get("endpoint") or None
             self._s3_client = session.client("s3", endpoint_url=endpoint_url)
         return self._s3_client
+
+    async def _ensure_bucket(self) -> None:
+        if self._bucket_verified:
+            return
+        bucket = self.storage_config.get("bucket")
+        if not bucket:
+            raise RuntimeError("S3 bucket is not configured")
+
+        def _check_or_create() -> None:
+            client = self._get_s3_client()
+            if client is None:
+                raise RuntimeError("S3 client is not available")
+            try:
+                client.head_bucket(Bucket=bucket)
+                return
+            except ClientError as exc:
+                error_code = exc.response.get("Error", {}).get("Code")
+                if error_code not in {"404", "NoSuchBucket", "NotFound"}:
+                    raise
+            if not self.storage_config.get("create_bucket", True):
+                raise RuntimeError(f"S3 bucket '{bucket}' does not exist and auto-creation is disabled")
+            create_kwargs: Dict[str, Any] = {"Bucket": bucket}
+            region = self.storage_config.get("region")
+            if region and region not in {"", "us-east-1"}:
+                create_kwargs["CreateBucketConfiguration"] = {"LocationConstraint": region}
+            client.create_bucket(**create_kwargs)
+
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(None, _check_or_create)
+        except (BotoCoreError, ClientError) as exc:
+            raise RuntimeError(f"Failed to ensure bucket '{bucket}': {exc}") from exc
+
+        self._bucket_verified = True
+
+    def _build_object_key(self, plugin_id: str, filename: str) -> str:
+        safe_name = re.sub(r"[^A-Za-z0-9_.-]", "-", filename or "artifact.zip")
+        safe_name = safe_name.strip("-") or "artifact.zip"
+        return f"marketplace/{plugin_id}/{uuid.uuid4().hex}/{safe_name}"
