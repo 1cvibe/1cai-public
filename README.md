@@ -13,11 +13,11 @@
 ## 🆕 Что нового
 
 ### 🔄 ITS Documentation Scraper (Nov 9, 2025)
-- Добавлен модуль `integrations/its_scraper` с асинхронным скрейпером 1С:ИТС (ретраи, адаптивный rate-limit, slug по canonical)
-- CLI `python -m integrations.its_scraper scrape …` и Make-таргет `make scrape-its` (поддержка `ITS_CONCURRENCY`, `ITS_SLEEP`, `ITS_PROXY`, `ITS_USER_AGENT_FILE`, stream-режим)
-- Расширенные метаданные (`content_hash`, `word_count`, `excerpt`, `previous_version`), версионирование `versions/<timestamp>/`, Prometheus-метрики и юнит-тесты
-- Документация: [`docs/03-integrations/ITS_SCRAPER.md`](docs/03-integrations/ITS_SCRAPER.md)
-- Источник: [hawkxtreme/scraping_its](https://github.com/hawkxtreme/scraping_its) — спасибо автору за базу для интеграции
+- Построен модуль `integrations/its_scraper`: асинхронный сбор статей ИТС (ретраи, адаптивный rate-limit, прокси, user-agent rotation, Prometheus-метрики, stream JSONL)
+- Версионирование артефактов (`versions/<ts>/`), расширенные метаданные (`content_hash`, `word_count`, `excerpt`, `previous_version`)
+- CLI `python -m integrations.its_scraper scrape …`, Make-таргет `make scrape-its` (переменные `ITS_CONCURRENCY`, `ITS_SLEEP`, `ITS_PROXY`, `ITS_USER_AGENT_FILE`)
+- Поддержка plug-in writers (stdout JSONL, S3/MinIO), документация: [`docs/03-integrations/ITS_SCRAPER.md`](docs/03-integrations/ITS_SCRAPER.md)
+- Источник: [hawkxtreme/scraping_its](https://github.com/hawkxtreme/scraping_its) — благодарим автора проекта за основу
 
 ### 🛡️ Security Agent Framework (Nov 9, 2025)
 - Опубликован модуль `security/agent_framework` с CLI для запуска сценариев проверки безопасности (BSL, REST, n8n, статический анализ репозитория)
