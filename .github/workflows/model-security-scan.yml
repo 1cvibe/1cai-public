@@ -50,7 +50,7 @@ jobs:
             echo "Found models directory"
             
             # Сканируем каждую модель
-            find models -type f \( -name "*.pt" -o -name "*.pth" -o -name "*.bin" -o -name "*.safetensors" \) | while read model_file; do
+            find models -type f \( -name "*.pt" -o -name "*.pth" -o -name "*.bin" -o -name "*.safetensors" \) | while IFS= read -r model_file; do
               echo "Scanning: $model_file"
               
               # Запускаем modelscan
@@ -77,7 +77,7 @@ jobs:
             echo "Found HuggingFace cache: $HF_CACHE"
             
             # Сканируем модели из кеша
-            find "$HF_CACHE" -type f \( -name "*.safetensors" -o -name "*.bin" \) | head -n 10 | while read model_file; do
+            find "$HF_CACHE" -type f \( -name "*.safetensors" -o -name "*.bin" \) | head -n 10 | while IFS= read -r model_file; do
               echo "Scanning cached model: $model_file"
               
               modelscan -p "$model_file" || {
@@ -279,6 +279,7 @@ jobs:
           else
             echo "⚠️ Consider adding monitoring for model behavior"
           fi
+
 
 
 
