@@ -19,6 +19,11 @@
 - Поддержка plug-in writers (stdout JSONL, S3/MinIO), документация: [`docs/03-integrations/ITS_SCRAPER.md`](docs/03-integrations/ITS_SCRAPER.md)
 - Источник: [hawkxtreme/scraping_its](https://github.com/hawkxtreme/scraping_its) — благодарим автора проекта за основу
 
+### 🧭 Архитектурные артефакты (Nov 9, 2025)
+- Добавлен раздел `docs/architecture/`: High Level Design, инструкции по обновлению, complete UML (system-context, components, data-flow, deployment, ITS Scraper sequence)
+- Архитектура покрывает API, воркеры, ML, интеграции, хранилища, observability, security; есть checklist для актуализации
+- UML диаграммы доступны в `docs/architecture/uml/` (формат PlantUML)
+
 ### 🛡️ Security Agent Framework (Nov 9, 2025)
 - Опубликован модуль `security/agent_framework` с CLI для запуска сценариев проверки безопасности (BSL, REST, n8n, статический анализ репозитория)
 - Добавлены готовые пресеты (`presets/*.yaml`), примеры конфигураций и интеграции (Neo4j, knowledge base)
