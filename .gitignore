@@ -275,3 +275,6 @@ COMPREHENSIVE_AUDIT_FINAL.txt
 SECURITY_AUDIT_REPORT.txt
 README_CODE_VERIFICATION.txt
 tools/plantuml-*.jar
+
+# Metrics artifacts
+output/metrics/

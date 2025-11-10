@@ -51,5 +51,18 @@
     - Новый документ: `docs/research/github_monitoring_plan.md`.  
     - План дополнен автоматическим workflow `github-monitor.yml`.
 
-13. **Обновлён мастер-лист TODO**  
+13. **Release automation**  
+    - Скрипт `scripts/release/create_release.py`, make-таргеты `release-*`, workflow `release.yml`.  
+    - Новый плейбук: `docs/research/release_playbook.md`.  
+    - Обновлён `RELEASE_NOTES.md`.
+
+14. **Secret scanning & Security**  
+    - Workflow `secret-scan.yml` (Gitleaks) добавлен в CI.  
+    - Конституция будет расширена пунктами по least privilege.
+
+15. **DORA metrics**  
+    - Скрипт `scripts/metrics/collect_dora.py` + workflow `dora-metrics.yml` (еженедельно).  
+    - Отчёты сохраняются в `output/metrics/`.
+
+16. **Обновлён мастер-лист TODO**  
     - `docs/research/alkoleft_todo.md` теперь с приоритетами и ссылками на соответствующие планы.

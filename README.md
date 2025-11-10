@@ -78,6 +78,8 @@
 - **MCP инструменты**: поиск метаданных, генерация кода, запуск тестов.
 - **Automation scripts**: `scripts/context/export_platform_context.py`, `scripts/context/generate_docs.py`, `scripts/docs/create_adr.py`.
 - **Monitoring automation**: `scripts/monitoring/github_monitor.py` + workflow `github-monitor.yml` — ежедневный snapshot зависимостей.
+- **Release automation**: `scripts/release/create_release.py`, make `release-*`, workflow `release.yml` — генерация заметок, тегов, публикация релизов.
+- **Quality metrics**: `scripts/metrics/collect_dora.py`, workflow `dora-metrics.yml` — еженедельные DORA-показатели.
 
 ---
 
@@ -115,7 +117,7 @@
   - [`docs/06-features/EDT_PARSER_GUIDE.md`](docs/06-features/EDT_PARSER_GUIDE.md) — разбор EDT XML, метрики и сценарии анализа.
   - [`docs/06-features/ML_DATASET_GENERATOR_GUIDE.md`](docs/06-features/ML_DATASET_GENERATOR_GUIDE.md) — подготовка ML датасетов и пайплайн обучения.
 - **Operations & Tooling**
-  - [`docs/scripts/README.md`](docs/scripts/README.md) — карта CLI/скриптов, spec-driven workflow, Windows альтернативы.
+  - [`docs/scripts/README.md`](docs/scripts/README.md) — карта CLI/скриптов, spec-driven workflow, Windows альтернативы, release tooling.
 - **Architecture**
   - [`docs/architecture/README.md`](docs/architecture/README.md) — обзор C4, операции и ссылки на ADR.
   - [`docs/architecture/adr/`](docs/architecture/adr/) — реестр решений, статусы и история изменений.
@@ -129,6 +131,7 @@
   - [`docs/research/alkoleft_todo.md`](docs/research/alkoleft_todo.md) — интеграция экосистемы @alkoleft с приоритетами.
   - [`docs/research/github_monitoring_plan.md`](docs/research/github_monitoring_plan.md) — мониторинг внешних репозиториев и уведомления.
   - [`docs/research/archive_tools_assessment.md`](docs/research/archive_tools_assessment.md) — анализ архивных утилит и кандидаты для CLI.
+  - [`docs/research/release_playbook.md`](docs/research/release_playbook.md) — процесс выпуска, теги, GitHub Release.
 
 ---
 

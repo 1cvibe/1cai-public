@@ -1,7 +1,7 @@
 # Makefile for Enterprise 1C AI Development Stack
 # Quick commands for common tasks
 
-.PHONY: help install test docker-up docker-down migrate clean train-ml eval-ml train-ml-demo eval-ml-demo scrape-its render-uml render-uml-svg adr-new test-bsl export-context generate-docs bsl-ls-up bsl-ls-down bsl-ls-logs feature-init feature-validate
+.PHONY: help install test docker-up docker-down migrate clean train-ml eval-ml train-ml-demo eval-ml-demo scrape-its render-uml render-uml-svg adr-new test-bsl export-context generate-docs bsl-ls-up bsl-ls-down bsl-ls-logs feature-init feature-validate release-notes release-tag release-push
 
 CONFIG ?= ERPCPM
 EPOCHS ?=
@@ -79,6 +79,9 @@ help:
 	@echo "  make adr-new SLUG=... - Create a new Architecture Decision Record"
 	@echo "  make feature-init FEATURE=slug - Create spec-driven feature scaffold"
 	@echo "  make feature-validate [FEATURE=slug] - Validate filled spec-driven documents"
+	@echo "  make release-notes VERSION=vX.Y.Z - Generate release notes"
+	@echo "  make release-tag VERSION=vX.Y.Z   - Generate notes and create tag"
+	@echo "  make release-push VERSION=vX.Y.Z  - Generate notes, tag and push"
 	@echo "  make test-bsl         - Run BSL/YAxUnit test suites (see tests/bsl/testplan.json)"
 feature-init:
 ifndef FEATURE
@@ -92,6 +95,18 @@ ifdef FEATURE
 else
 	python scripts/research/check_feature.py
 endif
+
+release-notes:
+ifndef VERSION
+	$(error VERSION is required, e.g. make release-notes VERSION=v5.2.0)
+endif
+	python scripts/release/create_release.py --version $(VERSION)
+
+release-tag: release-notes
+	python scripts/release/create_release.py --version $(VERSION) --tag
+
+release-push: release-notes
+	python scripts/release/create_release.py --version $(VERSION) --tag --push
 	@echo "  make export-context   - Export platform context via platform-context-exporter (see ADR-0005)"
 	@echo "  make generate-docs    - Generate documentation via ones_doc_gen (see ADR-0005)"
 

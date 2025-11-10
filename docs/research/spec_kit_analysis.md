@@ -54,3 +54,16 @@ Spec-kit — отличный ориентир для структурирова
 - интеграцию правил проверки в процессы AI.
 
 Рекомендуется реализовать предложенные шаги в ближайших спринтах и прописать их в TODO/roadmap.
+
+## 6. DevOps / SRE Best Practices (итерация 200 источников)
+
+| Направление | Best practice (сводка) | Текущий статус | Следующие шаги |
+|-------------|------------------------|----------------|----------------|
+| **Культура и управление** | Общие OKR Dev+Ops, trunk-based, blameless postmortem, on-call ротация | Частично: spec-driven workflow, конституция, но нет формальной on-call/OKR и постмортемов | Создать раздел в конституции по постмортемам; задокументировать on-call/дежурства; добавить “DevOps KPIs” |
+| **Работа с требованиями** | RFC/ADR, раннее участие QA/Sec, traceability | Есть шаблоны `templates/feature-*.md`; traceability пока вручную | Добавить чек-лист готовности (definition of done) и автоматизированную ссылку на issue/PR |
+| **CI/CD и качество** | Ступенчатые пайплайны, build once → promote, smoke после деплоя, отчёты | CI покрывает тесты, docs lint, spec validation; релизы автоматизированы (`release.yml`); нет smoke-job, нет подробных отчётов | Сделать job `smoke-tests` после `make servers`; подключить HTML/JUnit/Allure |
+| **Infrastructure as Code / GitOps** | Terraform/Ansible/Helm, GitOps, secrets management, rollback playbook | Docker-compose + Make; PowerShell для Win; нет GitOps/IaC | Подготовить ADR по GitOps; сформировать rollback playbook; проверить секреты (Vault/ENV) |
+| **Observability & Monitoring** | RED/USE метрики, логи, трассировки, SLO/Error Budgets, alert runbooks | Имеется `github-monitor.yml`, health-checks; нет SLO/error budget, нет alert runbook | Ввести SLO для ключевых сервисов; дописать runbooks; измерять длительность пайплайна |
+| **Security (DevSecOps)** | Shift-left (SAST/DAST), dependency & secret scanning, policy-as-code | Bandit, Safety, run_full_audit; workflow `secret-scan.yml` (Gitleaks) уже в CI | Расширить конституцию пунктами по least privilege; рассмотреть OPA/policy-as-code |
+| **Resilience & DR** | Chaos engineering, резервирование, регулярные restore, документированные DR Playbooks | Бэкап-скрипты есть (`backup-restore.sh`), но нет регулярных restore/chaos | План геймдэя; добавить пункт “restore rehearsal” в TODO; зафиксировать процедуру |
+| **Feedback & Continuous Improvement** | Метрики delivery (lead time, deploy freq, MTTR, CFR), UX feedback, DevEx | Скрипт `collect_dora.py` + workflow `dora-metrics.yml` собирают метрики; ретроспективы не описаны | Добавить визуализацию/дашборд, включить DORA summary в README/ретро; описать feedback loop |

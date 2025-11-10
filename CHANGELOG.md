@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлены PowerShell-утилиты (`scripts/windows/*`) для bsl-language-server и spec-driven команд.
 - Workflow `github-monitor.yml` ежедневно сохраняет snapshot зависимостей; workflow `docs-lint.yml` проверяет Markdown и ссылки.
 - FAQ и `docs/06-features/TESTING_GUIDE.md` расширены разделами Troubleshooting и описанием артефактов.
+- Скрипт релиза `scripts/release/create_release.py`, make-таргеты `release-*`, workflow `release.yml` и плейбук [`docs/research/release_playbook.md`](docs/research/release_playbook.md).
+- Workflow `secret-scan.yml` (Gitleaks) для проверки утечек секретов; конституция дополнится требованиями least privilege.
+- Скрипт `scripts/metrics/collect_dora.py` и workflow `dora-metrics.yml` — автоматический сбор еженедельных DORA метрик.
 
 ---
 

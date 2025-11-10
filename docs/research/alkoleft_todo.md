@@ -8,3 +8,9 @@
   - ✅ CLI `scripts/monitoring/github_monitor.py` создаёт снимок и сравнивает релизы; далее — автоматизация (cron/CI, уведомления).
 - [ ] (Средний) Spec-driven workflow: проверки заполнения шаблонов, интеграция с CI (TODO в `docs/research/spec_kit_analysis.md`).
   - ✅ Скрипты `init_feature.py` / `check_feature.py`, make-таргеты `feature-init` / `feature-validate`, CI job `spec-driven-validation`.
+- [ ] (Средний) Release automation и репортинг
+  - ✅ `scripts/release/create_release.py`, make `release-*`, workflow `release.yml`, `docs/research/release_playbook.md`.
+- [ ] (Средний) Secret scanning и политика безопасности
+  - ✅ Workflow `secret-scan.yml` (Gitleaks); расширить конституцию пунктами по least privilege.
+- [ ] (Низкий) Сбор и публикация DORA-метрик
+  - ✅ `scripts/metrics/collect_dora.py`, workflow `dora-metrics.yml`; настроить визуализацию (следующий шаг).

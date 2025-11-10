@@ -20,6 +20,7 @@
 | Deployment & Ops | shell-скрипты в корне (`start.sh`, `monitor-deployment.sh`) + `scripts/monitoring/` | `blue-green-deploy.sh`, `schedule-traffic-switch.sh`, `health-check.sh`, `monitoring/github_monitor.py` | Управление окружениями, мониторинг деплоя и внешних зависимостей |
 | Windows Helpers | `scripts/windows/` | `bsl-ls-up.ps1`, `bsl-ls-check.ps1`, `feature-init.ps1`, `feature-validate.ps1` | Альтернатива make/dc для PowerShell пользователей |
 | Spec-driven workflow | `scripts/research/`, `templates/` | `init_feature.py`, шаблоны `feature-*.md` | Создание каркасов планов/спеков, работа по методологии |
+| Release & Metrics | `scripts/release/`, `scripts/metrics/` | `create_release.py`, `collect_dora.py` | Подготовка релизов, генерация нотесов, сбор DORA-показателей |
 | ML & Benchmarks | `scripts/dataset/`, `scripts/ml/`, `benchmark_*.py` | `create_ml_dataset.py`, `massive_ast_dataset_builder.py`, `benchmark_performance.py` | Подготовка датасетов, измерение производительности |
 
 ## 3. Зависимости и подготовка
@@ -84,7 +85,13 @@
 - `scripts/windows/feature-init.ps1`, `feature-validate.ps1` — PowerShell аналоги make-таргетов spec-driven workflow.
 - Запускаются из корня проекта: `pwsh scripts/windows/feature-init.ps1 -Feature my-feature`.
 
-### 4.8 ML и экспериментальные утилиты
+### 4.10 Release и метрики
+- `scripts/release/create_release.py` — формирует блок `RELEASE_NOTES.md`, создаёт/пушит теги (`make release-*`).
+- Workflow `.github/workflows/release.yml` публикует GitHub Release при пуше тега `v*`.
+- `scripts/metrics/collect_dora.py` — вычисляет DORA метрики (deployment frequency, lead time, CFR, MTTR) и сохраняет их в `output/metrics/`.
+- Workflow `dora-metrics.yml` выполняет скрипт еженедельно и прикладывает отчёты как артефакт.
+
+### 4.11 ML и экспериментальные утилиты
 - `dataset/create_ml_dataset.py`, `prepare_neural_training_data.py` — подготовка выборок для моделей.
 - `finetune_qwen_smoltalk.py`, `train_copilot_model.py` — эксперименты с дообучением ассистента.
 - `benchmark_performance.py`, `profile_full_parser.py` — измерение скорости анализа/парсинга.
@@ -100,6 +107,7 @@
 | `make test-bsl` | `tests/run_bsl_tests.py` | раздел 4.5 |
 | `make render-uml` | `docs/render_uml.py` | раздел 4.2 |
 | `make quality` | пакет формата/линта + `pytest` | см. `Makefile` |
+| `make release-notes/tag/push` | `scripts/release/create_release.py` | раздел 4.10 |
 
 Всегда сверяйтесь с `make help`: команды обновляются синхронно со скриптами.
 
