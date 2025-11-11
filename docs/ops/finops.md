@@ -5,8 +5,8 @@
 
 ## 2. Инструменты
 - `scripts/finops/aws_cost_report.py` — использует AWS Cost Explorer API, показывает ежедневные затраты за 7 дней.
-- `scripts/finops/aws_cost_to_slack.py` — отправляет отчёт за 3 дня в Slack (`SLACK_WEBHOOK_URL`).
-- `scripts/finops/azure_cost_to_slack.py` — аналог для Azure Cost Management (нужны `AZURE_*` переменные).
+- `scripts/finops/aws_cost_to_slack.py` — отправляет отчёт за 3 дня в Slack (`SLACK_WEBHOOK_URL`) и Teams (`TEAMS_WEBHOOK_URL`).
+- `scripts/finops/azure_cost_to_slack.py` — аналог для Azure Cost Management.
 - Workflow `.github/workflows/finops-report.yml` — ежедневная отправка отчётов AWS/Azure + проверки Budgets (если заданы `AWS_BUDGET_NAMES`).
 - Make цель `make finops-slack` — одномоментный запуск локально.
 
@@ -16,15 +16,13 @@
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
 export SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+export TEAMS_WEBHOOK_URL=https://<teams-webhook>
 python scripts/finops/aws_cost_to_slack.py
 python scripts/finops/aws_budget_check.py
 
 # Azure
-export SLACK_WEBHOOK_URL=...
-export AZURE_TENANT_ID=...
-export AZURE_CLIENT_ID=...
-export AZURE_CLIENT_SECRET=...
-export AZURE_SUBSCRIPTION_ID=...
+task requires: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_SUBSCRIPTION_ID, SLACK_WEBHOOK_URL/TEAMS_WEBHOOK_URL.
+export TEAMS_WEBHOOK_URL=...
 python scripts/finops/azure_cost_to_slack.py
 ```
 

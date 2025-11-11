@@ -110,7 +110,7 @@
   - Secrets: `scripts/secrets/aws_sync_to_vault.py`, `scripts/secrets/azure_sync_to_vault.py`, `scripts/secrets/apply_vault_csi.sh`.
   - Self-control: `scripts/checklists/preflight.sh`, make `preflight`.
 - **FinOps**
-  - Скрипты `scripts/finops/aws_cost_*`, `scripts/finops/azure_cost_to_slack.py`, `scripts/finops/aws_budget_check.py` — отчёты и Slack уведомления.
+  - Скрипты `scripts/finops/aws_cost_*`, `scripts/finops/azure_cost_to_slack.py`, `scripts/finops/aws_budget_check.py`, `scripts/finops/teams_notify.py` — отчёты, бюджеты и Slack/Teams уведомления.
   - Workflow `.github/workflows/finops-report.yml` — ежедневный отчёт.
 
 ---

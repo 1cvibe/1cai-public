@@ -34,8 +34,8 @@
   - ✅ CSI: SecretProviderClass (`infrastructure/vault/csi`), Helm интеграция (`vault.enabled`, agent sidecar), make `vault-csi-apply`, sync скрипты (`scripts/secrets/*`).
   - TODO: Vault Agent sidecar автоматические обновления, Azure Key Vault Terraform, Secret rotation alerts.
 - [ ] (Средний) FinOps
-  - ✅ Скрипты `scripts/finops/aws_cost_report.py`, `aws_cost_to_slack.py`, `aws_budget_check.py`, `azure_cost_to_slack.py`; workflow `finops-report.yml`; make `finops-slack`.
-  - TODO: Azure Budgets, Teams уведомления, дашборды Grafana.
+  - ✅ Скрипты `scripts/finops/aws_cost_report.py`, `aws_cost_to_slack.py`, `aws_budget_check.py`, `azure_cost_to_slack.py`; workflow `finops-report.yml`; make `finops-slack` (Slack/Teams).
+  - TODO: Azure Budgets (через API), Teams дашборды, Grafana визуализации.
 - [ ] (Средний) Service Mesh & Chaos
   - ✅ Istio профиль (`infrastructure/service-mesh/istio`), make `mesh-istio-apply`, документ `docs/ops/service_mesh.md`.
   - ✅ Linkerd blueprint (`infrastructure/service-mesh/linkerd`), ArgoCD application, make `linkerd-install`.

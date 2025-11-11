@@ -133,7 +133,16 @@
 - `azure_sync_to_vault.py` — синхронизация Azure Key Vault → Vault.
 - `apply_vault_csi.sh` — разворачивает SecretProviderClass и пример Deployment.
 
-### 4.18 ML и экспериментальные утилиты
+### 4.18 FinOps (`scripts/finops/`)
+- `aws_cost_report.py` — отчёт по затратам AWS (Cost Explorer).
+- `aws_cost_to_slack.py` / `azure_cost_to_slack.py` — отправка отчётов в Slack/Teams.
+- `aws_budget_check.py` — проверка Budgets.
+- `teams_notify.py` — утилита отправки произвольных сообщений в Teams.
+
+### 4.19 Checklists (`scripts/checklists/`)
+- `preflight.sh` — выполняет ключевые проверки перед деплоем (lint/test/policy/checkov) и отправляет отчет в Slack/Teams.
+
+### 4.20 ML и экспериментальные утилиты
 - `dataset/create_ml_dataset.py`, `prepare_neural_training_data.py` — подготовка выборок для моделей.
 - `finetune_qwen_smoltalk.py`, `train_copilot_model.py` — эксперименты с дообучением ассистента.
 - `benchmark_performance.py`, `profile_full_parser.py` — измерение скорости анализа/парсинга.

@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Send AWS cost report to Slack webhook."""
+"""Send AWS cost report to Slack webhook (and optionally Teams)."""
 
 from __future__ import annotations
 
 import datetime as dt
-import json
 import os
-from typing import Any, Dict
+import subprocess
+from typing import Dict
 
 import boto3
 import requests
 
 WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
+TEAMS_WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_URL")
 
 
 def fetch_costs(days: int = 3) -> Dict[str, float]:
@@ -32,20 +33,35 @@ def fetch_costs(days: int = 3) -> Dict[str, float]:
     }
 
 
-def post_to_slack(costs: Dict[str, float]) -> None:
-    if not WEBHOOK_URL:
-        raise RuntimeError("SLACK_WEBHOOK_URL is not set")
+def build_lines(costs: Dict[str, float]) -> str:
     lines = [f"• {date}: ${amount:.2f}" for date, amount in sorted(costs.items())]
-    payload = {
-        "text": "AWS Cost Report (last 3 days)\n" + "\n".join(lines)
-    }
-    resp = requests.post(WEBHOOK_URL, json=payload, timeout=10)
+    return "AWS Cost Report (last 3 days)\n" + "\n".join(lines)
+
+
+def post_to_slack(text: str) -> None:
+    if not WEBHOOK_URL:
+        return
+    resp = requests.post(WEBHOOK_URL, json={"text": text}, timeout=10)
     resp.raise_for_status()
+
+
+def post_to_teams(text: str) -> None:
+    if not TEAMS_WEBHOOK_URL:
+        return
+    subprocess.run(
+        ["python", "scripts/finops/teams_notify.py"],
+        input=text,
+        text=True,
+        check=True,
+        env={**os.environ, "TEAMS_WEBHOOK_URL": TEAMS_WEBHOOK_URL},
+    )
 
 
 def main() -> None:
     costs = fetch_costs()
-    post_to_slack(costs)
+    text = build_lines(costs)
+    post_to_slack(text)
+    post_to_teams(text)
 
 
 if __name__ == "__main__":

@@ -118,7 +118,7 @@
 
 25. **FinOps & Cost Reports**  
     - Скрипты `scripts/finops/aws_cost_to_slack.py`, `scripts/finops/azure_cost_to_slack.py`, `scripts/finops/aws_budget_check.py`, Make `finops-slack`.  
-    - Workflow `.github/workflows/finops-report.yml`.  
+    - Workflow `.github/workflows/finops-report.yml` (Slack/Teams уведомления, Budgets).  
 
 26. **Self-control checklist**  
     - Скрипт `scripts/checklists/preflight.sh` (слэк-нотификации), make `preflight`, документ `docs/ops/self_control.md`.  

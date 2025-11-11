@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Send Azure Cost Management report to Slack webhook."""
+"""Send Azure Cost Management report to Slack/Teams."""
 
 from __future__ import annotations
 
 import datetime as dt
 import os
+import subprocess
 from typing import Dict
 
 import requests
@@ -12,6 +13,7 @@ from azure.identity import ClientSecretCredential
 from azure.mgmt.costmanagement import CostManagementClient
 
 WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
+TEAMS_WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_URL")
 TENANT_ID = os.environ["AZURE_TENANT_ID"]
 CLIENT_ID = os.environ["AZURE_CLIENT_ID"]
 CLIENT_SECRET = os.environ["AZURE_CLIENT_SECRET"]
@@ -53,18 +55,35 @@ def fetch_costs(days: int = 3) -> Dict[str, float]:
     return results
 
 
-def post_to_slack(costs: Dict[str, float], provider: str) -> None:
-    if not WEBHOOK_URL:
-        raise RuntimeError("SLACK_WEBHOOK_URL is not set")
+def build_lines(costs: Dict[str, float]) -> str:
     lines = [f"• {date}: ${amount:.2f}" for date, amount in sorted(costs.items())]
-    text = f"{provider} Cost Report (last 3 days)\n" + "\n".join(lines)
+    return "Azure Cost Report (last 3 days)\n" + "\n".join(lines)
+
+
+def post_to_slack(text: str) -> None:
+    if not WEBHOOK_URL:
+        return
     resp = requests.post(WEBHOOK_URL, json={"text": text}, timeout=10)
     resp.raise_for_status()
 
 
+def post_to_teams(text: str) -> None:
+    if not TEAMS_WEBHOOK_URL:
+        return
+    subprocess.run(
+        ["python", "scripts/finops/teams_notify.py"],
+        input=text,
+        text=True,
+        check=True,
+        env={**os.environ, "TEAMS_WEBHOOK_URL": TEAMS_WEBHOOK_URL},
+    )
+
+
 def main() -> None:
     costs = fetch_costs()
-    post_to_slack(costs, "Azure")
+    text = build_lines(costs)
+    post_to_slack(text)
+    post_to_teams(text)
 
 
 if __name__ == "__main__":

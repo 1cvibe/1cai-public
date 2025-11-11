@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check AWS Budgets and send Slack alert if forecast exceeds threshold."""
+"""Check AWS Budgets and send Slack/Teams alert if forecast exceeds threshold."""
 
 from __future__ import annotations
 
@@ -9,9 +9,11 @@ from typing import Any
 
 import boto3
 import requests
+import subprocess
 
 BUDGET_NAMES = os.environ.get("AWS_BUDGET_NAMES", "").split(",")
 WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
+TEAMS_WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_URL")
 
 
 def notify(text: str) -> None:
@@ -19,6 +21,14 @@ def notify(text: str) -> None:
         return
     resp = requests.post(WEBHOOK_URL, json={"text": text}, timeout=10)
     resp.raise_for_status()
+    if TEAMS_WEBHOOK_URL:
+        subprocess.run(
+            ["python", "scripts/finops/teams_notify.py"],
+            input=text,
+            text=True,
+            check=True,
+            env={**os.environ, "TEAMS_WEBHOOK_URL": TEAMS_WEBHOOK_URL},
+        )
 
 
 def check_budget(budgets_client: Any, account_id: str, budget_name: str) -> None:
