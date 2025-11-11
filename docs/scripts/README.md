@@ -27,8 +27,9 @@
 | Security | `scripts/security/` | `run_security_scans.sh`, `run_policy_checks.sh`, `run_checkov.sh` | Запуск bandit/pip-audit/safety, Conftest/Semgrep, Checkov/Trivy |
 | GitOps | `scripts/gitops/` | `apply.sh`, `sync.sh` | Применение Argo CD manifest’ов и инициирование sync |
 | Chaos | `scripts/chaos/` | `run_litmus.sh` | Запуск Litmus pod-delete эксперимента |
-| FinOps | `scripts/finops/` | `aws_cost_report.py` | Краткий отчёт AWS Cost Explorer |
+| FinOps | `scripts/finops/` | `aws_cost_report.py`, `aws_cost_to_slack.py` | Краткий отчёт AWS Cost Explorer и отправка в Slack |
 | Checklists | `scripts/checklists/` | `preflight.sh` | Самоконтроль перед деплоем |
+| Secrets | `scripts/secrets/` | `aws_sync_to_vault.py` | Синхронизация AWS Secrets Manager → Vault |
 | Infrastructure | `infrastructure/terraform/aws-eks` | Terraform модуль EKS | Развёртывание AWS инфраструктуры |
 | Infrastructure | `infrastructure/ansible/` | `site.yml`, `hosts.ini` | Bootstrap Linux-хостов |
 
@@ -122,11 +123,15 @@
 
 ### 4.15 FinOps (`scripts/finops/`)
 - `aws_cost_report.py` — отчёт по затратам AWS (Cost Explorer).
+- `aws_cost_to_slack.py` — отправляет отчёт за 3 дня в Slack (нужно `SLACK_WEBHOOK_URL`).
 
 ### 4.16 Checklists (`scripts/checklists/`)
 - `preflight.sh` — выполняет ключевые проверки перед деплоем (lint/test/policy/checkov).
 
-### 4.17 ML и экспериментальные утилиты
+### 4.17 Secrets (`scripts/secrets/`)
+- `aws_sync_to_vault.py` — перенос Secrets Manager в Vault.
+
+### 4.18 ML и экспериментальные утилиты
 - `dataset/create_ml_dataset.py`, `prepare_neural_training_data.py` — подготовка выборок для моделей.
 - `finetune_qwen_smoltalk.py`, `train_copilot_model.py` — эксперименты с дообучением ассистента.
 - `benchmark_performance.py`, `profile_full_parser.py` — измерение скорости анализа/парсинга.
@@ -152,5 +157,6 @@
 | `make gitops-sync` | `scripts/gitops/sync.sh` | раздел 4.13 |
 | `make chaos-litmus-run` | `scripts/chaos/run_litmus.sh` | раздел 4.14 |
 | `make preflight` | `scripts/checklists/preflight.sh` | раздел 4.16 |
+| secrets sync | `scripts/secrets/aws_sync_to_vault.py` | раздел 4.17 |
 
 Всегда сверяйтесь с `

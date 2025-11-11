@@ -5,6 +5,7 @@
 
 ## 2. Инструменты
 - `scripts/finops/aws_cost_report.py` — использует AWS Cost Explorer API, показывает ежедневные затраты за 7 дней.
+- `scripts/finops/aws_cost_to_slack.py` — отправляет отчёт за 3 дня в Slack (`SLACK_WEBHOOK_URL`).
 - Планируется поддержка Azure Cost Management / GCP Billing (TODO).
 
 ## 3. Требования

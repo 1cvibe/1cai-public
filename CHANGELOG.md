@@ -55,11 +55,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлены GitOps manifests (`infrastructure/argocd`), скрипты `scripts/gitops/*`, make-цели `gitops-apply/gitops-sync`, документ [`docs/ops/gitops.md`](docs/ops/gitops.md).
 - Подготовлен анализ рынка DevOps/SRE вакансий (`docs/research/job_market_devops_analysis.md`) — приоритизация технологий (AWS, Ansible, GitOps, Service Mesh).
 - Новый Terraform модуль `infrastructure/terraform/aws-eks` (создание VPC+EKS), Ansible playbook `infrastructure/ansible` и документация (`docs/ops/ansible.md`).
-- Добавлены Istio service mesh артефакты (`infrastructure/service-mesh/istio`, документ `docs/ops/service_mesh.md`, make `mesh-istio-apply`) и Litmus chaos сценарий (`infrastructure/chaos/litmus`, скрипт `scripts/chaos/run_litmus.sh`, документ `docs/ops/chaos_engineering.md`).
-- Vault best practices: политики/скрипты (`infrastructure/vault/`), документ [`docs/ops/vault.md`](docs/ops/vault.md), правило в конституции.
-- Azure DevOps: Terraform `infrastructure/terraform/azure-aks`, pipeline `infrastructure/azure/azure-pipelines.yml`, документ [`docs/ops/azure_devops.md`](docs/ops/azure_devops.md).
-- Security расширен: Checkov/Trivy (`scripts/security/run_checkov.sh`), Jenkins/GitLab/Azure pipeline обновлены, `make preflight` + чек-лист (`scripts/checklists/preflight.sh`, `docs/ops/self_control.md`).
-- FinOps: AWS Cost Explorer скрипт (`scripts/finops/aws_cost_report.py`), документ [`docs/ops/finops.md`](docs/ops/finops.md`).
+- Добавлены Istio service mesh артефакты (`infrastructure/service-mesh/istio`, документ `docs/ops/service_mesh.md`, make `mesh-istio-apply`) и Litmus chaos сценарий (`infrastructure/chaos/litmus`, скрипт `scripts/chaos/run_litmus.sh`, документ `docs/ops/chaos_engineering.md`). Добавлен network latency эксперимент.
+- Vault best practices: политики/скрипты (`infrastructure/vault/`), SecretProviderClass для CSI, документ [`docs/ops/vault.md`](docs/ops/vault.md), скрипт синхронизации AWS Secrets Manager (`scripts/secrets/aws_sync_to_vault.py`), правило в конституции.
+- Azure DevOps: Terraform `infrastructure/terraform/azure-aks`, pipeline `infrastructure/azure/azure-pipelines.yml`, документ [`docs/ops/azure_devops.md`](docs/ops/azure_devops.md`).
+- Security расширен: Checkov/Trivy (`scripts/security/run_checkov.sh`) добавлены в Jenkins/GitLab/Azure pipeline, `make preflight` + чек-лист (`scripts/checklists/preflight.sh`, `docs/ops/self_control.md`).
+- FinOps: AWS Cost Explorer скрипт (`scripts/finops/aws_cost_report.py`) и Slack-уведомления (`scripts/finops/aws_cost_to_slack.py`), документ [`docs/ops/finops.md`](docs/ops/finops.md`).
 
 ---
 

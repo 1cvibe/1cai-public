@@ -32,7 +32,7 @@ help:
 	@echo "  make gitops-apply     - Apply Argo CD manifests (Kustomize)"
 	@echo "  make gitops-sync      - Trigger Argo CD sync (requires argocd CLI/token)"
 	@echo "  make mesh-istio-apply - Apply IstioOperator profile via kubectl"
-	@echo "  make chaos-litmus-run - Apply Litmus chaos experiment (pod-delete)"
+	@echo "  make chaos-litmus-run - Apply Litmus chaos experiment (pod-delete, EXPERIMENT=network для latency)"
 	@echo "  make preflight        - Run self-control checklist before deploy"
 	@echo ""
 	@echo "Docker:"

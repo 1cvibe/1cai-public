@@ -128,6 +128,7 @@
   - [`docs/ops/gitops.md`](docs/ops/gitops.md) — GitOps с Argo CD.
   - [`docs/ops/ansible.md`](docs/ops/ansible.md) — bootstrap инфраструктуры Ansible.
   - [`docs/ops/service_mesh.md`](docs/ops/service_mesh.md) — Istio blueprint.
+  - [`infrastructure/service-mesh/linkerd`](infrastructure/service-mesh/linkerd) — альтернативный service mesh.
   - [`docs/ops/chaos_engineering.md`](docs/ops/chaos_engineering.md) — Litmus chaos сценарии.
   - [`docs/ops/vault.md`](docs/ops/vault.md) — Vault & secret management.
   - [`docs/ops/azure_devops.md`](docs/ops/azure_devops.md) — Azure DevOps pipeline.
@@ -143,7 +144,8 @@
   - `infrastructure/terraform/aws-eks` — Terraform модуль EKS (AWS).
   - `infrastructure/terraform/azure-aks` — Terraform модуль AKS (Azure).
   - `infrastructure/azure/azure-pipelines.yml` — Azure DevOps pipeline.
-  - `infrastructure/vault/` — политики и скрипты Vault.
+  - `infrastructure/vault/` — политики, скрипты, SecretProviderClass для Vault.
+  - `scripts/secrets/aws_sync_to_vault.py` — синхронизация AWS Secrets Manager → Vault.
   - `infrastructure/jenkins/Jenkinsfile`, `infrastructure/gitlab/.gitlab-ci.yml` — многостадийные pipeline.
   - [`docs/security/policy_as_code.md`](docs/security/policy_as_code.md) — Rego-политики, Conftest, Semgrep.
 - **Feature Guides**
