@@ -26,14 +26,19 @@
   - TODO: Интеграция с Prometheus/Grafana (`observability.yml`) и Telegram (workflow `telegram-alert.yaml`) + секреты в CI/CD.
 - [ ] (Высокий) AWS/Azure Cloud readiness
   - ✅ Terraform модуль `infrastructure/terraform/aws-eks`.
+  - ✅ Terraform модуль `infrastructure/terraform/azure-aks`, Azure DevOps pipeline (`infrastructure/azure/azure-pipelines.yml`).
   - ✅ Ansible bootstrap `infrastructure/ansible`.
-  - TODO: Azure DevOps pipeline пример, Terraform для AKS, Vault replication.
+  - TODO: Terraform backend (S3/DynamoDB, Azure Storage), Managed Identity для Vault.
+- [ ] (Средний) Secret management
+  - ✅ Vault политика/скрипт (`infrastructure/vault/`, `docs/ops/vault.md`).
+  - TODO: HashiCorp Vault CSI driver, AWS Secrets Manager sync, Azure Key Vault пример.
 - [ ] (Средний) Service Mesh & Chaos
   - ✅ Istio профиль (`infrastructure/service-mesh/istio`), make `mesh-istio-apply`, документ `docs/ops/service_mesh.md`.
   - ✅ Litmus pod-delete сценарий (`infrastructure/chaos/litmus`, `make chaos-litmus-run`), документ `docs/ops/chaos_engineering.md`.
   - TODO: Linkerd альтернатива, Litmus network chaos, Istio mTLS policies.
-- [ ] (Средний) Secret management
-  - TODO: HashiCorp Vault best practices, Terraform policies, интеграция с AWS Secrets Manager / Azure Key Vault.
+- [ ] (Средний) FinOps
+  - ✅ Скрипт `scripts/finops/aws_cost_report.py`, документ `docs/ops/finops.md`.
+  - TODO: Slack/Teams оповещения, бюджетные алерты, Azure/GCP поддержка.
 - [ ] (Высокий) Runtime & Compliance
   - ✅ `scripts/setup/check_runtime.py`, make `check-runtime`, инструкция `docs/setup/python_311.md`.
   - TODO: Обновить конституцию правилами по установленной версии Python; автоматизировать проверку наличия `make`, `docker compose`.

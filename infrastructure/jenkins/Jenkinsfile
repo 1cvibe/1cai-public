@@ -44,6 +44,8 @@ pipeline {
         sh 'make quality'
         sh 'bash scripts/security/run_security_scans.sh || true'
         sh 'bash scripts/security/run_policy_checks.sh'
+        sh '\n          pip install --upgrade checkov\n          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin\n        '
+        sh 'bash scripts/security/run_checkov.sh'
       }
     }
 

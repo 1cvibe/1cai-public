@@ -33,6 +33,7 @@ help:
 	@echo "  make gitops-sync      - Trigger Argo CD sync (requires argocd CLI/token)"
 	@echo "  make mesh-istio-apply - Apply IstioOperator profile via kubectl"
 	@echo "  make chaos-litmus-run - Apply Litmus chaos experiment (pod-delete)"
+	@echo "  make preflight        - Run self-control checklist before deploy"
 	@echo ""
 	@echo "Docker:"
 	@echo "  make docker-up        - Start all Docker services"
@@ -181,6 +182,9 @@ mesh-istio-apply:
 
 chaos-litmus-run:
 	bash scripts/chaos/run_litmus.sh
+
+preflight:
+	bash scripts/checklists/preflight.sh
 
 # Installation
 install:

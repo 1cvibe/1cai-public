@@ -24,11 +24,13 @@
 | Observability | `docs/observability/`, `docs/runbooks/` | SLO, runbooks, postmortem template | Мониторинг, Error Budget, реакции |
 | ML & Benchmarks | `scripts/dataset/`, `scripts/ml/`, `benchmark_*.py` | `create_ml_dataset.py`, `massive_ast_dataset_builder.py`, `benchmark_performance.py` | Подготовка датасетов, измерение производительности |
 | Setup | `scripts/setup/` | `check_runtime.py` | Проверка наличия Python 3.11, подготовка окружения |
-| Security | `scripts/security/` | `run_security_scans.sh` | Запуск bandit/pip-audit/safety в CI |
+| Security | `scripts/security/` | `run_security_scans.sh`, `run_policy_checks.sh`, `run_checkov.sh` | Запуск bandit/pip-audit/safety, Conftest/Semgrep, Checkov/Trivy |
 | GitOps | `scripts/gitops/` | `apply.sh`, `sync.sh` | Применение Argo CD manifest’ов и инициирование sync |
+| Chaos | `scripts/chaos/` | `run_litmus.sh` | Запуск Litmus pod-delete эксперимента |
+| FinOps | `scripts/finops/` | `aws_cost_report.py` | Краткий отчёт AWS Cost Explorer |
+| Checklists | `scripts/checklists/` | `preflight.sh` | Самоконтроль перед деплоем |
 | Infrastructure | `infrastructure/terraform/aws-eks` | Terraform модуль EKS | Развёртывание AWS инфраструктуры |
 | Infrastructure | `infrastructure/ansible/` | `site.yml`, `hosts.ini` | Bootstrap Linux-хостов |
-| Chaos | `scripts/chaos/` | `run_litmus.sh` | Запуск Litmus pod-delete эксперимента |
 
 ## 3. Зависимости и подготовка
 
@@ -108,6 +110,7 @@
 ### 4.12 Безопасность (`scripts/security/`)
 - `run_security_scans.sh` — единая точка запуска bandit/pip-audit/safety. Используется в Jenkins/GitLab pipeline.
 - `run_policy_checks.sh` — рендер Helm-чартов, Conftest (Rego-политики из `policy/`), Semgrep (`security/semgrep.yml`). Требуются утилиты `helm`, `conftest`, `semgrep`, `terraform`.
+- `run_checkov.sh` — Checkov (Terraform IaC) + Trivy config scan.
 
 ### 4.13 GitOps (`scripts/gitops/`)
 - `apply.sh` — `kubectl apply -k infrastructure/argocd` (создаёт AppProject, Applications).
@@ -117,7 +120,13 @@
 ### 4.14 Chaos (`scripts/chaos/`)
 - `run_litmus.sh` — применяет Litmus experiment/engine (требует установленного оператора).
 
-### 4.15 ML и экспериментальные утилиты
+### 4.15 FinOps (`scripts/finops/`)
+- `aws_cost_report.py` — отчёт по затратам AWS (Cost Explorer).
+
+### 4.16 Checklists (`scripts/checklists/`)
+- `preflight.sh` — выполняет ключевые проверки перед деплоем (lint/test/policy/checkov).
+
+### 4.17 ML и экспериментальные утилиты
 - `dataset/create_ml_dataset.py`, `prepare_neural_training_data.py` — подготовка выборок для моделей.
 - `finetune_qwen_smoltalk.py`, `train_copilot_model.py` — эксперименты с дообучением ассистента.
 - `benchmark_performance.py`, `profile_full_parser.py` — измерение скорости анализа/парсинга.
@@ -142,5 +151,6 @@
 | `make gitops-apply` | `scripts/gitops/apply.sh` | раздел 4.13 |
 | `make gitops-sync` | `scripts/gitops/sync.sh` | раздел 4.13 |
 | `make chaos-litmus-run` | `scripts/chaos/run_litmus.sh` | раздел 4.14 |
+| `make preflight` | `scripts/checklists/preflight.sh` | раздел 4.16 |
 
 Всегда сверяйтесь с `

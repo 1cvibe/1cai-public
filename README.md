@@ -104,8 +104,10 @@
 - **Secret scanning & Security**
   - Workflows `secret-scan.yml` (Gitleaks) и `trufflehog.yml` (Trufflehog) — регулярное сканирование репозитория на утечки токенов.
   - Policy-as-code: `policy/` (Rego) + `scripts/security/run_policy_checks.sh` (Conftest + Semgrep) → `make policy-check` / CI стадии.
+  - Infrastructure scanners: `scripts/security/run_checkov.sh` (Checkov + Trivy) подключён в Jenkins/GitLab/Azure pipeline.
   - GitOps: `infrastructure/argocd/`, `scripts/gitops/*.sh`, make `gitops-apply`, `gitops-sync`.
-  - Cloud readiness: `infrastructure/terraform/aws-eks/`, Ansible bootstrap (`infrastructure/ansible/`).
+  - Cloud readiness: `infrastructure/terraform/aws-eks/`, `infrastructure/terraform/azure-aks/`, Ansible bootstrap (`infrastructure/ansible/`).
+  - Self-control: `scripts/checklists/preflight.sh`, make `preflight`.
 
 ---
 
@@ -127,12 +129,21 @@
   - [`docs/ops/ansible.md`](docs/ops/ansible.md) — bootstrap инфраструктуры Ansible.
   - [`docs/ops/service_mesh.md`](docs/ops/service_mesh.md) — Istio blueprint.
   - [`docs/ops/chaos_engineering.md`](docs/ops/chaos_engineering.md) — Litmus chaos сценарии.
+  - [`docs/ops/vault.md`](docs/ops/vault.md) — Vault & secret management.
+  - [`docs/ops/azure_devops.md`](docs/ops/azure_devops.md) — Azure DevOps pipeline.
+  - [`docs/ops/finops.md`](docs/ops/finops.md) — FinOps и контроль затрат.
+  - [`docs/ops/self_control.md`](docs/ops/self_control.md) — самоконтроль инженера.
   - `infrastructure/kind/cluster.yaml` — локальный Kubernetes.
   - `infrastructure/helm/1cai-stack` — Helm chart приложения.
   - `infrastructure/helm/observability-stack` — Prometheus/Loki/Tempo/Grafana/OTEL.
+  - `infrastructure/service-mesh/istio` — IstioOperator профиль.
+  - `infrastructure/chaos/litmus` — Litmus Chaos эксперименты.
   - `infrastructure/argocd/` — manifests для Argo CD (GitOps).
   - `infrastructure/terraform` — Terraform конфигурация для Helm релиза.
   - `infrastructure/terraform/aws-eks` — Terraform модуль EKS (AWS).
+  - `infrastructure/terraform/azure-aks` — Terraform модуль AKS (Azure).
+  - `infrastructure/azure/azure-pipelines.yml` — Azure DevOps pipeline.
+  - `infrastructure/vault/` — политики и скрипты Vault.
   - `infrastructure/jenkins/Jenkinsfile`, `infrastructure/gitlab/.gitlab-ci.yml` — многостадийные pipeline.
   - [`docs/security/policy_as_code.md`](docs/security/policy_as_code.md) — Rego-политики, Conftest, Semgrep.
 - **Feature Guides**

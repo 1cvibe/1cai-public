@@ -112,5 +112,19 @@
     - Скрипт `scripts/chaos/run_litmus.sh`, make `chaos-litmus-run`.  
     - Документ `docs/ops/chaos_engineering.md`.  
 
-24. **Обновлён мастер-лист TODO**  
+24. **Vault & Secret Management**  
+    - Политика `infrastructure/vault/policies/1cai-app.hcl`, скрипт `infrastructure/vault/scripts/configure.sh`.  
+    - Документ `docs/ops/vault.md`.  
+
+25. **Azure DevOps & AKS**  
+    - Terraform модуль `infrastructure/terraform/azure-aks`.  
+    - Azure pipeline `infrastructure/azure/azure-pipelines.yml`, документ `docs/ops/azure_devops.md`.  
+
+26. **FinOps**  
+    - Скрипт `scripts/finops/aws_cost_report.py`, документ `docs/ops/finops.md`.  
+
+27. **Self-control checklist**  
+    - Скрипт `scripts/checklists/preflight.sh`, make `preflight`, документ `docs/ops/self_control.md`.  
+
+28. **Обновлён мастер-лист TODO**  
     - `docs/research/alkoleft_todo.md` теперь с приоритетами и ссылками на соответствующие планы.
