@@ -136,7 +136,7 @@
 ### 4.18 FinOps (`scripts/finops/`)
 - `aws_cost_report.py` — отчёт по затратам AWS (Cost Explorer).
 - `aws_cost_to_slack.py` / `azure_cost_to_slack.py` — отправка отчётов в Slack/Teams.
-- `aws_budget_check.py` — проверка Budgets.
+- `aws_budget_check.py`, `azure_budget_check.py` — проверка Budgets.
 - `teams_notify.py` — утилита отправки произвольных сообщений в Teams.
 
 ### 4.19 Checklists (`scripts/checklists/`)

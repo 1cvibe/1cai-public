@@ -57,8 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Новый Terraform модуль `infrastructure/terraform/aws-eks` (создание VPC+EKS), Ansible playbook `infrastructure/ansible` и документация (`docs/ops/ansible.md`).
 - Добавлены Istio service mesh артефакты (`infrastructure/service-mesh/istio`, документ `docs/ops/service_mesh.md`, make `mesh-istio-apply`) и Litmus chaos сценарий (`infrastructure/chaos/litmus`, скрипт `scripts/chaos/run_litmus.sh`, документ `docs/ops/chaos_engineering.md`). Добавлен network latency эксперимент.
 - Vault best practices: политики/скрипты (`infrastructure/vault/`), SecretProviderClass для CSI, документ [`docs/ops/vault.md`](docs/ops/vault.md), скрипты синхронизации AWS/Azure (`scripts/secrets/aws_sync_to_vault.py`, `scripts/secrets/azure_sync_to_vault.py`), опция Vault Agent sidecar в Helm, правило в конституции.
-- FinOps: AWS/Azure Cost Explorer скрипты (`scripts/finops/aws_cost_to_slack.py`, `azure_cost_to_slack.py`, `aws_budget_check.py`, `teams_notify.py`), workflow [`finops-report.yml`](.github/workflows/finops-report.yml), make `finops-slack` (Slack/Teams).
-- Service Mesh: Linkerd blueprint (`infrastructure/service-mesh/linkerd`, `make linkerd-install`, ArgoCD application), Litmus network latency сценарий (`pod-network-latency.yaml`, `chaos-engine-network.yaml`), workflow `chaos-validate.yml`.
+- FinOps: AWS/Azure Cost Explorer скрипты (`scripts/finops/aws_cost_to_slack.py`, `azure_cost_to_slack.py`, `aws_budget_check.py`, `azure_budget_check.py`, `teams_notify.py`), workflow [`finops-report.yml`](.github/workflows/finops-report.yml), make `finops-slack` (Slack/Teams).
+- Service Mesh: Linkerd blueprint (`infrastructure/service-mesh/linkerd`, ArgoCD application/ApplicationSet, `make linkerd-install`), Litmus network latency сценарий (`pod-network-latency.yaml`, `chaos-engine-network.yaml`), workflow `chaos-validate.yml`.
 
 ---
 

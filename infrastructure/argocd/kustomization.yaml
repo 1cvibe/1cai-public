@@ -7,3 +7,4 @@ resources:
   - application-1cai.yaml
   - application-observability.yaml
   - application-linkerd.yaml
+  - applicationset-linkerd.yaml

@@ -29,6 +29,7 @@
 - `application-1cai.yaml` — Helm chart приложения (`infrastructure/helm/1cai-stack`).
 - `application-observability.yaml` — Helm chart наблюдаемости (`infrastructure/helm/observability-stack`).
 - `application-linkerd.yaml` — Helm chart Linkerd control plane (опциональный mesh).
+- `applicationset-linkerd.yaml` — пример ApplicationSet (staging/prod) для Linkerd.
 - `kustomization.yaml` — позволяет применять всё через `kubectl apply -k`.
 
 ## 5. Поток изменений
