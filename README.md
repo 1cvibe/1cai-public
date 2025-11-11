@@ -1,47 +1,47 @@
 # 🤖 1C AI Stack
 
-**AI-powered development platform for 1C:Enterprise**
+> Платформа DevOps + AI tooling для 1C:Enterprise: от парсинга конфигураций и MCP-интеграций до полноценных CI/CD, FinOps и процессов эксплуатации.
 
-- 🧠 AI ассистенты и MCP-сервер для IDE (Cursor, VS Code, EDT)
-- 🔍 Глубокий анализ конфигураций (парсинг EDT, AST, граф зависимостей)
-- 📚 Автоматическая документация и архитектурные артефакты (Structurizr, ADR)
-- ✅ Тесты и best practices (YAxUnit, CI, статический анализ)
+| Что внутри | Где смотреть |
+|------------|--------------|
+| **Dev & AI tooling** — MCP сервер, bsl-language-server, spec-driven workflow | `src/`, `docs/06-features/`, `scripts/research/`, `templates/` |
+| **Инфраструктура** — Kubernetes/Helm, Argo CD, Linkerd, Vault, Terraform | `infrastructure/`, `docs/ops/**`, `scripts/service_mesh/linkerd/` |
+| **Надёжность** — on-call, DR rehearsal, chaos, runbooks, SLO | `docs/process/`, `docs/runbooks/`, `observability/`, GitHub Actions |
+| **Security & FinOps** — Rego policies, секреты, фоновые отчёты | `policy/`, `scripts/security/`, `scripts/secrets/`, `scripts/finops/` |
+| **Документация** — архитектура, ADR, исследования, TODO | `docs/architecture/`, `docs/research/`, `CHANGELOG.md`, `docs/README.md` |
 
-## 🧭 Навигация
-- [Quick Start](#-quick-start)
-- [Feature Highlights](#-feature-highlights)
-- [AI Tooling & Automation](#-ai-tooling--automation)
-- [Architecture & Documentation](#-architecture--documentation)
-- [Testing & Quality](#-testing--quality)
-- [Integrations](#-integrations)
-- [Documentation Hub](#-documentation-hub)
-- [Recent Updates](#-recent-updates)
-- [Support](#-support)
-- [Credits & Acknowledgements](#-credits--acknowledgements)
-- [Constitution](docs/research/constitution.md)
+**Быстрые ссылки**
+- 📚 [Docs index](docs/README.md) — навигация по документации
+- 🧭 [Roadmap / TODO](docs/research/alkoleft_todo.md) · [Constitution](docs/research/constitution.md)
+- 🔁 [Runbooks & DR](docs/runbooks/dr_rehearsal_plan.md) · [On-call](docs/process/oncall_rotations.md)
+- ✅ [Changelog](CHANGELOG.md) · [Recent commits](https://github.com/DmitrL-dev/1cai/commits/main)
 
 ---
 
-## 🚀 Quick Start
-1. **Установите зависимости**
-   - Python 3.11 (обязательно) — инструкция: [`docs/setup/python_311.md`](docs/setup/python_311.md)
-   - Docker + Docker Compose (для dev окружения)
-   - Проверка среды: `make check-runtime`
-2. **Клонируйте репозиторий**
-3. **Запустите инфраструктуру**
-```bash
-   make docker-up           # базы данных, Redis, Neo4j, Qdrant
-   make migrate             # миграции JSON → PostgreSQL → Neo4j/Qdrant
-   make servers             # Graph API + MCP сервер
-   make bsl-ls-up           # bsl-language-server для AST (порт 8081 → 8080)
-   make bsl-ls-check        # health + тестовый parse
-   ```
-   > На Windows без `make` используйте скрипты из `scripts/windows/` (например, `pwsh scripts/windows/bsl-ls-up.ps1` и `feature-init.ps1`).
-4. **Откройте IDE**
-   - Cursor/VS Code через MCP (`http://localhost:6001/mcp`)
-   - EDT плагин — билд в `edt-plugin/`
+## 🚀 Быстрый старт
 
-Подробности: [`docs/06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md`](docs/06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md), [`docs/architecture/README.md`](docs/architecture/README.md).
+### Локальное окружение
+1. Установите Python 3.11, Docker, Docker Compose → см. [`docs/setup/python_311.md`](docs/setup/python_311.md).  
+2. Проверьте окружение: `make check-runtime`.
+3. Поднимите стэк:
+   ```bash
+   make docker-up          # базы данных, брокеры, Neo4j, Qdrant
+   make migrate            # первичная миграция данных
+   make servers            # Graph API + MCP server
+   make bsl-ls-up          # bsl-language-server (AST)
+   make bsl-ls-check       # health-check AST сервиса
+   ```
+   > На Windows используйте аналогичные скрипты из `scripts/windows/`.
+4. Подключите IDE:
+   - MCP: Cursor / VS Code → `http://localhost:6001/mcp`
+   - EDT плагин: сборка в `edt-plugin/`, инструкции внутри каталога.
+
+### Облако и GitOps
+- `make gitops-apply` — применить Argo CD манифесты (1cai-stack, observability, linkerd).
+- `make vault-csi-apply` — настроить Vault + CSI.
+- `make linkerd-install`, `make linkerd-rotate-certs` — сервис-меш и ротация сертификатов.
+- `make finops-slack` — разовая отправка FinOps отчётов (Slack/Teams).
+- Подробный план — `docs/ops/devops_platform.md`, `docs/ops/gitops.md`.
 
 ---
 
@@ -125,6 +125,8 @@
 ---
 
 ## 📚 Documentation Hub
+
+Полный индекс: [`docs/README.md`](docs/README.md). Ключевые разделы:
 - **Setup & Runtime**
   - [`docs/setup/python_311.md`](docs/setup/python_311.md) — установка Python 3.11 и проверка среды.
   - `scripts/setup/check_runtime.py` + `make check-runtime` — автоматическая проверка версии Python.

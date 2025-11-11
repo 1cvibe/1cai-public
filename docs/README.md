@@ -1,3 +1,43 @@
+# Documentation Hub
+
+Быстрая навигация по основным блокам документации. Используйте этот индекс как стартовую точку (а `docs/research/README_LOCAL.md` — для ежедневных статусов).
+
+## 1. Setup & Runtime
+- [`docs/setup/python_311.md`](setup/python_311.md) — установка Python 3.11.
+- `scripts/setup/check_runtime.py`, `make check-runtime` — валидация окружения.
+- [`docs/scripts/README.md`](scripts/README.md) — справочник CLI-скриптов.
+
+## 2. Infrastructure & Operations
+- Стратегия DevOps: [`docs/ops/devops_platform.md`](ops/devops_platform.md).
+- GitOps/Argo CD: [`docs/ops/gitops.md`](ops/gitops.md), `infrastructure/argocd/`.
+- Vault & secrets: [`docs/ops/vault.md`](ops/vault.md), `infrastructure/vault/`, `policy/terraform/`.
+- Service Mesh & Chaos: [`docs/ops/service_mesh.md`](ops/service_mesh.md), [`docs/ops/chaos_engineering.md`](ops/chaos_engineering.md), `scripts/service_mesh/linkerd/`.
+- FinOps & Observability: [`docs/ops/finops.md`](ops/finops.md), [`docs/observability/SLO.md`](observability/SLO.md).
+- Runbooks: [`docs/runbooks/alert_slo_runbook.md`](runbooks/alert_slo_runbook.md), [`docs/runbooks/dr_rehearsal_plan.md`](runbooks/dr_rehearsal_plan.md).
+- Процессы: [`docs/process/README.md`](process/README.md) — on-call, RFC, postmortem.
+
+## 3. Architecture & Research
+- High-level дизайн, C4: [`docs/architecture/README.md`](architecture/README.md).
+- ADR: [`docs/architecture/adr/`](architecture/adr/).
+- Исследования и планы: [`docs/research/README_LOCAL.md`](research/README_LOCAL.md), [`docs/research/spec_kit_analysis.md`](research/spec_kit_analysis.md), [`docs/research/alkoleft_todo.md`](research/alkoleft_todo.md).
+
+## 4. Feature Guides
+- MCP сервер и AI tooling: [`docs/06-features/MCP_SERVER_GUIDE.md`](06-features/MCP_SERVER_GUIDE.md).
+- AST tooling: [`docs/06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md`](06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md).
+- Парсеры, ML, интеграции: раздел `docs/06-features/`.
+
+## 5. Automation & CI
+- Workflows GitHub Actions: `.github/workflows/` (`linkerd-smoke.yml`, `linkerd-chaos.yml`, `dr-rehearsal.yml`, `finops-report.yml`, `chaos-validate.yml` и др.).
+- Make targets: см. `Makefile` (quick filter: `make help`).
+- Jenkins/GitLab pipeline: `infrastructure/jenkins/Jenkinsfile`, `infrastructure/gitlab/.gitlab-ci.yml`.
+
+## 6. Governance & Compliance
+- Конституция: [`docs/research/constitution.md`](research/constitution.md).
+- Policy-as-code: [`docs/security/policy_as_code.md`](security/policy_as_code.md), `policy/kubernetes/**`, `policy/terraform/**`.
+
+## 7. Changelog & Releases
+- Изменения: [`CHANGELOG.md`](../CHANGELOG.md).
+- Release automation: `scripts/release/create_release.py`, workflow `release.yml`.
 # 📚 Документация 1C AI Stack
 
 **Версия:** 5.1.0  
