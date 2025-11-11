@@ -39,9 +39,12 @@
   - TODO: Teams dashboard и автоматическая загрузка FinOps данных в Prometheus/ClickHouse.
 - [ ] (Средний) Service Mesh & Chaos
   - ✅ Istio профиль (`infrastructure/service-mesh/istio`), make `mesh-istio-apply`, документ `docs/ops/service_mesh.md`.
-  - ✅ Linkerd blueprint (`infrastructure/service-mesh/linkerd`), ArgoCD application/ApplicationSet, make `linkerd-install`, серты `scripts/service_mesh/linkerd/bootstrap_certs.sh`.
+  - ✅ Linkerd blueprint (`infrastructure/service-mesh/linkerd`), ArgoCD application/ApplicationSet, make `linkerd-install`, серты `scripts/service_mesh/linkerd/bootstrap_certs.sh`, smoke `ci_smoke.sh` + workflow `linkerd-smoke.yml`.
   - ✅ Litmus pod-delete + network latency (`infrastructure/chaos/litmus`, `make chaos-litmus-run`).
-  - TODO: Linkerd trust anchors автоматизация (секреты), chaos в CI (nightly), Istio mTLS policies.
+  - TODO: Linkerd trust anchors автоматизация (secret rotation), chaos тесты в CI (nightly), Istio mTLS policies.
 - [ ] (Высокий) Runtime & Compliance
   - ✅ `scripts/setup/check_runtime.py`, make `check-runtime`, инструкция `docs/setup/python_311.md`.
   - TODO: Обновить конституцию правилами по установленной версии Python; автоматизировать проверку наличия `make`, `docker compose`.
+- [ ] (Средний) DR/Resilience
+  - ✅ План `docs/runbooks/dr_rehearsal_plan.md`, скрипт `scripts/runbooks/dr_rehearsal_runner.py`, workflow `dr-rehearsal.yml`.
+  - TODO: Автоматический отчёт в postmortem, интеграция Litmus сценариев.

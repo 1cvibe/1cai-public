@@ -19,6 +19,7 @@
 
 ## 5. План
 - За неделю подготовить сценарии и среду (staging).
+- Запустить `scripts/runbooks/dr_rehearsal_runner.py <component>` или workflow `dr-rehearsal.yml` (по расписанию / вручную).
 - Во время rehearsal вести лог (использовать шаблон в `docs/process/oncall_rotations.md`).
 - После завершения — постмортем + action items.
 

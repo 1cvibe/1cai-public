@@ -112,6 +112,7 @@
 - **FinOps**
   - Скрипты `scripts/finops/aws_cost_*`, `scripts/finops/azure_cost_to_slack.py`, `scripts/finops/aws_budget_check.py`, `scripts/finops/azure_budget_check.py`, `scripts/finops/teams_notify.py` — отчёты, бюджеты и Slack/Teams уведомления; дашборд `observability/grafana/dashboards/finops_cost.json`.
   - Workflow `.github/workflows/finops-report.yml` — ежедневный отчёт.
+  - DR rehearsal: `docs/runbooks/dr_rehearsal_plan.md`, script `scripts/runbooks/dr_rehearsal_runner.py`, workflow `dr-rehearsal.yml`.
 
 ---
 

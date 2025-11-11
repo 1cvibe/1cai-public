@@ -104,8 +104,8 @@
 
 22. **Service Mesh (Istio & Linkerd)**  
     - Кастомный профиль: `infrastructure/service-mesh/istio/` (make `mesh-istio-apply`).  
-    - Linkerd CLI blueprint: `infrastructure/service-mesh/linkerd/`, make `linkerd-install`, скрипт `scripts/service_mesh/linkerd/bootstrap_certs.sh`.  
-    - Интеграция с observability stack, ArgoCD application/ApplicationSet.  
+    - Linkerd CLI blueprint: `infrastructure/service-mesh/linkerd/`, make `linkerd-install`, скрипты `scripts/service_mesh/linkerd/bootstrap_certs.sh`, `apply_managed_identity.sh`, `ci_smoke.sh`.  
+    - Интеграция с observability stack, ArgoCD application/ApplicationSet, workflow `linkerd-smoke.yml`.  
 
 23. **Chaos Engineering (Litmus)**  
     - Эксперимент pod-delete: `infrastructure/chaos/litmus/`.  
@@ -130,3 +130,6 @@
 
 28. **Обновлён мастер-лист TODO**  
     - `docs/research/alkoleft_todo.md` теперь с приоритетами и ссылками на соответствующие планы.
+
+31. **DR Rehearsal**  
+    - План `docs/runbooks/dr_rehearsal_plan.md`, скрипт `scripts/runbooks/dr_rehearsal_runner.py`, workflow `dr-rehearsal.yml`.
