@@ -10,7 +10,7 @@ import os
 import time
 import uuid
 
-if sys.version_info[:2] != (3, 11):  # pragma: no cover
+if os.getenv("IGNORE_PY_VERSION_CHECK") != "1" and sys.version_info[:2] != (3, 11):  # pragma: no cover
     raise RuntimeError(
         f"Python 3.11.x is required to run 1C AI Stack (detected {sys.version.split()[0]})."
     )

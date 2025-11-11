@@ -123,6 +123,7 @@
 - **Observability**
   - [`docs/observability/SLO.md`](docs/observability/SLO.md) — целевые показатели доступности и латентности.
   - [`docs/runbooks/alert_slo_runbook.md`](docs/runbooks/alert_slo_runbook.md) — действия при нарушении SLO.
+  - [`docs/status/dora_history.md`](docs/status/dora_history.md) — автоматическая история DORA метрик (weekly).
 - **Architecture**
   - [`docs/architecture/README.md`](docs/architecture/README.md) — обзор C4, операции и ссылки на ADR.
   - [`docs/architecture/adr/`](docs/architecture/adr/) — реестр решений, статусы и история изменений.

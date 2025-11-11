@@ -24,6 +24,8 @@ from typing import Dict, List, Optional
 
 OUTPUT_DIR = Path("output/metrics")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+STATUS_DIR = Path("docs/status")
+STATUS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def run_git(args: List[str]) -> str:
@@ -160,6 +162,24 @@ def write_outputs(metrics: Dict[str, float], period_days: int) -> None:
         "> Change failure rate и MTTR вычисляются по эвристике: релизы с \"fix\"/\"hotfix\" в описании считаются неудавшимися.",
     ]
     summary_path.write_text("\n".join(summary_lines), encoding="utf-8")
+
+    history_path = STATUS_DIR / "dora_history.md"
+    history_entry = [
+        f"## {timestamp}",
+        f"- Period: last {period_days} day(s)",
+        f"- Deployment frequency (per week): {metrics['deployment_frequency']}",
+        f"- Lead time (hours): {metrics['lead_time_hours']}",
+        f"- Change failure rate: {metrics['change_failure_rate']}",
+        f"- MTTR (hours): {metrics['mean_time_to_restore_hours']}",
+        "",
+    ]
+    if history_path.exists():
+        previous = history_path.read_text(encoding="utf-8")
+        content = "\n".join(history_entry) + previous
+    else:
+        header = "# DORA Metrics History\n\n"
+        content = header + "\n".join(history_entry)
+    history_path.write_text(content, encoding="utf-8")
 
 
 def main() -> int:

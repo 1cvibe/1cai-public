@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлен smoke workflow (`smoke-tests` + `scripts/testing/smoke_healthcheck.py`) и HTML/JUnit артефакты для unit-тестов.
 - Документация по наблюдаемости: [`docs/observability/SLO.md`](docs/observability/SLO.md) и [`docs/runbooks/alert_slo_runbook.md`](docs/runbooks/alert_slo_runbook.md).
 - FastAPI `/metrics` теперь доступен через `prometheus-fastapi-instrumentator`; unit тесты сохраняют Allure отчёт (`output/test-results/allure/`).
+- `scripts/metrics/collect_dora.py` обновляет `docs/status/dora_history.md`; workflow `dora-metrics.yml` коммитит историю автоматически.
 
 ---
 

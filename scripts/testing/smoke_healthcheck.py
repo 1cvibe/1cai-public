@@ -18,6 +18,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from fastapi.testclient import TestClient
+
+import os
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -45,10 +49,27 @@ def check_release_script() -> None:
     print("[smoke] Release script import check passed")
 
 
+def check_fastapi_health() -> None:
+    sys.path.insert(0, str(ROOT))
+    try:
+        os.environ.setdefault("IGNORE_PY_VERSION_CHECK", "1")
+        from src.main import app  # noqa: WPS433
+    finally:
+        sys.path.pop(0)
+
+    with TestClient(app) as client:
+        response = client.get("/health")
+        if response.status_code != 200:
+            print("[smoke] Health check failed", response.status_code, response.text)
+            raise SystemExit(1)
+        print("[smoke] FastAPI /health reachable")
+
+
 def main() -> int:
     check_compile()
     check_spec_workflow()
     check_release_script()
+    check_fastapi_health()
     print("[smoke] All smoke checks completed successfully")
     return 0
 

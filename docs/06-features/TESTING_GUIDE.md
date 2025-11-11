@@ -66,6 +66,8 @@ pytest --cov=src --cov-report=html --cov-report=term
    - Добавляйте `--junit` отчёты (см. пример в `tests/bsl/README.md`) и прикладывайте к CI артефактам.
    - Для Allure: `pytest ... --alluredir=output/test-results/allure`; открыть отчёт `allure serve output/test-results/allure` (потребуется установить `allure` CLI).
 
+Smoke-скрипт проверяет компиляцию ключевых модулей, валидность spec-driven документов и доступность `/health` через `fastapi.testclient`.
+
 ## 6. CI интеграция
 
 Файл `.github/workflows/comprehensive-testing.yml` запускает 11 параллельных джоб:
