@@ -45,7 +45,7 @@ Runbook описывает действия при нарушении SLO/але
 1. Обновить issue: причина, временные рамки, действия.
 2. Обновить `docs/observability/SLO.md` (если нужны новые SLI/SLO).
 3. Запланировать меры предотвращения (TODO/ADR).
-4. Провести blameless postmortem; собранные данные → `docs/runbooks/postmortem/YYYY-MM-DD.md` (TODO).
+4. Провести blameless postmortem; используйте шаблон [`docs/runbooks/postmortem_template.md`](docs/runbooks/postmortem_template.md) или создайте файл `docs/runbooks/postmortem/YYYY-MM-DD.md`.
 
 ## 8. Контакты
 
