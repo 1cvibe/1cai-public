@@ -93,7 +93,7 @@
 - `scripts/metrics/collect_dora.py` — вычисляет DORA метрики (deployment frequency, lead time, CFR, MTTR) и сохраняет их в `output/metrics/`.
 - Workflow `dora-metrics.yml` выполняет скрипт еженедельно и прикладывает отчёты как артефакт.
 - Allure отчёты (`output/test-results/allure/`) доступны после job `unit-tests`; открываются `allure serve ...`.
-- `observability/docker-compose.observability.yml` запускает стек Prometheus+Grafana (`make observability-up`).
+- `observability/docker-compose.observability.yml` запускает стек Prometheus+Grafana (`make observability-up`). Проверяется в CI (`observability-test.yml`).
 
 ### 4.11 ML и экспериментальные утилиты
 - `dataset/create_ml_dataset.py`, `prepare_neural_training_data.py` — подготовка выборок для моделей.
@@ -113,5 +113,6 @@
 | `make quality` | пакет формата/линта + `pytest` | см. `Makefile` |
 | `make release-notes/tag/push` | `scripts/release/create_release.py` | раздел 4.10 |
 | `make observability-up/down` | `observability/docker-compose.observability.yml` | раздел 4.11 |
+| GitHub Actions | `observability-test.yml` | автоматическая проверка compose стека |
 
 Всегда сверяйтесь с `

@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FastAPI `/metrics` теперь доступен через `prometheus-fastapi-instrumentator`; unit тесты сохраняют Allure отчёт (`output/test-results/allure/`).
 - `scripts/metrics/collect_dora.py` обновляет `docs/status/dora_history.md`; workflow `dora-metrics.yml` коммитит историю автоматически.
 - Добавлен стек Prometheus/Grafana для локальной проверки SLO (`observability/docker-compose.observability.yml`, `make observability-up`, workflow `observability.yml`).
+- Workflow `observability-test.yml` проверяет docker-compose стек (smoke-api + Prometheus + Grafana) в CI.
 
 ---
 

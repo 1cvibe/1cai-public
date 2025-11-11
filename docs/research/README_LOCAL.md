@@ -68,7 +68,8 @@
     - Документ `docs/observability/SLO.md` (SLO/SLI/Error Budget).  
     - Runbook `docs/runbooks/alert_slo_runbook.md` + `docs/runbooks/postmortem_template.md`.  
     - История DORA: `docs/status/dora_history.md` (обновляется автоматически workflow `dora-metrics`).  
-    - `make observability-up` поднимает локальный стек Prometheus/Grafana (`observability/docker-compose.observability.yml`).
+    - `make observability-up` поднимает локальный стек Prometheus/Grafana (`observability/docker-compose.observability.yml`).  
+    - CI проверка compose стека: `observability-test.yml`.
 
 16. **Обновлён мастер-лист TODO**  
     - `docs/research/alkoleft_todo.md` теперь с приоритетами и ссылками на соответствующие планы.
