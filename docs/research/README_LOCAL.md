@@ -98,5 +98,9 @@
     - Документ [`docs/ops/gitops.md`](../ops/gitops.md).  
     - Applications: `1cai-stack` (Helm), `observability-stack` (Helm).  
 
-21. **Обновлён мастер-лист TODO**  
+21. **Анализ рынка DevOps/SRE**  
+    - Документ `docs/research/job_market_devops_analysis.md` — топовые требования (AWS, Ansible, GitOps, Service Mesh, Vault).  
+    - Используется для приоритизации задач (обновляет `docs/research/alkoleft_todo.md`).  
+
+22. **Обновлён мастер-лист TODO**  
     - `docs/research/alkoleft_todo.md` теперь с приоритетами и ссылками на соответствующие планы.

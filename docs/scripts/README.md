@@ -26,6 +26,8 @@
 | Setup | `scripts/setup/` | `check_runtime.py` | Проверка наличия Python 3.11, подготовка окружения |
 | Security | `scripts/security/` | `run_security_scans.sh` | Запуск bandit/pip-audit/safety в CI |
 | GitOps | `scripts/gitops/` | `apply.sh`, `sync.sh` | Применение Argo CD manifest’ов и инициирование sync |
+| Infrastructure | `infrastructure/terraform/aws-eks` | Terraform модуль EKS | Развёртывание AWS инфраструктуры |
+| Infrastructure | `infrastructure/ansible/` | `site.yml`, `hosts.ini` | Bootstrap Linux-хостов |
 
 ## 3. Зависимости и подготовка
 

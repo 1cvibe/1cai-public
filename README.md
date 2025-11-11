@@ -105,6 +105,7 @@
   - Workflows `secret-scan.yml` (Gitleaks) и `trufflehog.yml` (Trufflehog) — регулярное сканирование репозитория на утечки токенов.
   - Policy-as-code: `policy/` (Rego) + `scripts/security/run_policy_checks.sh` (Conftest + Semgrep) → `make policy-check` / CI стадии.
   - GitOps: `infrastructure/argocd/`, `scripts/gitops/*.sh`, make `gitops-apply`, `gitops-sync`.
+  - Cloud readiness: `infrastructure/terraform/aws-eks/`, Ansible bootstrap (`infrastructure/ansible/`).
 
 ---
 
@@ -123,12 +124,14 @@
 - **Infrastructure & DevOps**
   - [`docs/ops/devops_platform.md`](docs/ops/devops_platform.md) — стратегия DevOps-платформы.
   - [`docs/ops/gitops.md`](docs/ops/gitops.md) — GitOps с Argo CD.
+  - [`docs/ops/ansible.md`](docs/ops/ansible.md) — bootstrap инфраструктуры Ansible.
   - `infrastructure/kind/cluster.yaml` — локальный Kubernetes.
   - `infrastructure/helm/1cai-stack` — Helm chart приложения.
   - `infrastructure/helm/observability-stack` — Prometheus/Loki/Tempo/Grafana/OTEL.
   - `infrastructure/argocd/` — manifests для Argo CD (GitOps).
   - `infrastructure/terraform` — Terraform конфигурация для Helm релиза.
-  - `infrastructure/jenkins/Jenkinsfile`, `infrastructure/gitlab/.gitlab-ci.yml` — многостадийные pipeline для Jenkins и GitLab.
+  - `infrastructure/terraform/aws-eks` — Terraform модуль EKS (AWS).
+  - `infrastructure/jenkins/Jenkinsfile`, `infrastructure/gitlab/.gitlab-ci.yml` — многостадийные pipeline.
   - [`docs/security/policy_as_code.md`](docs/security/policy_as_code.md) — Rego-политики, Conftest, Semgrep.
 - **Feature Guides**
   - [`docs/06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md`](docs/06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md) — запуск и диагностика bsl-language-server, fallback сценарии.

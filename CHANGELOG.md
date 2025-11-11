@@ -53,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлен Helm chart `infrastructure/helm/observability-stack` (Prometheus + Loki + Tempo + OTEL Collector + Grafana + Promtail) и make-цель `helm-observability`.
 - Внедрён policy-as-code: Conftest Rego (`policy/kubernetes/*.rego`), Semgrep (`security/semgrep.yml`), скрипт `scripts/security/run_policy_checks.sh`, make-цель `policy-check`, обновлены Jenkins/GitLab pipeline; документ [`docs/security/policy_as_code.md`](docs/security/policy_as_code.md).
 - Добавлены GitOps manifests (`infrastructure/argocd`), скрипты `scripts/gitops/*`, make-цели `gitops-apply/gitops-sync`, документ [`docs/ops/gitops.md`](docs/ops/gitops.md).
+- Подготовлен анализ рынка DevOps/SRE вакансий (`docs/research/job_market_devops_analysis.md`) — приоритизация технологий (AWS, Ansible, GitOps, Service Mesh).
+- Новый Terraform модуль `infrastructure/terraform/aws-eks` (создание VPC+EKS), Ansible playbook `infrastructure/ansible` и документация (`docs/ops/ansible.md`).
 
 ---
 

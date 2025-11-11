@@ -24,6 +24,14 @@
   - ✅ `docs/observability/SLO.md`, `docs/runbooks/alert_slo_runbook.md`, `docs/runbooks/postmortem_template.md`; внедрить автоматический экспорт метрик и alert канал.
   - ✅ Инфраструктура: `observability/docker-compose.observability.yml` (локально), `infrastructure/helm/observability-stack` (K8s), правила `observability/alerts.yml`, конфиг `observability/alertmanager.yml`.
   - TODO: Интеграция с Prometheus/Grafana (`observability.yml`) и Telegram (workflow `telegram-alert.yaml`) + секреты в CI/CD.
+- [ ] (Высокий) AWS/Azure Cloud readiness
+  - ✅ Terraform модуль `infrastructure/terraform/aws-eks`.
+  - ✅ Ansible bootstrap `infrastructure/ansible`.
+  - TODO: Azure DevOps pipeline пример, Terraform для AKS, Vault replication.
+- [ ] (Средний) Service Mesh & Chaos
+  - TODO: Istio/Linkerd шаблон, Litmus сценарий, документация.
+- [ ] (Средний) Secret management
+  - TODO: HashiCorp Vault best practices, Terraform policies, интеграция с AWS Secrets Manager / Azure Key Vault.
 - [ ] (Высокий) Runtime & Compliance
   - ✅ `scripts/setup/check_runtime.py`, make `check-runtime`, инструкция `docs/setup/python_311.md`.
   - TODO: Обновить конституцию правилами по установленной версии Python; автоматизировать проверку наличия `make`, `docker compose`.
