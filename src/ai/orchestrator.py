@@ -10,7 +10,12 @@ from typing import Dict, List, Any, Optional, Tuple
 from enum import Enum
 from dataclasses import dataclass
 
+from fastapi import FastAPI, HTTPException
+
 logger = logging.getLogger(__name__)
+
+
+app = FastAPI(title="AI Orchestrator API")
 
 
 class QueryType(Enum):
