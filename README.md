@@ -1,57 +1,56 @@
 # 🤖 1C AI Stack
 
-> Платформа, которая переводит DevOps и AI-практики для 1C:Enterprise из «ручного режима» в повторяемые процессы: от анализа конфигураций и MCP-инструментов до CI/CD, FinOps и эксплуатационных регламентов.
+> Платформа, которая собирает DevOps-, AI- и эксплуатационные практики вокруг 1C:Enterprise в одну управляемую систему: разбор конфигураций, MCP-инструменты, CI/CD, безопасность и наблюдаемость.
 
-## Что это даёт
-- Консолидация: единый стек скриптов, сервисов и документации (`src/`, `scripts/`, `docs/`).
-- Прозрачность: диаграммы, ADR и регламенты обновляются автоматически (`docs/architecture/`, `docs/process/`, `docs/runbooks/`).
-- Ускорение изменений: готовые пайплайны GitOps/FinOps/Observability (`infrastructure/`, `docs/ops/`, `observability/`).
+**Кому полезно:** DevOps-командам 1С, архитекторам платформы и ML/аналитикам, которым нужно быстрее внедрять изменения в продуктивные 1С-ландшафты.
+
+**Основные выгоды:**
+- единый стек скриптов, сервисов и документации (`src/`, `scripts/`, `docs/`);
+- прозрачная архитектура и процессы (диаграммы, ADR, регламенты в `docs/architecture/`, `docs/process/`, `docs/runbooks/`);
+- готовые пайплайны GitOps/FinOps/Observability (`infrastructure/`, `docs/ops/`, `observability/`).
 
 ![Контейнерная схема платформы](docs/architecture/uml/c4/png/container_overview.png)
 
-## 5 минут до первого результата
-1. Подготовьте окружение → `python 3.11`, Docker, Docker Compose ([гайд](docs/setup/python_311.md)).
-2. Быстрая проверка среды: `make check-runtime` (использует `scripts/setup/check_runtime.py`).
-3. Мини-демо локально:
+## За 5 минут: пробный запуск
+1. Установить Python 3.11, Docker и Docker Compose — подробности в [`docs/setup/python_311.md`](docs/setup/python_311.md).
+2. Проверить окружение: `make check-runtime` (используются скрипты из `scripts/setup/check_runtime.py`).
+3. Запустить минимальный стенд:
    ```bash
    make docker-up      # инфраструктура: БД, брокеры, Neo4j, Qdrant
-   make migrate        # первая миграция данных
+   make migrate        # первичная миграция данных
    make servers        # Graph API + MCP server
    open http://localhost:6001/mcp
    ```
-   > На Windows есть аналоги в `scripts/windows/`. Если всё стартовало — можно углубляться.
+   > Для Windows есть аналоги в `scripts/windows/`. Если сервисы поднялись — переходите к своему сценарию.
 
-## Маршруты по ролям
-- **DevOps / SRE** → `docs/ops/devops_platform.md`, `docs/ops/gitops.md`, `infrastructure/helm/1cai-stack`.
-- **1С-разработчики и архитекторы** → `docs/06-features/EDT_PARSER_GUIDE.md`, `docs/06-features/MCP_SERVER_GUIDE.md`, `src/ai/mcp_server.py`.
-- **ML / аналитики** → `docs/06-features/ML_DATASET_GENERATOR_GUIDE.md`, `docs/06-features/TESTING_GUIDE.md`, `scripts/analysis/generate_documentation.py`.
-- **Операции и on-call** → `docs/runbooks/dr_rehearsal_plan.md`, `docs/process/oncall_rotations.md`, `observability/SLO.md`.
+## Сценарии использования
+| Роль | Первое действие | Ключевые материалы |
+| ---- | ---------------- | ------------------ |
+| DevOps / SRE | Пройти `make gitops-apply`, подключить Vault/Linkerd | `docs/ops/devops_platform.md`, `docs/ops/gitops.md`, `docs/ops/service_mesh.md`, `infrastructure/helm/1cai-stack` |
+| 1С-разработчик / архитектор | Разобрать конфигурацию и получить документацию | `docs/06-features/EDT_PARSER_GUIDE.md`, `scripts/analysis/generate_documentation.py`, `docs/architecture/README.md` |
+| ML / аналитика | Сформировать датасет и прогнать проверки качества | `docs/06-features/ML_DATASET_GENERATOR_GUIDE.md`, `docs/06-features/TESTING_GUIDE.md`, `scripts/analysis/` |
+| Операционный менеджер / on-call | Подготовить регламенты и тренировки | `docs/runbooks/dr_rehearsal_plan.md`, `docs/process/oncall_rotations.md`, `docs/observability/SLO.md` |
 
-## Экспресс-тур по стеку
-1. **Разбор конфигураций** — `make docker-up` → `make generate-docs`, подробности в `docs/06-features/EDT_PARSER_GUIDE.md`.
-2. **Автоматизация через MCP** — запуск инструментов из `src/ai/mcp_server.py`, сценарии в `docs/06-features/MCP_SERVER_GUIDE.md`.
-3. **Эксплуатация** — GitOps (`make gitops-apply`), Vault CSI (`make vault-csi-apply`), Linkerd (`make linkerd-install`), описано в `docs/ops/devops_platform.md` и `docs/ops/service_mesh.md`.
+## Ключевые блоки платформы
+- **MCP & AI tooling** — инструменты поиска метаданных, генерации кода и AST (`src/ai/`, `docs/06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md`, `docs/06-features/MCP_SERVER_GUIDE.md`).
+- **Инфраструктура** — Helm charts, Terraform, Argo CD, Linkerd, Vault (`infrastructure/helm/`, `infrastructure/terraform/`, `infrastructure/argocd/`, `scripts/service_mesh/`).
+- **Надёжность и наблюдаемость** — runbooks, DR rehearsal, DORA/Prometheus/Alertmanager (`docs/runbooks/`, `docs/process/`, `observability/`).
+- **Безопасность и FinOps** — Rego/Conftest, Checkov/Trivy, бюджетные отчёты и политики (`policy/`, `scripts/security/`, `scripts/finops/`).
 
-## Что уже готово
-- ✅ **MCP и AI tooling** — сервер, bsl-language-server и spec-driven workflow (`src/ai/`, `docs/06-features/AST_TOOLING_BSL_LANGUAGE_SERVER.md`).
-- ✅ **Инфраструктурные профили** — Helm chart, Terraform модули, Argo CD GitOps (`infrastructure/helm/`, `infrastructure/terraform/`, `infrastructure/argocd/`).
-- ✅ **Надёжность и операции** — runbooks, DR rehearsal, SLO/наблюдаемость (`docs/runbooks/`, `docs/process/`, `observability/`).
-- ✅ **Security & FinOps** — Rego/Conftest, Checkov/Trivy, cost-отчёты и алерты (`policy/`, `scripts/security/`, `scripts/finops/`).
+## Чего ждать дальше
+- Расширение spec-driven практик и интеграции с GitHub Spec Kit — см. `docs/research/spec_kit_analysis.md`, `docs/research/constitution.md`.
+- Новые тестовые раннеры (YAxUnit, edt-test-runner) и сценарии — слежение в `docs/06-features/TESTING_GUIDE.md`, `docs/research/alkoleft_todo.md`.
+- UI/презентационный слой для быстрой навигации — наработки в `docs/09-archive/ui-ux-backup/`.
 
-## В работе и планы
-- 🛠 Детализация spec-driven процессов и интеграция GitHub Spec Kit — см. `docs/research/spec_kit_analysis.md` и `docs/research/constitution.md`.
-- 🛠 Расширение тестовых раннеров (YAxUnit, edt-test-runner) — отслеживаем в `docs/06-features/TESTING_GUIDE.md` и `docs/research/alkoleft_todo.md`.
-- 🛠 Новый UI/презентационный слой — черновики в `docs/09-archive/ui-ux-backup/`.
+## Документация и ресурсы
+- Полный индекс: [`docs/README.md`](docs/README.md).
+- Архитектура: [`docs/architecture/README.md`](docs/architecture/README.md), Structurizr DSL и PlantUML в `docs/architecture/c4/` и `docs/architecture/uml/`.
+- Практики тестирования и качества: [`docs/06-features/TESTING_GUIDE.md`](docs/06-features/TESTING_GUIDE.md), `scripts/tests/`.
+- Политики безопасности: [`docs/security/policy_as_code.md`](docs/security/policy_as_code.md), workflows `.github/workflows/secret-scan.yml`, `trufflehog.yml`.
+- Наблюдаемость и метрики: `observability/docker-compose.observability.yml`, `docs/observability/SLO.md`, `docs/status/dora_history.md`.
 
-## Документация и индексы
-- 📚 Полный оглавление: [`docs/README.md`](docs/README.md).
-- 🧭 Обзор архитектуры: [`docs/architecture/README.md`](docs/architecture/README.md) + C4 (Structurizr DSL, PlantUML) в `docs/architecture/c4/` и `docs/architecture/uml/`.
-- 🧪 Тесты и практики качества: [`docs/06-features/TESTING_GUIDE.md`](docs/06-features/TESTING_GUIDE.md), `scripts/tests/`.
-- 🔐 Политики безопасности: [`docs/security/policy_as_code.md`](docs/security/policy_as_code.md), workflows `.github/workflows/secret-scan.yml`, `trufflehog.yml`.
-- 📊 Наблюдаемость: `observability/docker-compose.observability.yml`, `docs/observability/SLO.md`, `docs/status/dora_history.md`.
-
-## Как поучаствовать
-- Проверяйте бэклог и ближайшие шаги в [`docs/research/alkoleft_todo.md`](docs/research/alkoleft_todo.md).
-- Создавайте issue или обсуждения: [Recent commits](https://github.com/DmitrL-dev/1cai/commits/main) показывают текущий фокус.
-- Перед любыми диаграммами запускайте `make render-uml` (см. `Workflow PlantUML Render Check`).
-- Для вопросов: используйте обсуждения или напишите в личный канал (контакты в приватной документации команды).
+## Как взаимодействовать
+- Бэклог и актуальные задачи — [`docs/research/alkoleft_todo.md`](docs/research/alkoleft_todo.md).
+- Issues и pull-requests приветствуются; ориентируйтесь на [recent commits](https://github.com/DmitrL-dev/1cai/commits/main) и `docs/05-development/CHANGELOG.md`.
+- Перед изменением диаграмм обязательно запускайте `make render-uml` (workflow «PlantUML Render Check» использует те же скрипты).
+- Для оперативных вопросов — внутренний канал команды (контакты описаны в приватной документации).
