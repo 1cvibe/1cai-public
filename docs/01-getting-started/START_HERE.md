@@ -9,11 +9,17 @@
 ## 📖 Что это?
 
 **Enterprise-grade AI ecosystem** для разработки 1С:
-- 🤖 Множественные AI (Qwen3-Coder, 1C:Напарник, GigaChat)
+- 🤖 Множественные AI модели:
+  - **Kimi-K2-Thinking** (NEW!) - State-of-the-art thinking model (1T params, 256k context) с поддержкой API и local режимов
+  - Qwen3-Coder - Генерация BSL кода
+  - 1C:Напарник - Интеграция готова
+  - GigaChat / YandexGPT - Структура готова
 - 📊 Граф метаданных (Neo4j)
 - 🔍 Семантический поиск (Qdrant)
 - 💻 EDT Plugin с AI
 - 🔄 Автоматическое улучшение (Innovation Engine)
+- 📈 **Comprehensive Monitoring** (NEW!) - Prometheus метрики, Grafana дашборды, Alert правила
+- ✅ **Comprehensive Testing** (NEW!) - Unit и integration тесты для всех компонентов
 
 ---
 
@@ -81,7 +87,7 @@ python scripts/migrations/migrate_postgres_to_neo4j.py
 python scripts/migrations/migrate_to_qdrant.py
 ```
 
-### 5. Загрузить AI модель
+### 5. Загрузить AI модели
 
 ```bash
 # Qwen3-Coder (7B - быстрая, 3.8GB)
@@ -89,7 +95,12 @@ docker-compose exec ollama ollama pull qwen2.5-coder:7b
 
 # Или большая модель (32B - мощнее, 19GB)
 # docker-compose exec ollama ollama pull qwen2.5-coder:32b
+
+# Kimi-K2-Thinking (local mode через Ollama) - NEW!
+# docker-compose exec ollama ollama pull kimi-k2-thinking:cloud
 ```
+
+**Примечание:** Для использования Kimi-K2-Thinking в API режиме установите `KIMI_API_KEY` в `.env` (см. [`docs/integrations/KIMI_K2_INTEGRATION.md`](../integrations/KIMI_K2_INTEGRATION.md))
 
 ### 6. Запустить API
 
