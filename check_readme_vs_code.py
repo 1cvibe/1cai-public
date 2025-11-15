@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Проверка соответствия README.md → реальному коду
+Проверка соответствия README.md -> реальному коду
 Категории 11-15 из MASTER AUDIT CHECKLIST
 """
 
@@ -38,13 +38,13 @@ class READMECodeChecker:
                 # Проверяем что хоть один путь существует
                 found = any(os.path.exists(p) for p in expected_paths)
                 if found:
-                    self.info.append(f"✓ {tech} - found in code")
+                    self.info.append(f"[OK] {tech} - found in code")
                 else:
                     self.issues.append(f"README mentions {tech} but not found in {expected_paths}")
     
     def check_features_have_docs(self):
         """Проверка что каждый Feature из README имеет документацию"""
-        print("Проверка Features → docs/06-features/...")
+        print("Проверка Features -> docs/06-features/...")
         
         if not os.path.exists('README.md'):
             return
@@ -63,13 +63,13 @@ class READMECodeChecker:
         for component, expected_doc in components_to_check.items():
             if component in readme:
                 if os.path.exists(expected_doc):
-                    self.info.append(f"✓ {component} → {expected_doc}")
+                    self.info.append(f"[OK] {component} -> {expected_doc}")
                 else:
                     self.issues.append(f"{component} in README but missing {expected_doc}")
     
     def check_requirements_packages_exist(self):
         """Проверка что пакеты в requirements.txt существуют"""
-        print("Проверка requirements.txt → PyPI...")
+        print("Проверка requirements.txt -> PyPI...")
         
         if not os.path.exists('requirements.txt'):
             self.issues.append("requirements.txt missing")
@@ -94,7 +94,7 @@ class READMECodeChecker:
         # Проверка версии Python
         has_version = any('python' in line.lower() and '3.11' in line for line in lines[:15])
         if has_version:
-            self.info.append("✓ Python version specified in requirements.txt")
+            self.info.append("[OK] Python version specified in requirements.txt")
         else:
             self.warnings.append("Missing Python version in requirements.txt header")
     
@@ -112,7 +112,7 @@ class READMECodeChecker:
                     f.write(f"{i}. {issue}\n")
                 f.write(f"\nTotal: {len(self.issues)}\n\n")
             else:
-                f.write("✓ NO ISSUES FOUND\n\n")
+                f.write("[OK] NO ISSUES FOUND\n\n")
             
             if self.warnings:
                 f.write("WARNINGS:\n")
@@ -158,9 +158,9 @@ def main():
     print(f"Warnings: {len(checker.warnings)}")
     
     if len(checker.issues) == 0:
-        print("\n✓ README MATCHES CODE")
+        print("\n[OK] README MATCHES CODE")
     else:
-        print(f"\n✗ Found {len(checker.issues)} mismatches")
+        print(f"\n[FAIL] Found {len(checker.issues)} mismatches")
 
 if __name__ == '__main__':
     main()

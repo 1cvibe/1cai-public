@@ -4,7 +4,8 @@ System Tests - End-to-End сценарии
 
 import pytest
 import asyncio
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, AsyncMock
+from types import SimpleNamespace
 import sys
 from pathlib import Path
 
@@ -56,13 +57,17 @@ async def test_full_code_review_flow():
 
 **Status:** {review_result['overall_status']}
 
-**Issues Found:** {review_result['metrics']['total']}
+**Issues Found:** {review_result['metrics']['total_issues']}
 """
     
     # Step 4: Post to GitHub (mocked)
-    with patch('requests.post') as mock_post:
-        mock_post.return_value.status_code = 201
-        
+    response_mock = SimpleNamespace(status_code=201, text="ok")
+    client_mock = AsyncMock()
+    client_mock.__aenter__.return_value = client_mock
+    client_mock.__aexit__.return_value = False
+    client_mock.post = AsyncMock(return_value=response_mock)
+    
+    with patch('httpx.AsyncClient', return_value=client_mock):
         gh = GitHubIntegration()
         posted = await gh.post_pr_comment(
             repo=pr_data['repository'],
@@ -70,8 +75,9 @@ async def test_full_code_review_flow():
             comment=comment,
             github_token='test'
         )
-        
-        assert posted is True
+    
+    assert posted is True
+    client_mock.post.assert_awaited_once()
 
 
 @pytest.mark.asyncio

@@ -4,12 +4,12 @@ Tenant Context Middleware
 """
 
 import os
-import logging
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 import jwt
+from src.utils.structured_logging import StructuredLogger
 
-logger = logging.getLogger(__name__)
+logger = StructuredLogger(__name__).logger
 
 
 class TenantContextMiddleware(BaseHTTPMiddleware):
@@ -81,7 +81,10 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
                 'app.current_user_id': user_id
             }
             
-            logger.debug(f"Tenant context set: tenant={tenant_id}, user={user_id}")
+            logger.debug(
+                "Tenant context set",
+                extra={"tenant_id": tenant_id, "user_id": user_id}
+            )
             
             # Continue with request
             response = await call_next(request)
@@ -93,7 +96,14 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Invalid token")
         except Exception as e:
-            logger.error(f"Tenant context error: {e}")
+            logger.error(
+                "Tenant context error",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             raise HTTPException(status_code=500, detail="Internal server error")
 
 

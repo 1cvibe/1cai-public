@@ -1,19 +1,27 @@
 # 🚀 НАЧНИТЕ ЗДЕСЬ!
 
-## Enterprise 1C AI Development Stack v4.1
+## Enterprise 1C AI Development Stack v5.2.0
 
-**Статус:** ✅ 70% реализовано, готово к использованию!
+**Статус:** ✅ 75% реализовано, готово к использованию!
+
+**Последнее обновление:** Январь 2025
 
 ---
 
 ## 📖 Что это?
 
 **Enterprise-grade AI ecosystem** для разработки 1С:
-- 🤖 Множественные AI (Qwen3-Coder, 1C:Напарник, GigaChat)
+- 🤖 Множественные AI модели:
+  - **Kimi-K2-Thinking** (NEW!) - State-of-the-art thinking model (1T params, 256k context) с поддержкой API и local режимов
+  - Qwen3-Coder - Генерация BSL кода
+  - 1C:Напарник - Интеграция готова
+  - GigaChat / YandexGPT - Структура готова
 - 📊 Граф метаданных (Neo4j)
 - 🔍 Семантический поиск (Qdrant)
 - 💻 EDT Plugin с AI
 - 🔄 Автоматическое улучшение (Innovation Engine)
+- 📈 **Comprehensive Monitoring** (NEW!) - Prometheus метрики, Grafana дашборды, Alert правила
+- ✅ **Comprehensive Testing** (NEW!) - Unit и integration тесты для всех компонентов
 
 ---
 
@@ -81,7 +89,7 @@ python scripts/migrations/migrate_postgres_to_neo4j.py
 python scripts/migrations/migrate_to_qdrant.py
 ```
 
-### 5. Загрузить AI модель
+### 5. Загрузить AI модели
 
 ```bash
 # Qwen3-Coder (7B - быстрая, 3.8GB)
@@ -89,7 +97,12 @@ docker-compose exec ollama ollama pull qwen2.5-coder:7b
 
 # Или большая модель (32B - мощнее, 19GB)
 # docker-compose exec ollama ollama pull qwen2.5-coder:32b
+
+# Kimi-K2-Thinking (local mode через Ollama) - NEW!
+# docker-compose exec ollama ollama pull kimi-k2-thinking:cloud
 ```
+
+**Примечание:** Для использования Kimi-K2-Thinking в API режиме установите `KIMI_API_KEY` в `.env` (см. [`docs/integrations/KIMI_K2_INTEGRATION.md`](../integrations/KIMI_K2_INTEGRATION.md))
 
 ### 6. Запустить API
 
@@ -118,12 +131,17 @@ python -m uvicorn src.ai.mcp_server:app --host 0.0.0.0 --port 6001
 
 **Читать в таком порядке:**
 
-1. **README.md** - Обзор проекта
-2. **QUICKSTART.md** - Быстрый старт
-3. **RUN_MIGRATION.md** - Миграция данных  
-4. **DEPLOYMENT_INSTRUCTIONS.md** - Подробное развертывание
-5. **FINAL_IMPLEMENTATION_STATUS.md** - Что реализовано
-6. **IMPLEMENTATION_PLAN.md** - План на 30 недель
+1. **[README.md](../../README.md)** - Обзор проекта
+2. **[QUICK_START.md](../../QUICK_START.md)** - Быстрый старт
+3. **[quickstart.md](./quickstart.md)** - Быстрый старт (детальный)
+4. **[DEPLOYMENT_INSTRUCTIONS.md](./DEPLOYMENT_INSTRUCTIONS.md)** - Подробное развертывание
+5. **[PROJECT_SUMMARY.md](../02-architecture/PROJECT_SUMMARY.md)** - Что реализовано и роадмап
+6. **[IMPLEMENTATION_PLAN.md](../02-architecture/IMPLEMENTATION_PLAN.md)** - План на 30 недель
+
+**Дополнительно:**
+- **[Architecture Overview](../02-architecture/ARCHITECTURE_OVERVIEW.md)** - Архитектура системы
+- **[AI Agents](../03-ai-agents/README.md)** - AI агенты и их возможности
+- **[Monitoring Guide](../../monitoring/AI_SERVICES_MONITORING.md)** - Мониторинг AI сервисов
 
 ---
 
@@ -232,15 +250,15 @@ mvn clean package
    ```
 
 3. **Contribute:**
-   - См. CONTRIBUTING.md
+   - См. [CONTRIBUTING.md](./CONTRIBUTING.md)
    - Создавайте Pull Requests
 
 ### Для пользователей:
 
-1. **Следуйте QUICKSTART.md**
-2. **Мигрируйте данные**
-3. **Используйте API**
-4. **Подключите Cursor**
+1. **Следуйте [QUICK_START.md](../../QUICK_START.md)** или **[quickstart.md](./quickstart.md)**
+2. **Мигрируйте данные** (см. раздел "Мигрировать данные" выше)
+3. **Используйте API** (см. раздел "Использовать API" выше)
+4. **Подключите Cursor** (см. раздел "Подключить Cursor" выше)
 5. **Давайте feedback!**
 
 ---
@@ -254,14 +272,14 @@ mvn clean package
 - ✅ Рабочий MVP
 - ✅ План дальнейшего развития
 
-**Начните с QUICKSTART.md и погрузитесь в мир AI-powered 1C development! 🚀**
+**Начните с [QUICK_START.md](../../QUICK_START.md) или [quickstart.md](./quickstart.md) и погрузитесь в мир AI-powered 1C development! 🚀**
 
 ---
 
 **Questions? Issues? Ideas?**  
-→ См. CONTRIBUTING.md  
+→ См. [CONTRIBUTING.md](./CONTRIBUTING.md)  
 → Create GitHub Issue  
-→ Check documentation
+→ Check [documentation](../README.md)
 
 **Let's build the future of 1C development together!** 💪
 

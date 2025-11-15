@@ -1,7 +1,7 @@
 # 🏗️ Архитектура проекта 1C AI Stack
 
-**Дата:** 6 ноября 2025  
-**Версия:** 5.1.0  
+**Дата:** Январь 2025  
+**Версия:** 5.2.0  
 **Статус:** Production Ready (99.5%)
 
 ---
@@ -41,6 +41,11 @@
 │ Level 3: AI ORCHESTRATOR                               │
 │  ├─ Query Classifier                                   │
 │  ├─ Agent Selector                                     │
+│  ├─ AI Models:                                         │
+│  │  ├─ Kimi-K2-Thinking (NEW! - API + local)         │
+│  │  ├─ Qwen3-Coder                                     │
+│  │  ├─ OpenAI (GPT-4, GPT-3.5)                       │
+│  │  └─ 1C:Напарник (ready)                            │
 │  ├─ 8 AI Agents (Architect, Dev, QA, DevOps, etc.)    │
 │  └─ Code Execution Engine (NEW!)                      │
 ├────────────────────────────────────────────────────────┤
@@ -95,7 +100,28 @@
 
 ---
 
-## 🆕 Новые компоненты (Nov 6, 2025)
+## 🆕 Новые компоненты (Latest Updates)
+
+### Kimi-K2-Thinking Integration (NEW!)
+
+**State-of-the-art thinking model** от Moonshot AI:
+- **1T parameters** (MoE), 32B activated
+- **256k context window**
+- **Native INT4 quantization**
+- **Deep thinking & tool orchestration**
+- **Stable long-horizon agency** (200-300 tool calls)
+
+**Режимы работы:**
+- **API режим** - Moonshot AI API (требует `KIMI_API_KEY`)
+- **Local режим** - Ollama/vLLM/SGLang (полная приватность)
+
+**Интеграция:**
+- ✅ AI Orchestrator - приоритет для code generation и optimization
+- ✅ Prometheus метрики - детальное отслеживание
+- ✅ Grafana дашборды - визуализация производительности
+- ✅ Comprehensive тесты - unit и integration
+
+**Документация:** [`docs/integrations/KIMI_K2_INTEGRATION.md`](../integrations/KIMI_K2_INTEGRATION.md)
 
 ### Code Execution Engine
 
@@ -210,18 +236,34 @@ deno run --allow-all execution-harness.ts
 ## 📊 Метрики и мониторинг
 
 ### Prometheus Metrics
-- API latency, throughput
-- Database performance
-- AI agent usage
-- Code execution stats - NEW!
+- **HTTP Metrics** - API latency, throughput, error rates
+- **Database Metrics** - Query performance, connection pool stats
+- **AI Service Metrics** (NEW!):
+  - Kimi-K2-Thinking: queries, duration, tokens, reasoning steps, tool calls
+  - AI Orchestrator: query distribution, fallbacks, cache hits/misses
+  - General AI: queries, errors, availability
+- **Code execution stats** - NEW!
+- **System metrics** - CPU, memory, disk usage
 
 ### Grafana Dashboards
-- System overview
-- AI agents performance
-- SLA compliance - NEW! (ITIL)
-- Code execution metrics - NEW!
+- **System Overview** - Общий статус всех сервисов
+- **AI Services Dashboard** (NEW!) - Детальный мониторинг AI сервисов:
+  - Kimi-K2-Thinking метрики (queries, duration, tokens, reasoning)
+  - Orchestrator метрики (distribution, fallbacks, cache)
+  - AI errors и availability
+- **AI agents performance** - Производительность агентов
+- **SLA compliance** - NEW! (ITIL)
+- **Code execution metrics** - NEW!
+
+### Alert Rules (NEW!)
+- **Critical alerts**: KimiServiceDown, AIServiceUnavailable
+- **Warning alerts**: High error rates, slow response times, high token usage
+- **Integration**: Alertmanager с Slack/Email уведомлениями
+
+**Документация:** [`monitoring/AI_SERVICES_MONITORING.md`](../../monitoring/AI_SERVICES_MONITORING.md)
 
 ### ELK Stack
+- **Structured Logging** (100% миграция) - JSON логи с correlation IDs
 - Application logs
 - Error tracking
 - Security events
@@ -255,6 +297,14 @@ deno run --allow-all execution-harness.ts
 
 ---
 
-**Обновлено:** 6 ноября 2025  
-**Next Review:** Декабрь 2025
+**Обновлено:** Январь 2025  
+**Версия:** 5.2.0  
+**Next Review:** Февраль 2025
+
+### 🆕 Последние обновления (Январь 2025)
+
+- ✅ **Kimi-K2-Thinking Integration** - Полная интеграция state-of-the-art thinking модели
+- ✅ **Comprehensive Testing** - Unit и integration тесты для всех компонентов
+- ✅ **Monitoring & Observability** - Prometheus метрики, Grafana дашборды, Alert правила
+- ✅ **Structured Logging** - 100% миграция на JSON логирование
 

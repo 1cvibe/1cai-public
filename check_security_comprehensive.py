@@ -260,14 +260,14 @@ class SecurityAuditor:
                 f.write(f"\nTotal: {len(self.critical)}\n\n")
             
             if self.high:
-                f.write("🟠 HIGH PRIORITY:\n")
+                f.write("[HIGH] PRIORITY:\n")
                 f.write("-"*70 + "\n")
                 for i, issue in enumerate(self.high, 1):
                     f.write(f"{i}. {issue}\n")
                 f.write(f"\nTotal: {len(self.high)}\n\n")
             
             if self.medium:
-                f.write("🟡 MEDIUM PRIORITY:\n")
+                f.write("[MEDIUM] PRIORITY:\n")
                 f.write("-"*70 + "\n")
                 for i, issue in enumerate(self.medium[:10], 1):
                     f.write(f"{i}. {issue}\n")
@@ -276,7 +276,7 @@ class SecurityAuditor:
                 f.write(f"\nTotal: {len(self.medium)}\n\n")
             
             if self.info:
-                f.write("✅ GOOD:\n")
+                f.write("[GOOD] ITEMS:\n")
                 f.write("-"*70 + "\n")
                 for item in self.info:
                     f.write(f"  {item}\n")
@@ -330,9 +330,9 @@ def main():
     print(f"Medium: {len(auditor.medium)}")
     
     if len(auditor.critical) == 0 and len(auditor.high) == 0:
-        print("\n✓ NO CRITICAL SECURITY ISSUES")
+        print("\n[OK] NO CRITICAL SECURITY ISSUES")
     else:
-        print(f"\n✗ Found {len(auditor.critical) + len(auditor.high)} security issues")
+        print(f"\n[FAIL] Found {len(auditor.critical) + len(auditor.high)} security issues")
 
 if __name__ == '__main__':
     main()

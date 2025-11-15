@@ -7,6 +7,8 @@ with optional LLM-based refinement (GigaChat / YandexGPT).
 
 from __future__ import annotations
 
+import asyncio
+import html
 import json
 import logging
 import os
@@ -14,10 +16,15 @@ import re
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from src.ai.clients import GigaChatClient, LLMCallError, LLMNotConfiguredError, YandexGPTClient
 from src.ai.utils.document_loader import read_document
+from src.integrations.confluence import ConfluenceClient
+from src.integrations.exceptions import IntegrationConfigError
+from src.integrations.jira import JiraClient
+from src.integrations.onedocflow import OneCDocflowClient
+from src.integrations.powerbi import PowerBIClient
 
 logger = logging.getLogger(__name__)
 
@@ -106,10 +113,46 @@ class RequirementsExtractor:
                     break
                 if matched:
                     break
+            if not matched:
+                for candidate in cleaned.splitlines():
+                    candidate = candidate.strip()
+                    if not candidate:
+                        continue
+                    list_match = re.match(r"^\d+[\.\)]\s+(?P<body>.+)", candidate)
+                    if list_match:
+                        body = list_match.group("body")
+                        functional.append(
+                            self._build_requirement(
+                                "functional", body, candidate, sentence_index=idx
+                            )
+                        )
+                        matched = True
+                        break
 
         stakeholders = self._extract_stakeholders(document_text)
         acceptance_criteria = self._extract_acceptance_criteria(document_text)
         user_stories = self._extract_user_stories(document_text)
+
+        if not functional:
+            for idx, line in enumerate(document_text.splitlines()):
+                cleaned_line = line.strip(" \t-")
+                if not cleaned_line:
+                    continue
+                list_match = re.match(r"^\d+[\.\)]\s*(?P<body>.+)", cleaned_line)
+                keyword_match = re.search(
+                    r"(должн|необходимо|требуется)", cleaned_line, re.IGNORECASE
+                )
+                body = None
+                if list_match:
+                    body = list_match.group("body")
+                elif keyword_match:
+                    body = cleaned_line.split(":", 1)[-1].strip() or cleaned_line
+                if body:
+                    functional.append(
+                        self._build_requirement(
+                            "functional", body, cleaned_line, sentence_index=idx
+                        )
+                    )
 
         summary = self._build_summary(functional, non_functional, constraints)
 
@@ -241,91 +284,81 @@ class RequirementsExtractor:
             "priority_distribution": dict(priorities),
             "llm_used": False,
         }
-    
+
     def _extract_actors(self, description: str) -> List[str]:
         """Извлечение участников процесса"""
         actors = set()
-        
-        # Common actor patterns
+
         patterns = [
-            r"(\w+(?:щик|лог|тель|ант|ер))",  # Roles ending in common suffixes
-            r"(менеджер|директор|бухгалтер|кладовщик|продавец|клиент)"
+            r"(\w+(?:щик|лог|тель|ант|ер))",
+            r"(менеджер|директор|бухгалтер|кладовщик|продавец|клиент)",
         ]
-        
+
         for pattern in patterns:
             matches = re.finditer(pattern, description, re.IGNORECASE)
             for match in matches:
                 actors.add(match.group(1).capitalize())
-        
-        return list(actors)[:10]  # Limit to 10
-    
+
+        return list(actors)[:10]
+
     def _extract_activities(self, description: str) -> List[str]:
-        """Извлечение действий"""
         activities = []
-        
-        # Verb patterns (simplified)
         verb_patterns = [
             r"(создать|создание)\s+(\w+)",
             r"(проверить|проверка)\s+(\w+)",
             r"(утвердить|утверждение)\s+(\w+)",
             r"(отправить|отправка)\s+(\w+)",
-            r"(получить|получение)\s+(\w+)"
+            r"(получить|получение)\s+(\w+)",
         ]
-        
+
         for pattern in verb_patterns:
             matches = re.finditer(pattern, description, re.IGNORECASE)
             for match in matches:
                 activity = f"{match.group(1)} {match.group(2)}"
                 activities.append(activity)
-        
-        return activities[:15]  # Limit to 15
-    
-    def _extract_decision_points(self, description: str) -> List[Dict]:
-        """Извлечение точек принятия решения"""
-        decision_points = []
-        
-        # Decision patterns
+
+        return activities[:15]
+
+    def _extract_decision_points(self, description: str) -> List[Dict[str, Any]]:
+        decisions: List[Dict[str, Any]] = []
         patterns = [
             r"если\s+(.+?)\s+,?\s+то",
-            r"в случае\s+(.+?)\s+,?\s+(?:выполняется|происходит)"
+            r"в случае\s+(.+?)\s+,?\s+(?:выполняется|происходит)",
         ]
-        
+
         for pattern in patterns:
             matches = re.finditer(pattern, description, re.IGNORECASE)
             for match in matches:
-                decision_points.append({
-                    "condition": match.group(1),
-                    "type": "decision"
-                })
-        
-        return decision_points[:10]
-    
+                decisions.append({"condition": match.group(1), "type": "decision"})
+
+        return decisions[:10]
+
     def _generate_mermaid(
         self,
         actors: List[str],
         activities: List[str],
-        decisions: List[Dict]
+        decisions: List[Dict[str, Any]],
     ) -> str:
-        """Генерация Mermaid диаграммы"""
         mermaid = "graph TD\n"
         mermaid += "    Start[Начало] --> Activity1\n"
-        
-        for i, activity in enumerate(activities[:5], 1):
-            mermaid += f"    Activity{i}[{activity}] --> "
-            if i < len(activities[:5]):
+
+        limited_activities = activities[:5]
+        for i, activity in enumerate(limited_activities, 1):
+            label = self._sanitize_step(activity, for_mermaid=True)
+            mermaid += f"    Activity{i}[{label}] --> "
+            if i < len(limited_activities):
                 mermaid += f"Activity{i+1}\n"
             else:
                 mermaid += "End[Конец]\n"
-        
+
         return mermaid
-    
+
     def _generate_bpmn_xml(
         self,
         actors: List[str],
         activities: List[str],
-        decisions: List[Dict]
+        decisions: List[Dict[str, Any]],
     ) -> str:
-        """Генерация BPMN 2.0 XML (упрощенная версия)"""
         bpmn = """<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
@@ -333,17 +366,94 @@ class RequirementsExtractor:
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1" name="Начало"/>
 """
-        
-        # Add activities
+
         for i, activity in enumerate(activities[:5], 1):
-            bpmn += f'    <bpmn:task id="Activity_{i}" name="{activity}"/>\n'
-        
+            label = self._sanitize_step(activity, for_mermaid=False)
+            bpmn += f'    <bpmn:task id="Activity_{i}" name="{label}"/>\n'
+
         bpmn += """    <bpmn:endEvent id="EndEvent_1" name="Конец"/>
   </bpmn:process>
 </bpmn:definitions>
 """
-        
+
         return bpmn
+
+
+class BPMNGenerator:
+    """Упрощённый генератор BPMN-диаграмм для unit-тестов."""
+
+    def __init__(self) -> None:
+        self.default_lane = "System"
+        self._max_label_length = 120
+        self._mermaid_translation = str.maketrans({
+            "[": "(",
+            "]": ")",
+            "{": "(",
+            "}": ")",
+            "<": " ",
+            ">": " ",
+            "`": " ",
+            '"': " ",
+            "'": " ",
+        })
+
+    def _sanitize_step(self, text: str, *, for_mermaid: bool) -> str:
+        cleaned = re.sub(r"\s+", " ", text or "").strip()
+        if not cleaned:
+            cleaned = "Step"
+        if len(cleaned) > self._max_label_length:
+            cleaned = cleaned[: self._max_label_length].rstrip()
+        if for_mermaid:
+            cleaned = cleaned.translate(self._mermaid_translation)
+            cleaned = cleaned.replace("--", "—")
+        else:
+            cleaned = html.escape(cleaned, quote=True)
+        return cleaned
+
+    async def generate_bpmn(self, process_description: str) -> Dict[str, Any]:
+        steps = [
+            step.strip()
+            for step in re.split(r"[.\n]", process_description or "")
+            if step.strip()
+        ]
+        if not steps:
+            steps = ["Начало процесса", "Завершение процесса"]
+
+        elements: List[Dict[str, Any]] = []
+        mermaid_lines = ["flowchart TD"]
+        previous_node = None
+
+        for idx, step in enumerate(steps, start=1):
+            node_id = f"S{idx}"
+            mermaid_label = self._sanitize_step(step, for_mermaid=True)
+            xml_label = self._sanitize_step(step, for_mermaid=False)
+            elements.append(
+                {
+                    "id": node_id,
+                    "name": xml_label,
+                    "raw_name": step,
+                    "type": "task",
+                    "lane": self.default_lane,
+                }
+            )
+            mermaid_lines.append(f"{node_id}[{mermaid_label}]")
+            if previous_node:
+                mermaid_lines.append(f"{previous_node} --> {node_id}")
+            previous_node = node_id
+
+        return {
+            "bpmn": {
+                "lanes": [
+                    {"name": self.default_lane, "elements": [e["id"] for e in elements]}
+                ],
+                "elements": elements,
+            },
+            "mermaid": "\n".join(mermaid_lines),
+            "metadata": {
+                "steps": len(elements),
+                "generated_at": datetime.utcnow().isoformat(),
+            },
+        }
 
 
 class GapAnalyzer:
@@ -717,5 +827,163 @@ class RequirementsLLMEnhancer:
             )
         )
         return merged
+
+
+class IntegrationConnector:
+    """Синхронизация BA-артефактов с Jira, Confluence, Power BI и 1C Docflow."""
+
+    SUPPORTED_TARGETS = ("jira", "confluence", "powerbi", "1c_docflow")
+
+    def __init__(
+        self,
+        *,
+        jira_client: Optional[JiraClient] = None,
+        confluence_client: Optional[ConfluenceClient] = None,
+        powerbi_client: Optional[PowerBIClient] = None,
+        docflow_client: Optional[OneCDocflowClient] = None,
+    ) -> None:
+        self.jira_client = jira_client or self._init_client(JiraClient)
+        self.confluence_client = confluence_client or self._init_client(ConfluenceClient)
+        self.powerbi_client = powerbi_client or self._init_client(PowerBIClient)
+        self.docflow_client = docflow_client or self._init_client(OneCDocflowClient)
+
+    def _init_client(self, factory):
+        if factory is None:
+            return None
+        try:
+            return factory.from_env()
+        except IntegrationConfigError:
+            return None
+
+    async def sync(self, artefact: Dict[str, Any], targets: Optional[Iterable[str]] = None) -> Dict[str, Any]:
+        targets_list = list(targets) if targets else ["jira", "confluence"]
+        results: List[Dict[str, Any]] = []
+        for target in targets_list:
+            handler = getattr(self, f"_sync_{target}".replace("-", "_"), None)
+            if handler is None:
+                results.append(
+                    {
+                        "target": target,
+                        "status": "skipped",
+                        "reason": "unsupported_target",
+                    }
+                )
+                continue
+            results.append(await handler(artefact))
+        return {"artefact_type": artefact.get("type"), "results": results}
+
+    async def aclose(self) -> None:
+        tasks = [
+            client.aclose()
+            for client in (self.jira_client, self.confluence_client, self.powerbi_client, self.docflow_client)
+            if client
+        ]
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def _sync_jira(self, artefact: Dict[str, Any]) -> Dict[str, Any]:
+        if not self.jira_client:
+            return self._queued("jira", "not_configured")
+        metadata = artefact.get("metadata", {})
+        project_key = metadata.get("project_key") or os.getenv("BA_JIRA_DEFAULT_PROJECT")
+        if not project_key:
+            return self._queued("jira", "project_key_missing")
+        summary = metadata.get("summary") or metadata.get("title") or artefact.get("title") or "BA Artefact"
+        description = metadata.get("description") or artefact.get("content", "")
+        fields = metadata.get("jira_fields")
+        summary = self._safe_text(summary, max_len=255, fallback="BA Artefact")
+        description = self._safe_text(description, max_len=32000, fallback=summary)
+        response = await self.jira_client.create_issue(
+            project_key=project_key,
+            summary=summary,
+            description=description,
+            fields=fields,
+        )
+        return {
+            "target": "jira",
+            "status": "created",
+            "key": response.get("key"),
+            "url": response.get("self"),
+        }
+
+    async def _sync_confluence(self, artefact: Dict[str, Any]) -> Dict[str, Any]:
+        if not self.confluence_client:
+            return self._queued("confluence", "not_configured")
+        metadata = artefact.get("metadata", {})
+        space_key = metadata.get("space_key") or os.getenv("BA_CONFLUENCE_SPACE_KEY")
+        if not space_key:
+            return self._queued("confluence", "space_key_missing")
+        title = metadata.get("title") or metadata.get("summary") or artefact.get("title") or "BA Artefact"
+        raw_body = metadata.get("body") or artefact.get("content") or ""
+        body = self._as_paragraphs(raw_body)
+        response = await self.confluence_client.create_page(
+            space_key=space_key,
+            title=title,
+            body=body,
+        )
+        return {
+            "target": "confluence",
+            "status": "published",
+            "id": response.get("id"),
+            "url": (response.get("links") or {}).get("webui"),
+        }
+
+    async def _sync_powerbi(self, artefact: Dict[str, Any]) -> Dict[str, Any]:
+        if not self.powerbi_client:
+            return self._queued("powerbi", "not_configured")
+        metadata = artefact.get("metadata", {})
+        workspace_id = metadata.get("workspace_id") or os.getenv("BA_POWERBI_WORKSPACE_ID")
+        dataset_id = metadata.get("dataset_id") or os.getenv("BA_POWERBI_DATASET_ID")
+        if not workspace_id or not dataset_id:
+            return self._queued("powerbi", "dataset_not_configured")
+        response = await self.powerbi_client.trigger_refresh(workspace_id, dataset_id)
+        return {
+            "target": "powerbi",
+            "status": "refresh_requested",
+            "details": response,
+        }
+
+    async def _sync_1c_docflow(self, artefact: Dict[str, Any]) -> Dict[str, Any]:
+        if not self.docflow_client:
+            return self._queued("1c_docflow", "not_configured")
+        metadata = artefact.get("metadata", {})
+        title = metadata.get("title") or metadata.get("summary") or artefact.get("title") or "BA Artefact"
+        description = metadata.get("description") or artefact.get("content", "")
+        description = self._safe_text(description, max_len=8000, fallback=title)
+        category = metadata.get("category") or "BA"
+        response = await self.docflow_client.register_document(
+            title=title,
+            description=description,
+            category=category,
+            payload=artefact,
+        )
+        return {
+            "target": "1c_docflow",
+            "status": "registered",
+            "id": response.get("id"),
+            "url": response.get("url"),
+        }
+
+    def _queued(self, target: str, reason: str) -> Dict[str, Any]:
+        return {
+            "target": target,
+            "status": "queued",
+            "reason": reason,
+        }
+
+    def _safe_text(self, value: Optional[str], *, max_len: int, fallback: str) -> str:
+        text = (value or "").strip()
+        text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", " ", text)
+        text = text or fallback
+        if len(text) > max_len:
+            text = text[:max_len].rstrip()
+        return text
+
+    def _as_paragraphs(self, value: str) -> str:
+        text = self._safe_text(value, max_len=20000, fallback="No content")
+        paragraphs = [html.escape(part.strip()) for part in text.splitlines() if part.strip()]
+        if not paragraphs:
+            return "<p>No content</p>"
+        return "".join(f"<p>{part}</p>" for part in paragraphs)
 
 

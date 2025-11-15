@@ -1,6 +1,11 @@
 """
 AI Orchestrator - Intelligent routing of queries to AI services
-Stage 2: AI & Search
+Версия: 2.1.0
+
+Улучшения:
+- Structured logging
+- Улучшена обработка ошибок
+- Input validation
 """
 
 import re
@@ -11,8 +16,9 @@ from enum import Enum
 from dataclasses import dataclass
 
 from fastapi import FastAPI, HTTPException
+from src.utils.structured_logging import StructuredLogger
 
-logger = logging.getLogger(__name__)
+logger = StructuredLogger(__name__).logger
 
 
 app = FastAPI(title="AI Orchestrator API")
@@ -38,6 +44,7 @@ class AIService(Enum):
     GIGACHAT = "gigachat"
     OPENAI = "openai"
     NAPARNIK = "naparnik"
+    KIMI_K2 = "kimi_k2"  # Kimi-K2-Thinking for complex reasoning and tool orchestration
 
 
 @dataclass
@@ -133,7 +140,48 @@ class QueryClassifier:
     }
     
     def classify(self, query: str, context: Dict[str, Any] = None) -> QueryIntent:
-        """Classify query and determine routing"""
+        """
+        Classify query with input validation
+        
+        Args:
+            query: User query string
+            context: Optional context dictionary
+        
+        Returns:
+            QueryIntent with classification result
+        """
+        # Input validation
+        if not query or not isinstance(query, str):
+            logger.warning(
+                "Invalid query in classify",
+                extra={"query_type": type(query).__name__ if query else None}
+            )
+            # Return default intent for invalid query
+            return QueryIntent(
+                query_type=QueryType.UNKNOWN,
+                confidence=0.0,
+                keywords=[],
+                context_type=None,
+                preferred_services=[AIService.NAPARNIK]
+            )
+        
+        # Validate query length
+        max_query_length = 10000
+        if len(query) > max_query_length:
+            logger.warning(
+                "Query too long in classify",
+                extra={"query_length": len(query), "max_length": max_query_length}
+            )
+            query = query[:max_query_length]  # Truncate
+        
+        if context is None:
+            context = {}
+        elif not isinstance(context, dict):
+            logger.warning(
+                "Invalid context type in classify",
+                extra={"context_type": type(context).__name__}
+            )
+            context = {}
         
         query_lower = query.lower()
         scores: Dict[QueryType, float] = {}
@@ -194,54 +242,173 @@ class AIOrchestrator:
             self.qwen_client = QwenCoderClient()
             logger.info("✓ Qwen3-Coder client initialized")
         except Exception as e:
-            logger.warning(f"Qwen client not available: {e}")
+            logger.warning(
+                "Qwen client not available",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                }
+            )
             self.qwen_client = None
+        
+        # Initialize Kimi client
+        try:
+            from src.ai.clients.kimi_client import KimiClient, KimiConfig
+            kimi_config = KimiConfig()
+            self.kimi_client = KimiClient(config=kimi_config)
+            if self.kimi_client.is_configured:
+                logger.info(
+                    "Kimi-K2-Thinking client initialized",
+                    extra={
+                        "mode": self.kimi_client._mode
+                    }
+                )
+            else:
+                logger.warning(
+                    "Kimi-K2-Thinking client not configured. Check KIMI_API_KEY or KIMI_OLLAMA_URL.",
+                    extra={"mode": self.kimi_client._mode}
+                )
+                self.kimi_client = None
+        except Exception as e:
+            logger.warning(
+                "Kimi-K2-Thinking client not available",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                }
+            )
+            self.kimi_client = None
     
     def register_client(self, service: AIService, client: Any):
         """Register AI service client"""
         self.clients[service] = client
-        logger.info(f"Registered client: {service.value}")
+        logger.info(
+            "Registered client",
+            extra={"service": service.value}
+        )
     
     async def process_query(self, 
                           query: str, 
                           context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Process query and return response"""
+        """
+        Process query and return response
+        
+        Args:
+            query: User query string
+            context: Optional context dictionary
+        
+        Returns:
+            Response dictionary with results
+        """
+        # Input validation
+        if not query or not isinstance(query, str):
+            logger.warning(
+                f"Invalid query provided: {query}",
+                extra={"query_type": type(query).__name__}
+            )
+            raise ValueError("Query must be a non-empty string")
+        
+        # Validate query length (prevent DoS)
+        max_query_length = 10000  # 10KB max
+        if len(query) > max_query_length:
+            logger.warning(
+                f"Query too long: {len(query)} characters",
+                extra={"query_length": len(query), "max_length": max_query_length}
+            )
+            raise ValueError(f"Query too long. Maximum length: {max_query_length} characters")
+        
         if context is None:
             context = {}
+        elif not isinstance(context, dict):
+            logger.warning(
+                f"Invalid context type: {type(context)}",
+                extra={"context_type": type(context).__name__}
+            )
+            context = {}
         
-        # Check cache
-        cache_key = f"{query}:{context}"
-        if cache_key in self.cache:
-            logger.info("Cache hit")
-            return self.cache[cache_key]
-        
-        # Classify query
-        intent = self.classifier.classify(query, context)
-        
-        logger.info(f"Query type: {intent.query_type.value} (confidence: {intent.confidence:.2f})")
-        logger.info(f"Preferred services: {[s.value for s in intent.preferred_services]}")
-        
-        # Route to appropriate service(s)
-        if intent.query_type == QueryType.GRAPH_QUERY:
-            response = await self._handle_graph_query(query, context)
-        
-        elif intent.query_type == QueryType.SEMANTIC_SEARCH:
-            response = await self._handle_semantic_search(query, context)
-        
-        elif intent.query_type == QueryType.CODE_GENERATION:
-            response = await self._handle_code_generation(query, context)
-        
-        elif intent.query_type == QueryType.OPTIMIZATION:
-            response = await self._handle_optimization(query, context)
-        
-        else:
-            # Default: use multiple services and combine
-            response = await self._handle_multi_service(query, intent, context)
-        
-        # Cache result
-        self.cache[cache_key] = response
-        
-        return response
+        try:
+            # Check cache
+            cache_key = f"{query}:{context}"
+            if cache_key in self.cache:
+                # Track cache hit
+                try:
+                    from src.monitoring.prometheus_metrics import orchestrator_cache_hits_total
+                    orchestrator_cache_hits_total.inc()
+                except ImportError:
+                    pass
+                
+                logger.info(
+                    "Cache hit",
+                    extra={"query_length": len(query)}
+                )
+                return self.cache[cache_key]
+            
+            # Track cache miss
+            try:
+                from src.monitoring.prometheus_metrics import orchestrator_cache_misses_total
+                orchestrator_cache_misses_total.inc()
+            except ImportError:
+                pass
+            
+            # Classify query
+            intent = self.classifier.classify(query, context)
+            
+            logger.info(
+                f"Query classified: {intent.query_type.value}",
+                extra={
+                    "query_type": intent.query_type.value,
+                    "confidence": intent.confidence,
+                    "preferred_services": [s.value for s in intent.preferred_services],
+                    "query_length": len(query)
+                }
+            )
+            
+            # Route to appropriate service(s)
+            if intent.query_type == QueryType.GRAPH_QUERY:
+                response = await self._handle_graph_query(query, context)
+            
+            elif intent.query_type == QueryType.SEMANTIC_SEARCH:
+                response = await self._handle_semantic_search(query, context)
+            
+            elif intent.query_type == QueryType.CODE_GENERATION:
+                response = await self._handle_code_generation(query, context)
+            
+            elif intent.query_type == QueryType.OPTIMIZATION:
+                response = await self._handle_optimization(query, context)
+            
+            else:
+                # Default: use multiple services and combine
+                response = await self._handle_multi_service(query, intent, context)
+            
+            # Cache result
+            self.cache[cache_key] = response
+            
+            logger.debug(
+                "Query processed successfully",
+                extra={
+                    "query_type": intent.query_type.value,
+                    "response_type": response.get("type", "unknown")
+                }
+            )
+            
+            return response
+            
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(
+                f"Error processing query: {e}",
+                extra={
+                    "query_length": len(query),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
+            return {
+                "type": "error",
+                "error": str(e),
+                "query": query[:100]  # Truncate for safety
+            }
     
     async def _handle_graph_query(self, query: str, context: Dict) -> Dict:
         """
@@ -257,13 +424,23 @@ class AIOrchestrator:
             
             # Validate cypher is safe
             if not converter.validate_cypher(cypher_result['cypher']):
+                logger.warning(
+                    "Unsafe Cypher query detected",
+                    extra={"cypher_preview": cypher_result['cypher'][:100]}
+                )
                 return {
                     "type": "graph_query",
                     "error": "Unsafe query detected. Only read operations allowed.",
                     "service": "neo4j"
                 }
             
-            logger.info(f"Generated Cypher: {cypher_result['cypher']}")
+            logger.info(
+                "Generated Cypher query",
+                extra={
+                    "cypher_length": len(cypher_result['cypher']),
+                    "confidence": cypher_result.get('confidence', 0.0)
+                }
+            )
             
             # Execute on Neo4j (if available)
             try:
@@ -273,6 +450,14 @@ class AIOrchestrator:
                 results = await asyncio.to_thread(
                     neo4j_client.execute_query,
                     cypher_result['cypher']
+                )
+                
+                logger.info(
+                    "Graph query executed successfully",
+                    extra={
+                        "results_count": len(results) if results else 0,
+                        "service": "neo4j"
+                    }
                 )
                 
                 return {
@@ -286,7 +471,10 @@ class AIOrchestrator:
                 }
                 
             except ImportError:
-                logger.warning("Neo4j client not available")
+                logger.warning(
+                    "Neo4j client not available",
+                    extra={"service": "neo4j"}
+                )
                 return {
                     "type": "graph_query",
                     "service": "neo4j",
@@ -297,7 +485,14 @@ class AIOrchestrator:
                 }
             
         except Exception as e:
-            logger.error(f"Error in graph query: {e}", exc_info=True)
+            logger.error(
+                "Error in graph query",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "type": "graph_query",
                 "error": str(e),
@@ -316,7 +511,10 @@ class AIOrchestrator:
             embedding_service = EmbeddingService()
             query_embedding = await embedding_service.generate_embedding(query)
             
-            logger.info(f"Generated embedding for query (dim: {len(query_embedding)})")
+            logger.info(
+                "Generated embedding for query",
+                extra={"embedding_dimension": len(query_embedding)}
+            )
             
             # Search in Qdrant
             try:
@@ -343,7 +541,10 @@ class AIOrchestrator:
                         "description": result.payload.get('description', '')
                     })
                 
-                logger.info(f"Found {len(formatted_results)} similar code snippets")
+                logger.info(
+                    "Found similar code snippets",
+                    extra={"results_count": len(formatted_results)}
+                )
                 
                 return {
                     "type": "semantic_search",
@@ -364,7 +565,14 @@ class AIOrchestrator:
                 }
             
         except Exception as e:
-            logger.error(f"Error in semantic search: {e}", exc_info=True)
+            logger.error(
+                "Error in semantic search",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "type": "semantic_search",
                 "error": str(e),
@@ -372,12 +580,98 @@ class AIOrchestrator:
             }
     
     async def _handle_code_generation(self, query: str, context: Dict) -> Dict:
-        """Handle code generation requests"""
+        """Handle code generation requests - prioritizes Kimi-K2-Thinking for complex reasoning"""
+        import time
+        
+        # Try Kimi-K2-Thinking first (better for complex code generation)
+        if self.kimi_client and self.kimi_client.is_configured:
+            try:
+                # Track metrics
+                try:
+                    from src.monitoring.prometheus_metrics import (
+                        kimi_queries_total, kimi_response_duration_seconds,
+                        kimi_tokens_used_total, orchestrator_queries_total
+                    )
+                    start_time = time.time()
+                    kimi_mode = "api" if not self.kimi_client.is_local else "local"
+                except ImportError:
+                    kimi_queries_total = None
+                    kimi_response_duration_seconds = None
+                    kimi_tokens_used_total = None
+                    orchestrator_queries_total = None
+                    start_time = None
+                    kimi_mode = None
+                
+                system_prompt = context.get('system_prompt', 'You are an expert 1C:Enterprise developer. Generate clean, efficient BSL code.')
+                
+                result = await self.kimi_client.generate(
+                    prompt=query,
+                    system_prompt=system_prompt,
+                    temperature=1.0,
+                    max_tokens=context.get('max_tokens', 4096)
+                )
+                
+                # Record metrics
+                if kimi_queries_total and kimi_mode:
+                    duration = time.time() - start_time
+                    kimi_queries_total.labels(mode=kimi_mode, status='success').inc()
+                    kimi_response_duration_seconds.labels(mode=kimi_mode).observe(duration)
+                    
+                    usage = result.get('usage', {})
+                    if usage:
+                        kimi_tokens_used_total.labels(mode=kimi_mode, token_type='prompt').inc(usage.get('prompt_tokens', 0))
+                        kimi_tokens_used_total.labels(mode=kimi_mode, token_type='completion').inc(usage.get('completion_tokens', 0))
+                        kimi_tokens_used_total.labels(mode=kimi_mode, token_type='total').inc(usage.get('total_tokens', 0))
+                    
+                    orchestrator_queries_total.labels(query_type='code_generation', selected_service='kimi_k2').inc()
+                
+                # Extract code from response (may contain markdown)
+                code_text = result.get('text', '')
+                
+                # Try to extract code block if present
+                import re
+                code_match = re.search(r'```(?:bsl|1c)?\n?(.*?)```', code_text, re.DOTALL)
+                if code_match:
+                    code_text = code_match.group(1).strip()
+                
+                return {
+                    "type": "code_generation",
+                    "service": "kimi_k2",
+                    "code": code_text,
+                    "full_response": result.get('text'),
+                    "reasoning": result.get('reasoning_content', ''),
+                    "model": "Kimi-K2-Thinking",
+                    "usage": result.get('usage', {})
+                }
+            except Exception as e:
+                # Track error metrics
+                try:
+                    from src.monitoring.prometheus_metrics import (
+                        kimi_queries_total, ai_errors_total,
+                        orchestrator_fallback_total
+                    )
+                    kimi_mode = "api" if not self.kimi_client.is_local else "local"
+                    kimi_queries_total.labels(mode=kimi_mode, status='error').inc()
+                    ai_errors_total.labels(service='kimi_k2', model='Kimi-K2-Thinking', error_type=type(e).__name__).inc()
+                    orchestrator_fallback_total.labels(from_service='kimi_k2', to_service='qwen_coder', reason='error').inc()
+                except ImportError:
+                    pass
+                
+                logger.warning(
+                    "Kimi code generation failed, falling back to Qwen",
+                    extra={
+                        "error": str(e),
+                        "error_type": type(e).__name__
+                    }
+                )
+                # Fall through to Qwen
+        
+        # Fallback to Qwen3-Coder
         if not self.qwen_client:
             return {
                 "type": "code_generation",
                 "service": "qwen_coder",
-                "error": "Qwen3-Coder not available. Start Ollama with: ollama pull qwen2.5-coder:7b"
+                "error": "No code generation service available. Configure KIMI_API_KEY or start Ollama with: ollama pull qwen2.5-coder:7b"
             }
         
         try:
@@ -408,7 +702,14 @@ class AIOrchestrator:
             }
             
         except Exception as e:
-            logger.error(f"Code generation error: {e}")
+            logger.error(
+                "Code generation error",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "type": "code_generation",
                 "service": "qwen_coder",
@@ -416,21 +717,110 @@ class AIOrchestrator:
             }
     
     async def _handle_optimization(self, query: str, context: Dict) -> Dict:
-        """Handle code optimization requests"""
+        """Handle code optimization requests - prioritizes Kimi-K2-Thinking for complex reasoning"""
+        import time
+        
+        code = context.get('code')
+        if not code:
+            return {
+                "type": "optimization",
+                "error": "No code provided in context"
+            }
+        
+        # Try Kimi-K2-Thinking first (better for complex optimization with reasoning)
+        if self.kimi_client and self.kimi_client.is_configured:
+            try:
+                # Track metrics
+                try:
+                    from src.monitoring.prometheus_metrics import (
+                        kimi_queries_total, kimi_response_duration_seconds,
+                        kimi_tokens_used_total, orchestrator_queries_total
+                    )
+                    start_time = time.time()
+                    kimi_mode = "api" if not self.kimi_client.is_local else "local"
+                except ImportError:
+                    kimi_queries_total = None
+                    kimi_response_duration_seconds = None
+                    kimi_tokens_used_total = None
+                    orchestrator_queries_total = None
+                    start_time = None
+                    kimi_mode = None
+                
+                optimization_prompt = f"""Оптимизируй следующий BSL код:
+{code}
+
+Проанализируй код и предложи оптимизированную версию с объяснением улучшений."""
+                
+                system_prompt = context.get('system_prompt', 'You are an expert 1C:Enterprise developer specializing in code optimization. Provide optimized code with detailed explanations.')
+                
+                result = await self.kimi_client.generate(
+                    prompt=optimization_prompt,
+                    system_prompt=system_prompt,
+                    temperature=1.0,
+                    max_tokens=context.get('max_tokens', 4096)
+                )
+                
+                # Record metrics
+                if kimi_queries_total and kimi_mode:
+                    duration = time.time() - start_time
+                    kimi_queries_total.labels(mode=kimi_mode, status='success').inc()
+                    kimi_response_duration_seconds.labels(mode=kimi_mode).observe(duration)
+                    
+                    usage = result.get('usage', {})
+                    if usage:
+                        kimi_tokens_used_total.labels(mode=kimi_mode, token_type='prompt').inc(usage.get('prompt_tokens', 0))
+                        kimi_tokens_used_total.labels(mode=kimi_mode, token_type='completion').inc(usage.get('completion_tokens', 0))
+                        kimi_tokens_used_total.labels(mode=kimi_mode, token_type='total').inc(usage.get('total_tokens', 0))
+                    
+                    orchestrator_queries_total.labels(query_type='optimization', selected_service='kimi_k2').inc()
+                
+                optimized_text = result.get('text', '')
+                
+                # Try to extract optimized code and explanation
+                import re
+                code_match = re.search(r'```(?:bsl|1c)?\n?(.*?)```', optimized_text, re.DOTALL)
+                optimized_code = code_match.group(1).strip() if code_match else optimized_text
+                
+                return {
+                    "type": "optimization",
+                    "services": ["kimi_k2"],
+                    "original_code": code,
+                    "optimized_code": optimized_code,
+                    "explanation": result.get('reasoning_content', '') or optimized_text,
+                    "model": "Kimi-K2-Thinking",
+                    "usage": result.get('usage', {})
+                }
+            except Exception as e:
+                # Track error metrics
+                try:
+                    from src.monitoring.prometheus_metrics import (
+                        kimi_queries_total, ai_errors_total,
+                        orchestrator_fallback_total
+                    )
+                    kimi_mode = "api" if not self.kimi_client.is_local else "local"
+                    kimi_queries_total.labels(mode=kimi_mode, status='error').inc()
+                    ai_errors_total.labels(service='kimi_k2', model='Kimi-K2-Thinking', error_type=type(e).__name__).inc()
+                    orchestrator_fallback_total.labels(from_service='kimi_k2', to_service='qwen_coder', reason='error').inc()
+                except ImportError:
+                    pass
+                
+                logger.warning(
+                    "Kimi optimization failed, falling back to Qwen",
+                    extra={
+                        "error": str(e),
+                        "error_type": type(e).__name__
+                    }
+                )
+                # Fall through to Qwen
+        
+        # Fallback to Qwen3-Coder
         if not self.qwen_client:
             return {
                 "type": "optimization",
-                "error": "Qwen3-Coder not available"
+                "error": "No optimization service available. Configure KIMI_API_KEY or start Ollama with: ollama pull qwen2.5-coder:7b"
             }
         
         try:
-            code = context.get('code')
-            if not code:
-                return {
-                    "type": "optimization",
-                    "error": "No code provided in context"
-                }
-            
             # TODO: Get dependencies from Neo4j if available
             dependencies = None
             if AIService.NEO4J in self.clients:
@@ -454,7 +844,14 @@ class AIOrchestrator:
             }
             
         except Exception as e:
-            logger.error(f"Optimization error: {e}")
+            logger.error(
+                "Optimization error",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "type": "optimization",
                 "error": str(e)
@@ -484,6 +881,16 @@ class AIOrchestrator:
                 elif service == AIService.QWEN_CODER and hasattr(self, "query_qwen"):
                     tasks.append(asyncio.to_thread(self.query_qwen, query, context))
                     service_names.append("qwen_coder")
+                elif service == AIService.KIMI_K2 and self.kimi_client and self.kimi_client.is_configured:
+                    # Use Kimi-K2-Thinking for complex reasoning
+                    system_prompt = context.get('system_prompt', 'You are an expert AI assistant.')
+                    tasks.append(self.kimi_client.generate(
+                        prompt=query,
+                        system_prompt=system_prompt,
+                        temperature=1.0,
+                        max_tokens=context.get('max_tokens', 4096)
+                    ))
+                    service_names.append("kimi_k2")
                 else:
                     combined_results[service.value] = {
                         "status": "skipped",
@@ -508,13 +915,22 @@ class AIOrchestrator:
                 }
             
             # Execute ALL services in PARALLEL!
-            logger.info(f"Executing {len(tasks)} services in parallel: {service_names}")
+            logger.info(
+                "Executing services in parallel",
+                extra={
+                    "services_count": len(tasks),
+                    "service_names": service_names
+                }
+            )
             start_time = asyncio.get_event_loop().time()
             
             results = await asyncio.gather(*tasks, return_exceptions=True)
             
             execution_time = asyncio.get_event_loop().time() - start_time
-            logger.info(f"Parallel execution completed in {execution_time:.3f}s")
+            logger.info(
+                "Parallel execution completed",
+                extra={"execution_time_seconds": round(execution_time, 3)}
+            )
             
             # Combine results
             successful_count = 0
@@ -525,7 +941,14 @@ class AIOrchestrator:
                         "error": str(result),
                         "status": "failed"
                     }
-                    logger.warning(f"Service {service_name} failed: {result}")
+                    logger.warning(
+                        "Service failed",
+                        extra={
+                            "service_name": service_name,
+                            "error": str(result),
+                            "error_type": type(result).__name__
+                        }
+                    )
                 else:
                     combined_results[service_name] = {
                         **result,
@@ -551,7 +974,14 @@ class AIOrchestrator:
             }
             
         except Exception as e:
-            logger.error(f"Error in parallel multi-service query: {e}", exc_info=True)
+            logger.error(
+                "Error in parallel multi-service query",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "type": "multi_service",
                 "error": str(e),

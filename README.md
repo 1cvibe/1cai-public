@@ -22,6 +22,29 @@
 - **Автоматизация и MCP-инструменты.** [`src/ai/mcp_server.py`](src/ai/mcp_server.py), spec-driven workflow и готовые CLI помогают создавать задачи, генерировать код и запускать тесты из IDE или CI (см. [`docs/06-features/MCP_SERVER_GUIDE.md`](docs/06-features/MCP_SERVER_GUIDE.md)).
 - **Промышленный контур.** Helm charts, Argo CD, Linkerd, Vault и Terraform-модули в [`infrastructure/`](infrastructure/) + регламенты в [`docs/ops/`](docs/ops/README.md) позволяют разворачивать и поддерживать стек в облаке без ручных «магических» шагов.
 
+<<<<<<< HEAD
+=======
+### 🚀 Последние улучшения (v2.2.0)
+
+**Production-Ready улучшения на основе best practices топ-100 компаний:**
+
+- ✅ **Kimi-K2-Thinking Integration** - State-of-the-art thinking model (1T params, 256k context) с поддержкой API и local режимов
+- ✅ **Comprehensive Testing** - Unit и integration тесты для Kimi, structured logging, AI Orchestrator
+- ✅ **Prometheus Metrics** - Детальные метрики для AI сервисов (Kimi, Orchestrator, cache, fallbacks)
+- ✅ **Grafana Dashboards** - Готовые дашборды для мониторинга AI сервисов
+- ✅ **Alert Rules** - Настроенные алерты для критических компонентов
+- ✅ **OpenTelemetry** - Distributed tracing готов к интеграции
+- ✅ **Structured Logging** - JSON логирование с correlation IDs и contextvars (100% миграция)
+- ✅ **Multi-Layer Cache** - LRU eviction, Circuit Breaker, Prometheus metrics
+- ✅ **Database Pooling** - Оптимизированный connection pool с exponential backoff
+- ✅ **Error Handling** - Централизованная обработка ошибок с структурированными ответами
+- ✅ **Security** - Улучшенные JWT токены, refresh tokens, security headers
+- ✅ **CI/CD** - Multi-stage Docker builds, кэширование зависимостей
+- ✅ **API Documentation** - Полная OpenAPI документация с примерами
+
+**Подробнее:** [`IMPROVEMENTS_PROGRESS.md`](IMPROVEMENTS_PROGRESS.md) | [`docs/BEST_PRACTICES_IMPLEMENTED.md`](docs/BEST_PRACTICES_IMPLEMENTED.md) | [`monitoring/AI_SERVICES_MONITORING.md`](monitoring/AI_SERVICES_MONITORING.md)
+
+>>>>>>> sync/public-2025-11-15
 ## Архитектура платформы
 
 ```mermaid

@@ -3,28 +3,37 @@ API endpoints для Code Review в реальном времени
 Версия: 1.0.0
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from pydantic import BaseModel, Field
 from typing import Optional, List, Literal
 from datetime import datetime
 import hashlib
+import logging
+import asyncio
 from src.services.caching_service import get_cache_service
 from src.middleware.rate_limiter import limiter, PUBLIC_RATE_LIMIT
 from src.services.openai_code_analyzer import get_openai_analyzer
+from src.api.code_analyzers import (
+    analyze_typescript_code,
+    analyze_python_code,
+    analyze_javascript_code
+)
+from src.utils.structured_logging import StructuredLogger
 
-router = APIRouter()
+router = APIRouter(prefix="/api/code-review")
+logger = StructuredLogger(__name__).logger
 
 
 # ==================== МОДЕЛИ ДАННЫХ ====================
 
 class CodeContextRequest(BaseModel):
     """Запрос на анализ кода"""
-    content: str = Field(..., description="Исходный код для анализа")
+    content: str = Field(..., max_length=100000, description="Исходный код для анализа")
     language: Literal["bsl", "typescript", "javascript", "python", "java", "csharp"] = Field(
         default="bsl",
         description="Язык программирования"
     )
-    fileName: Optional[str] = Field(None, description="Имя файла")
+    fileName: Optional[str] = Field(None, max_length=500, description="Имя файла")
     projectContext: Optional[dict] = Field(None, description="Контекст проекта")
     cursorPosition: Optional[dict] = Field(None, description="Позиция курсора")
     recentChanges: Optional[List[str]] = Field(None, description="Последние изменения")
@@ -75,8 +84,8 @@ class CodeAnalysisResponse(BaseModel):
 
 class AutoFixRequest(BaseModel):
     """Запрос на автоматическое исправление"""
-    suggestionId: str
-    code: str
+    suggestionId: str = Field(..., max_length=100)
+    code: str = Field(..., max_length=100000)
 
 
 class AutoFixResponse(BaseModel):
@@ -91,6 +100,27 @@ class AutoFixResponse(BaseModel):
 
 def analyze_bsl_code(code: str) -> dict:
     """Базовый анализ BSL кода"""
+    if not code.strip():
+        return {
+            "suggestions": [],
+            "metrics": {
+                "complexity": 0,
+                "maintainability": 100,
+                
+                "securityScore": 100,
+                "performanceScore": 100,
+                "codeQuality": 100,
+            },
+            "statistics": {
+                "totalLines": 0,
+                "functions": 0,
+                "variables": 0,
+                "comments": 0,
+                "potentialIssues": 0,
+            },
+            "recommendations": [],
+        }
+
     suggestions = []
     lines = code.split('\n')
     
@@ -216,23 +246,146 @@ def analyze_bsl_code(code: str) -> dict:
     "/analyze",
     response_model=CodeAnalysisResponse,
     tags=["Code Review"],
-    summary="Анализ кода в реальном времени",
-    description="Анализирует код и предоставляет предложения по улучшению"
+    summary="Real-time code analysis",
+    description="""
+    Analyze code and provide improvement suggestions in real-time.
+    
+    **Supported Languages:**
+    - BSL (1C:Enterprise)
+    - TypeScript
+    - JavaScript
+    - Python
+    - Java
+    - C#
+    
+    **Analysis Features:**
+    - Performance issues (N+1 queries, inefficient loops)
+    - Security vulnerabilities (SQL injection, hardcoded secrets)
+    - Code quality metrics (complexity, maintainability)
+    - Best practices violations
+    - Style suggestions
+    
+    **Caching:**
+    - Results are cached for 1 hour
+    - Cache key based on code content hash
+    
+    **Rate Limit:** Public rate limit (configurable)
+    """,
+    responses={
+        200: {
+            "description": "Code analysis results",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "suggestions": [],
+                        "metrics": {
+                            "complexity": 10,
+                            "maintainability": 85,
+                            "securityScore": 90,
+                            "performanceScore": 80,
+                            "codeQuality": 85
+                        },
+                        "statistics": {
+                            "totalLines": 100,
+                            "functions": 5,
+                            "variables": 10,
+                            "comments": 20,
+                            "potentialIssues": 2
+                        },
+                        "recommendations": ["Use parameterized queries"],
+                        "analysisId": "analysis-1234567890"
+                    }
+                }
+            }
+        },
+        400: {"description": "Invalid code or language"},
+        429: {"description": "Rate limit exceeded"},
+        500: {"description": "Analysis error"},
+    },
 )
 @limiter.limit(PUBLIC_RATE_LIMIT)
-async def analyze_code(request: Request, request_data: CodeContextRequest):
-    """Анализ кода с предложениями по улучшению"""
-    # Используем request_data как основной request
-    code_request = request_data
+async def analyze_code(request: Request, request_data: CodeContextRequest, response: Response):
+    """
+    Анализ кода с предложениями по улучшению
     
+    Best practices:
+    - Валидация длины кода
+    - Sanitization входных данных
+    - Улучшенная обработка ошибок
+    """
     try:
-        # Генерация ключа кэша
+        # Input validation and sanitization (best practice)
+        code = request_data.content.strip()
+        if not code:
+            raise HTTPException(
+                status_code=400,
+                detail="Code cannot be empty"
+            )
+        
+        # Limit code length (prevent DoS)
+        max_code_length = 100000  # 100KB max
+        if len(code) > max_code_length:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Code too long. Maximum length: {max_code_length} characters"
+            )
+        
+        # Validate language
+        supported_languages = ["bsl", "typescript", "python", "javascript"]
+        if request_data.language not in supported_languages:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported language: {request_data.language}. Supported: {', '.join(supported_languages)}"
+            )
+        
+        # Sanitize file name if provided
+        file_name = None
+        if request_data.fileName:
+            file_name = request_data.fileName.strip()[:200]  # Limit length
+            # Prevent path traversal
+            if '..' in file_name or '/' in file_name or '\\' in file_name:
+                file_name = None  # Use None if invalid
+        
+        # Используем request_data как основной request
+        code_request = request_data
+        code_request.content = code  # Use sanitized code
+        if file_name:
+            code_request.fileName = file_name
+        
+        # Определяем вариант кэша в зависимости от доступности AI
+        ai_variant = "local"
+        openai_analyzer = None
+        try:
+            openai_analyzer = get_openai_analyzer()
+            if getattr(openai_analyzer, "enabled", False):
+                ai_variant = f"ai:{getattr(openai_analyzer, 'model', 'unknown')}"
+        except Exception as analyzer_init_error:
+            logger.warning(
+                "Failed to initialize AI analyzer, fallback to local analysis",
+                extra={
+                    "error": str(analyzer_init_error),
+                    "error_type": type(analyzer_init_error).__name__,
+                },
+            )
+            openai_analyzer = None
+        
+        # Генерация ключа кэша (включая вариант AI, чтобы не кэшировать локальный анализ для AI клиентов)
         cache_service = get_cache_service()
         cache_key = cache_service.generate_key(
             "code_review",
             content=code_request.content,
             language=code_request.language,
-            fileName=code_request.fileName or ""
+            fileName=code_request.fileName or "",
+            ai_variant=ai_variant,
+        )
+        
+        logger.debug(
+            "Code review cache variant selected",
+            extra={
+                "ai_variant": ai_variant,
+                "ai_enabled": bool(openai_analyzer and getattr(openai_analyzer, "enabled", False)),
+                "analyzer_type": type(openai_analyzer).__name__ if openai_analyzer else None,
+            },
         )
         
         # Попытка получить из кэша
@@ -243,28 +396,70 @@ async def analyze_code(request: Request, request_data: CodeContextRequest):
         # Локальный анализ кода (быстрый, без AI)
         if code_request.language == "bsl":
             result = analyze_bsl_code(code_request.content)
+        elif code_request.language == "typescript":
+            result = analyze_typescript_code(code_request.content)
+        elif code_request.language == "python":
+            result = analyze_python_code(code_request.content)
+        elif code_request.language == "javascript":
+            result = analyze_javascript_code(code_request.content)
         else:
-            # Для других языков можно использовать общий анализатор
-            result = analyze_bsl_code(code_request.content)  # TODO: добавить поддержку других языков
-        
-        # AI анализ через OpenAI (асинхронно, если доступен)
-        ai_suggestions = []
-        try:
-            openai_analyzer = get_openai_analyzer()
-            ai_suggestions = await openai_analyzer.analyze_code(
-                code=code_request.content,
-                language=code_request.language,
-                context=code_request.projectContext
+            # Fallback для других языков - используем базовый анализатор
+            logger.warning(
+                "Language not fully supported, using basic analysis",
+                extra={"language": code_request.language}
             )
-            
-            # Объединение с локальными предложениями
-            result["suggestions"].extend(ai_suggestions)
-            
-            logger.info(f"Добавлено {len(ai_suggestions)} AI предложений к анализу")
-            
-        except Exception as e:
-            # Если AI недоступен, продолжаем без него
-            logger.warning(f"AI анализ недоступен, используем только локальный: {e}")
+            result = analyze_bsl_code(code_request.content)
+        
+        # AI анализ через OpenAI (асинхронно, если доступен) с timeout
+        ai_suggestions = []
+        if openai_analyzer and getattr(openai_analyzer, "enabled", False):
+            # Timeout для AI анализа (30 секунд)
+            ai_timeout = 30.0
+            try:
+                ai_suggestions = await asyncio.wait_for(
+                    openai_analyzer.analyze_code(
+                        code=code_request.content,
+                        language=code_request.language,
+                        context=code_request.projectContext
+                    ),
+                    timeout=ai_timeout
+                )
+                
+                # Объединение с локальными предложениями
+                result["suggestions"].extend(ai_suggestions)
+                
+                logger.info(
+                    "AI suggestions added to analysis",
+                    extra={
+                        "ai_suggestions_count": len(ai_suggestions),
+                        "language": code_request.language
+                    }
+                )
+            except asyncio.TimeoutError:
+                logger.warning(
+                    "AI analysis timeout",
+                    extra={
+                        "language": code_request.language,
+                        "code_length": len(code_request.content),
+                        "timeout": ai_timeout
+                    }
+                )
+                # Продолжаем без AI предложений
+            except Exception as e:
+                logger.warning(
+                    "AI analysis unavailable, using local analysis only",
+                    extra={
+                        "error": str(e),
+                        "error_type": type(e).__name__,
+                        "language": code_request.language
+                    },
+                    exc_info=True
+                )
+        else:
+            logger.debug(
+                "AI analyzer disabled or not initialized, skipping AI suggestions",
+                extra={"ai_variant": ai_variant, "language": code_request.language}
+            )
         
         analysis_id = f"analysis-{datetime.now().timestamp()}"
         
@@ -281,18 +476,26 @@ async def analyze_code(request: Request, request_data: CodeContextRequest):
         
         return response_data
     
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions as-is
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка анализа кода: {str(e)}")
+        logger.error(
+            "Unexpected error analyzing code",
+            extra={
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "code_length": len(code) if 'code' in locals() else 0,
+                "language": request_data.language if hasattr(request_data, 'language') else None
+            },
+            exc_info=True
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while analyzing code"
+        )
 
 
-@router.post(
-    "/auto-fix",
-    response_model=AutoFixResponse,
-    tags=["Code Review"],
-    summary="Автоматическое исправление кода",
-    description="Применяет автоматическое исправление к коду на основе предложения"
-)
-async def auto_fix_code(request: AutoFixRequest):
+async def _apply_auto_fix(payload: AutoFixRequest) -> AutoFixResponse:
     """
     SMART Auto-Fix - Применение автозамены на основе типа issue
     
@@ -300,11 +503,11 @@ async def auto_fix_code(request: AutoFixRequest):
     """
     
     try:
-        fixed_code = request.code
+        fixed_code = payload.code
         changes = []
         
         # Parse suggestion ID to determine fix type
-        suggestion_id = request.suggestionId.lower()
+        suggestion_id = payload.suggestionId.lower()
         
         # Pattern 1: Type checking (Тип → ПроверитьТип)
         if 'type-check' in suggestion_id or 'Тип(' in fixed_code:
@@ -393,9 +596,38 @@ async def auto_fix_code(request: AutoFixRequest):
             message=f"Applied {len(changes)} fix(es)" if changes else "No applicable auto-fixes for this suggestion"
         )
     
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions as-is
     except Exception as e:
-        logger.error(f"Error in auto-fix: {e}", exc_info=True)
+        logger.error(
+            "Error in auto-fix",
+            extra={
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "suggestion_id": payload.suggestionId
+            },
+            exc_info=True
+        )
         raise HTTPException(status_code=500, detail=f"Ошибка автозамены: {str(e)}")
+
+
+@router.post(
+    "/auto-fix",
+    response_model=AutoFixResponse,
+    tags=["Code Review"],
+    summary="Автоматическое исправление кода",
+    description="Применяет автоматическое исправление к коду на основе предложения"
+)
+@limiter.limit("20/minute")  # Rate limit: 20 auto-fixes per minute
+async def auto_fix_code_endpoint(api_request: Request, request: AutoFixRequest, response: Response):
+    return await _apply_auto_fix(request)
+
+
+async def auto_fix_code(request: AutoFixRequest) -> AutoFixResponse:
+    """
+    Позволяет использовать auto-fix напрямую в unit-тестах, минуя FastAPI слой.
+    """
+    return await _apply_auto_fix(request)
 
 
 @router.get(
@@ -415,8 +647,9 @@ async def health_check():
         "version": "1.0.0",
         "features": {
             "bsl": True,
-            "typescript": False,  # TODO
-            "python": False,     # TODO
+            "typescript": True,  # ✅ Базовая поддержка
+            "python": True,      # ✅ Базовая поддержка
+            "javascript": True,  # ✅ Базовая поддержка
             "ai_analysis": ai_enabled  # ✅ Интегрировано с OpenAI
         },
         "openai": {

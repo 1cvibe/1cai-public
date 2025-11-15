@@ -1,0 +1,35 @@
+{
+  "completed": [
+    "BA agent: экранирование BPMN/mermaid шагов, лимиты длины и unit-тесты",
+    "BA integrations: добавлены _safe_text/_as_paragraphs для Jira/Confluence/Docflow",
+    "Structured logging: middleware Рё error handlers С‚РµРїРµСЂСЊ РёСЃРїРѕР»СЊР·СѓСЋС‚ StructuredLogger, extra-РїРѕР»СЏ Р±РµР·РѕРїР°СЃРЅС‹",
+    "Error handlers: РґРѕР±Р°РІР»РµРЅС‹ safe path/method РґР»СЏ РјРѕРєРѕРІ Р±РµР· headers, РІСЃРµ unit-С‚РµСЃС‚С‹ РїСЂРѕС…РѕРґСЏС‚",
+    "Code Review API: Р±Р°Р·РѕРІС‹Р№ Р°РЅР°Р»РёР· РїСѓСЃС‚РѕРіРѕ РєРѕРґР°, auto-fix СЂРµС„Р°РєС‚РѕСЂРёРЅРі (СЌРЅРґРїРѕРёРЅС‚ + РїСЂСЏРјР°СЏ С„СѓРЅРєС†РёСЏ), router РїРѕР»СѓС‡РёР» РїСЂРµС„РёРєСЃ",
+    "Code review API endpoint tests: /api/code-review/analyze С‚РµРїРµСЂСЊ РІРєР»СЋС‡РµРЅ РІ FastAPI app, slowapi Рё middleware РЅРµ Р·Р°РІРёСЃР°СЋС‚, unit-С‚РµСЃС‚С‹ Р°РІС‚РѕРјР°С‚РёР·РёСЂРѕРІР°РЅС‹",
+    "Database pool tests: async context manager mocks, health-check Рё exponential backoff РґРѕСЂР°Р±РѕС‚Р°РЅС‹, tests/unit/test_database_pool.py Р·РµР»РµРЅС‹",
+    "Kimi client: auto/default mode detection, aiohttp session reuse, unit-tests покрывают async context и local fallback",
+    "Embedding service: max_text_length fix для списков, новые тесты на усечение списков/элементов",
+    "Marketplace API/репозиторий: Pydantic PluginResponse пополнен обязательными полями, limiter/slowapi получают Response, unit-тесты marketplace_api/upload зелёные",
+    "Marketplace upload: slowapi Response + S3 mock, unit tests обновлены",
+    "Marketplace repository: unit-тесты пройдены, структура данных совместима с PluginResponse",
+    "Marketplace E2E: интеграционные тесты покрывают submit/update/report/auth flow через dependency overrides",
+    "Graph API: добавлены проверки готовности EmbeddingService/Qdrant, лимит длины запросов и unit-тесты семантического поиска",
+    "Hybrid search service: введены лимиты для запросов, graceful skip vector/fulltext и edge-case unit-тесты",
+    "Code Approval API: строгая валидация payload (tokens, approvers), таймауты approve/bulk, структурированное логирование",
+    "Copilot API/Perfect: санитизация prompt/code, защита от DoS, таймауты на все операции генерации, детальные ошибки",
+    "Speech-to-Text & OCR: безопасная обработка путей, retry/backoff при загрузке моделей, structured logging вместо print",
+    "GitHub integration: строгая валидация webhook payload, retry/timeout для post_pr_comment и manual_review, расширенное логирование",
+    "Security headers & rate-limit middleware: валидация конфигураций, защита от path traversal/user spoofing, graceful fallback при сбоях Redis",
+    "AI/LLM клиенты (Qwen/OpenAI/Kimi): единая input validation, строгие лимиты длины, retries с jitter и безопасные timeouts",
+    "Marketplace repo/API: санитизация plugin metadata, защита от path traversal, Response-aware limiter/slowapi и расширенные тесты",
+    "Gateway & NL-to-Cypher: валидация endpoint paths, защита от injection/path traversal, централизованные timeouts и structured logging",
+    "MCP server & AI security layer: строгая валидация входных данных, анти-injection фильтры, улучшенная обработка ошибок",
+    "Feature Flags service: защита от DoS, санитизация flag_key/user/tenant, проверка диапазонов percentage/beta_users и полное structured logging",
+    "API v1: все FastAPI routers подключены через /api/v1, добавлен middleware-редирект legacy /api/* → /api/v1/* с логированием и X-API-Version",
+    "Graph API integration tests: TestClient с моками Neo4j/Qdrant/Embeddings/Postgres, покрыты /health, MATCH-only queries, semantic search и graceful degraded mode",
+    "Hybrid Search integration tests: имитация Qdrant/Elasticsearch/Embeddings, проверки объединения vector+text, fallback без embeddings и таймаутов"
+  ],
+  "pending": [],
+  "notes": "API v1 введён (префикс /api/v1 + legacy redirect), Graph/Hybrid интеграции покрыты тестами. Следом — расширение marketplace/gateway E2E, обновление документации и CI."
+}
+

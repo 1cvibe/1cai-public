@@ -6,7 +6,8 @@ import pytest
 import asyncio
 import asyncpg
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, AsyncMock
+from types import SimpleNamespace
 import sys
 from pathlib import Path
 
@@ -105,9 +106,13 @@ async def test_github_pr_comment():
     """Test комментирования PR в GitHub"""
     from src.api.github_integration import GitHubIntegration
     
-    with patch('requests.post') as mock_post:
-        mock_post.return_value.status_code = 201
-        
+    response_mock = SimpleNamespace(status_code=201, text="ok")
+    client_mock = AsyncMock()
+    client_mock.__aenter__.return_value = client_mock
+    client_mock.__aexit__.return_value = False
+    client_mock.post = AsyncMock(return_value=response_mock)
+    
+    with patch('httpx.AsyncClient', return_value=client_mock):
         gh = GitHubIntegration()
         
         result = await gh.post_pr_comment(
@@ -116,9 +121,9 @@ async def test_github_pr_comment():
             comment='Test comment',
             github_token='test_token'
         )
-        
-        assert result is True
-        mock_post.assert_called_once()
+    
+    assert result is True
+    client_mock.post.assert_awaited_once()
 
 
 # Test Stripe Integration

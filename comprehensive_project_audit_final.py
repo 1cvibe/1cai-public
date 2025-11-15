@@ -413,9 +413,9 @@ def main():
     print(f"Предупреждений: {len(auditor.warnings)}")
     
     if len(auditor.critical_issues) == 0:
-        print("\n✓ КРИТИЧНЫХ ПРОБЛЕМ НЕТ")
+        print("\n[OK] КРИТИЧНЫХ ПРОБЛЕМ НЕТ")
     else:
-        print(f"\n✗ Найдено {len(auditor.critical_issues)} критичных проблем")
+        print(f"\n[FAIL] Найдено {len(auditor.critical_issues)} критичных проблем")
 
 if __name__ == '__main__':
     main()

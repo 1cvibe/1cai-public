@@ -6,13 +6,13 @@ AI ассистент для тестировщиков с полным функ
 import os
 import re
 import json
-import logging
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 from pathlib import Path
 import random
+from src.utils.structured_logging import StructuredLogger
 
-logger = logging.getLogger(__name__)
+logger = StructuredLogger(__name__).logger
 
 
 class SmartTestGenerator:
@@ -101,7 +101,10 @@ class SmartTestGenerator:
                 "coverage_estimate": "85%"
             }
         """
-        logger.info(f"Generating tests for function: {function_name}")
+        logger.info(
+            "Generating tests for function",
+            extra={"function_name": function_name}
+        )
         
         # Analyze function
         params = self._extract_parameters(function_code)
@@ -277,7 +280,10 @@ class TestCoverageAnalyzer:
         Returns:
             Детальный анализ покрытия
         """
-        logger.info(f"Analyzing test coverage for: {config_name}")
+        logger.info(
+            "Analyzing test coverage",
+            extra={"config_name": config_name}
+        )
         
         # Mock coverage data (в реальности - из SonarQube API)
         coverage_data = {

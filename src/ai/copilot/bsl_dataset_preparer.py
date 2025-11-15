@@ -5,11 +5,11 @@ BSL Dataset Preparer
 
 import os
 import json
-import logging
 from typing import List, Dict
 from pathlib import Path
+from src.utils.structured_logging import StructuredLogger
 
-logger = logging.getLogger(__name__)
+logger = StructuredLogger(__name__).logger
 
 
 class BSLDatasetPreparer:
@@ -127,7 +127,10 @@ class BSLDatasetPreparer:
             }
         ]
         
-        logger.info(f"Prepared {len(self.examples)} examples")
+        logger.info(
+            "Prepared examples",
+            extra={"examples_count": len(self.examples)}
+        )
     
     def prepare_single_sample(self, code: str, description: str) -> Dict[str, str]:
         """
@@ -161,7 +164,10 @@ class BSLDatasetPreparer:
                     }, ensure_ascii=False)
                     f.write(line + '\n')
             
-            logger.info(f"Dataset saved to {output_file}")
+            logger.info(
+                "Dataset saved",
+                extra={"output_file": str(output_file), "format": "jsonl"}
+            )
         
         else:
             output_file = self.output_dir / "bsl_train.json"
@@ -169,7 +175,10 @@ class BSLDatasetPreparer:
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(self.examples, f, ensure_ascii=False, indent=2)
             
-            logger.info(f"Dataset saved to {output_file}")
+            logger.info(
+                "Dataset saved",
+                extra={"output_file": str(output_file), "format": "json"}
+            )
         
         return str(output_file)
 

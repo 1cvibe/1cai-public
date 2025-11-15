@@ -1,0 +1,59 @@
+{
+  "name": "cursorext-timeline",
+  "displayName": "CursorExt Timeline",
+  "description": "Webview panel for browsing aggregated agent events.",
+  "version": "0.1.0",
+  "publisher": "cursorext",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onCommand:cursorext.openTimeline"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cursorext.openTimeline",
+        "title": "CursorExt: Open Timeline"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "CursorExt Settings",
+      "properties": {
+        "cursorext.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Путь к интерпретатору Python для запусков CLI и скриптов CursorExt."
+        },
+        "cursorext.workspaceId": {
+          "type": "string",
+          "default": "demo-workspace",
+          "description": "Идентификатор workspace, используемый для экспорта событий."
+        },
+        "cursorext.agentId": {
+          "type": "string",
+          "default": "dev-cli",
+          "description": "Идентификатор агента/пользователя для экспортируемых событий."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./tsconfig.json",
+    "watch": "tsc -p ./tsconfig.json --watch",
+    "lint": "eslint src --max-warnings=0",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint": "^8.53.0",
+    "typescript": "^5.2.2",
+    "vsce": "^2.15.0"
+  }
+}

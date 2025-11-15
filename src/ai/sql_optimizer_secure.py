@@ -9,13 +9,24 @@ Based on Agents Rule of Two: [AB] Configuration
 
 import re
 import uuid
-from typing import Dict, Any, Optional, List
+from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
 from src.security.ai_security_layer import (
     AISecurityLayer,
     AgentRuleOfTwoConfig
 )
+
+
+@dataclass
+class TrustedContributor:
+    github_id: str
+    email: str
+    name: str
+    approved_prs: int
+    trusted_since: str
+    no_security_incidents: bool = True
 
 
 class SQLOptimizerSecure:
@@ -33,7 +44,8 @@ class SQLOptimizerSecure:
             can_change_state=False         # [C] - НЕ выполняет автоматически
         )
         
-        self._pending_queries = {}
+        self._pending_queries: Dict[str, Dict[str, Any]] = {}
+        self.trusted_contributors: List[TrustedContributor] = self._load_trusted_contributors()
     
     def optimize_query(
         self,

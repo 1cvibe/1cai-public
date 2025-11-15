@@ -95,6 +95,56 @@ class TestHybridSearchService:
         assert merged[0]['rrf_score'] == pytest.approx(1.0/61, rel=0.01)
         assert merged[0]['vector_rank'] == 1
 
+    @pytest.mark.asyncio
+    async def test_search_skips_vector_when_embedding_empty(self, mock_clients):
+        """Vector search should be skipped when embeddings return empty vector."""
+        qdrant, elasticsearch, embeddings = mock_clients
+        embeddings.encode.return_value = []
+
+        async def mock_es_search(*args, **kwargs):
+            return [
+                {'id': '10', 'score': 6.0, 'source': {'name': 'Func10'}}
+            ]
+
+        elasticsearch.search_code = mock_es_search
+
+        service = HybridSearchService(qdrant, elasticsearch, embeddings)
+        results = await service.search("edge query", limit=5)
+
+        qdrant.search_code.assert_not_called()
+        assert len(results) == 1
+        assert 'fulltext' in results[0]['sources']
+
+    @pytest.mark.asyncio
+    async def test_search_invalid_query_returns_empty(self, mock_clients):
+        """Whitespace-only query should return empty list and avoid embedding call."""
+        qdrant, elasticsearch, embeddings = mock_clients
+
+        service = HybridSearchService(qdrant, elasticsearch, embeddings)
+        results = await service.search("   ")
+
+        assert results == []
+        embeddings.encode.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_search_handles_vector_error(self, mock_clients):
+        """Vector search errors should not break merged results."""
+        qdrant, elasticsearch, embeddings = mock_clients
+        qdrant.search_code.side_effect = RuntimeError("boom")
+
+        async def mock_es_search(*args, **kwargs):
+            return [
+                {'id': '11', 'score': 5.0, 'source': {'name': 'Func11'}}
+            ]
+
+        elasticsearch.search_code = mock_es_search
+
+        service = HybridSearchService(qdrant, elasticsearch, embeddings)
+        results = await service.search("query")
+
+        assert len(results) == 1
+        assert results[0]['id'] == '11'
+
 
 
 

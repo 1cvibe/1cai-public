@@ -8,8 +8,17 @@ import json
 from typing import Dict, List, Optional, Any, Union, Tuple
 from datetime import datetime
 
-from .base_assistant import BaseAIAssistant, AssistantConfig, AssistantResponse, Document, ChatPromptTemplate
 from pydantic import BaseModel
+
+from src.config import settings
+
+from .base_assistant import (
+    BaseAIAssistant,
+    AssistantConfig,
+    AssistantResponse,
+    Document,
+    ChatPromptTemplate,
+)
 
 # Упрощенные классы для тестирования
 class PromptTemplate:
@@ -25,7 +34,23 @@ class StructuredOutputParser:
         return cls(response_schemas)
     
     def parse(self, content):
-        return {"requirements": [], "architecture": {}, "mermaid_diagram": "", "risks": [], "overall_assessment": ""}
+        if isinstance(content, str):
+            try:
+                return json.loads(content)
+            except json.JSONDecodeError:
+                pass
+
+        parsed = {}
+        for schema in self.response_schemas:
+            if schema.type == "array":
+                parsed[schema.name] = []
+            elif schema.type == "object":
+                parsed[schema.name] = {}
+            elif schema.type == "string":
+                parsed[schema.name] = ""
+            else:
+                parsed[schema.name] = None
+        return parsed
 
 class ResponseSchema:
     def __init__(self, name, description, type, required=True):
@@ -289,14 +314,17 @@ class ArchitectAssistant(BaseAIAssistant):
             
             # Парсим ответ
             parsed_response = self.requirement_parser.parse(response.content)
-            
-            # Преобразуем в требуемый формат
+
+            raw_requirements = parsed_response.get("requirements") or []
+            if not raw_requirements and requirements_text:
+                raw_requirements = self._heuristic_requirements(requirements_text)
+
             requirements = []
-            for req_data in parsed_response.get("requirements", []):
+            for req_data in raw_requirements:
                 requirement = Requirement(
-                    id=req_data.get("id", ""),
-                    title=req_data.get("title", ""),
-                    description=req_data.get("description", ""),
+                    id=req_data.get("id", "") or f"REQ-{len(requirements) + 1:03d}",
+                    title=req_data.get("title", "") or req_data.get("description", "")[:80],
+                    description=req_data.get("description", req_data.get("title", "")),
                     type=req_data.get("type", "functional"),
                     priority=req_data.get("priority", "medium"),
                     acceptance_criteria=req_data.get("acceptance_criteria", []),
@@ -320,7 +348,14 @@ class ArchitectAssistant(BaseAIAssistant):
             }
             
         except Exception as e:
-            self.logger.error(f"Ошибка при анализе требований: {e}")
+            self.logger.error(
+                "Ошибка при анализе требований",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "error": str(e),
                 "requirements": [],
@@ -329,6 +364,51 @@ class ArchitectAssistant(BaseAIAssistant):
                     "error": "Анализ не удался"
                 }
             }
+
+    def _heuristic_requirements(self, requirements_text: str) -> List[Dict[str, Any]]:
+        """
+        Простейший парсер требований на случай, если LLM не вернул структурированный JSON.
+        Разделяет функциональные и нефункциональные блоки и выделяет нумерованные пункты.
+        """
+        requirements: List[Dict[str, Any]] = []
+        current_type = "functional"
+
+        lines = requirements_text.splitlines()
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                continue
+
+            lowered = stripped.lower()
+            if "нефункциональ" in lowered:
+                current_type = "non_functional"
+                continue
+            if "функциональ" in lowered:
+                current_type = "functional"
+                continue
+
+            match = re.match(r"^\d+[\.\)]\s*(.+)$", stripped)
+            if not match:
+                continue
+
+            body = match.group(1).strip()
+            req_id = f"REQ-{len(requirements) + 1:03d}"
+            priority = "high" if current_type == "functional" else "medium"
+
+            requirements.append(
+                {
+                    "id": req_id,
+                    "title": body[:80],
+                    "description": body,
+                    "type": current_type,
+                    "priority": priority,
+                    "acceptance_criteria": [],
+                    "dependencies": [],
+                    "estimated_complexity": 5,
+                }
+            )
+
+        return requirements
     
     async def generate_diagram(
         self, 
@@ -379,7 +459,14 @@ class ArchitectAssistant(BaseAIAssistant):
             }
             
         except Exception as e:
-            self.logger.error(f"Ошибка при генерации диаграммы: {e}")
+            self.logger.error(
+                "Ошибка при генерации диаграммы",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "error": str(e),
                 "mermaid_code": "",
@@ -498,7 +585,14 @@ class ArchitectAssistant(BaseAIAssistant):
             }
             
         except Exception as e:
-            self.logger.error(f"Ошибка при оценке рисков: {e}")
+            self.logger.error(
+                "Ошибка при оценке рисков",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
             return {
                 "error": str(e),
                 "risks": [],
@@ -563,8 +657,15 @@ class ArchitectAssistant(BaseAIAssistant):
             }
             
         except Exception as e:
-            self.logger.error(f"Ошибка при комплексном анализе: {e}")
-            return {"error": f"Комплексный анализ не удался: {str(e)}"}
+            self.logger.error(
+                "Ошибка при комплексном анализе",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                },
+                exc_info=True
+            )
+            return {"error": "Комплексный анализ не удался"}
     
     async def _create_architecture_proposal(
         self, 
@@ -620,7 +721,13 @@ class ArchitectAssistant(BaseAIAssistant):
             else:
                 raise ValueError("JSON не найден в ответе")
         except (json.JSONDecodeError, ValueError) as e:
-            self.logger.warning(f"Не удалось распарсить архитектуру как JSON: {e}")
+            self.logger.warning(
+                "Не удалось распарсить архитектуру как JSON",
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__
+                }
+            )
             return {
                 "title": "Архитектурное решение",
                 "description": response.content,
