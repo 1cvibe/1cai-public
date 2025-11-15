@@ -252,6 +252,8 @@ k8s/tiers/
 scripts/tiers/
 /scripts/tiers/
 
+!scripts/secrets/README.md
+
 # Внутренние отчеты о реализации
 *SCALING_IMPLEMENTATION*.md
 *SCALING_COMPLETE*.md

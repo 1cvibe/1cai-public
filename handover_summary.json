@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "completed": [
+      "Прогнал глубокую ревизию модулей: BA, LLM resiliency, Graph/Hybrid Search, Marketplace, CursorExt, Observability",
+      "Добавил пользовательские и технические гайды (LLM_GATEWAY_GUIDE, MARKETPLACE_GUIDE, GRAPH_SEARCH_GUIDE, CURSOR_EXT_GUIDE, OBSERVABILITY_GUIDE, README для scripts/secrets и src/ai/copilot)",
+      "Обновил README и docs/README с явными ссылками на все подсистемы; дополнил архитектурный обзор пометками \"Planned\" и новыми секциями",
+      "Удалил устаревшие документы DESIGN_IMPROVEMENTS и README_IMPROVEMENTS_EXAMPLE, добавил placeholder для cursorext-overview.png, почистил ссылки",
+      "Привёл repo_magnit_ansible и external/sgr-agent-core к рабочим ссылкам (замена vector://, тексты вместо отсутствующих изображений)",
+      "Проверил ссылки (python check_all_links.py); осталось одно замечание во внутреннем README по install_ragent"
+    ],
+    "pending": [
+      "Исправить ссылку в repo_magnit_ansible/side/docs/README.md на корректный install_ragent",
+      "Обновить docs/architecture/images/cursorext-overview.png реальной диаграммой и прогнать make render-uml",
+      "При необходимости добавить гайды для остальных сервисов (OCR, Speech, Feature Flags и т.д.)",
+      "Регулярно запускать python check_all_links.py после правок документации",
+      "Подтвердить, что каждый компонент README имеет полноценную документацию в docs/ и корректные ссылки на неё",
+      "Добавить автоматизированную проверку скрытых директорий (.folder) через git ls-files и включить результат в отчёт проверок",
+      "Перепроверить требования безопасности: CORS, rate limiting, SQL-инъекции, наличие .env/.key/.pem в .gitignore и таймауты внешних API",
+      "Задокументировать проверку приватных путей (C:\\Users\\, Desktop\\) и убедиться, что в репозитории не осталось таких упоминаний",
+      "Верифицировать, что перечисленные в README технологии реально используются в src/ и не относятся к планирамым скриптам",
+      "Проверить requirements.txt на наличие пакетов, существующих на PyPI, и отсутствие известных уязвимостей",
+      "Убедиться, что все поля str в Pydantic-моделях имеют max_length и валидаторы",
+      "Провести аудит на хардкоды секретов (sk-|ghp_|API_KEY.*=) и задокументировать результаты",
+      "Сверить все пути и файлы, упомянутые в README и docs, с реальными файлами через git ls-files",
+      "Убедиться, что внешние заимствованные проекты задокументированы с указанием авторов и репозиториев",
+      "Настроить и описать процесс пуша изменений в приватный репозиторий для ручной проверки перед публикацией"
+    ]
+  }
+}
