@@ -149,6 +149,8 @@ progress_summary.json
 handover_summary.json
 .memory/
 .python-version
+ARCHITECTURE_GAPS.md
+TECH_DEBT_PROGRESS.md
 
 # Local AI progress memory (НЕ ДОЛЖНО попадать в git)
 analysis/progress_memory.json
