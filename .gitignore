@@ -107,6 +107,8 @@ archive_*/
 *.tar.gz
 *.rar
 backup/
+original-style-demo/
+original-style-report/
 
 # === КРИТИЧНО: Проприетарные данные 1С ===
 
