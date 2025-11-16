@@ -81,4 +81,16 @@ python scripts/runbooks/generate_dr_postmortem.py vault --status success
 
 План: `docs/runbooks/dr_rehearsal_plan.md`, шаблон: `docs/runbooks/postmortem_template.md`.
 
+---
+
+## 7. Посмотреть пример сценариев Scenario Hub
+
+После запуска backend-а (FastAPI / Orchestrator) можно получить примерные планы
+BA→Dev→QA и DR rehearsal в виде JSON:
+
+```bash
+curl http://localhost:8000/api/scenarios/examples | jq
+```
+
+Подробнее: `docs/architecture/AI_SCENARIO_HUB_REFERENCE.md` и `docs/architecture/TOOL_REGISTRY_REFERENCE.md`.
 
