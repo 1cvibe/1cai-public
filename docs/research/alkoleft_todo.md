@@ -2,8 +2,8 @@
 
 > **Примечание:** Этот файл содержит общий бэклог задач проекта. Название файла исторически связано с тем, что часть задач касается интеграции внешних инструментов из экосистемы [@alkoleft](https://github.com/alkoleft) (открытые инструменты для разработки на 1С: MCP-серверы, тест-раннеры, парсеры BSL и др.). Подробнее о внешних зависимостях см. [`alkoleft_inventory.md`](./alkoleft_inventory.md) и ADR в [`docs/architecture/adr/`](../architecture/adr/).
 
-> **Последнее обновление:** Январь 2025  
-> **Версия платформы:** 5.2.0
+> **Последнее обновление:** Ноябрь 2025  
+> **Версия платформы:** 5.3.0
 
 ## Задачи по интеграции внешних инструментов
 
@@ -115,3 +115,10 @@
 - [ ] (Средний) DR/Resilience
   - ✅ План `docs/runbooks/dr_rehearsal_plan.md`, скрипт `scripts/runbooks/dr_rehearsal_runner.py`, workflow `dr-rehearsal.yml`.
   - ☑ Автоматический отчёт в postmortem — добавлен `scripts/runbooks/generate_dr_postmortem.py` (создаёт черновики в `docs/runbooks/postmortems/` и описан в `dr_rehearsal_plan.md`); TODO: интеграция Litmus сценариев.
+
+- [ ] (Средний) Scenario Hub & MCP-free архитектура **[НОВОЕ, research]**
+  - ✅ Reference-слой Scenario Hub: цели/сценарии/плейбуки, уровни риска и автономности, trust-score (`src/ai/scenario_hub.py`, `docs/architecture/AI_SCENARIO_HUB_REFERENCE.md`).
+  - ✅ Tool / Skill Registry как протокол-независимый реестр инструментов/skills (`src/ai/tool_registry.py`, `docs/architecture/TOOL_REGISTRY_REFERENCE.md`).
+  - ✅ Примерные планы BA→Dev→QA и DR rehearsal + read-only API `/api/scenarios/examples` (`src/ai/scenario_examples.py`, `src/ai/orchestrator.py`).
+  - TODO: YAML/JSON-плейбуки для ключевых сценариев (BA→Dev→QA, DR rehearsal, security-audit) и связка с существующими скриптами/CI.
+  - TODO: интеграция Scenario Hub / ToolRegistry в Orchestrator и агентов (выбор маршрута по риску, автономности и метрикам).
