@@ -49,7 +49,8 @@
     "T44: Заполнены слоты журнала релизов в README.md для дат 2025-11-10…2025-11-15 на основе CHANGELOG и progress_memory (security, DevEx, BA/DR, AI-agents).",
     "T45: Добавлен экспериментальный слой типов Scenario Hub (src/ai/scenario_hub.py) для целей/сценариев/плейбуков, уровней риска и автономности, trust-score.",
     "T46: Создан docs/architecture/AI_SCENARIO_HUB_REFERENCE.md и раздел \"Scenario Hub & Execution Plans (experimental)\" в docs/06-features/README.md.",
-    "T47: Добавлен экспериментальный слой ToolRegistry (src/ai/tool_registry.py) и reference-документ docs/architecture/TOOL_REGISTRY_REFERENCE.md; docs/06-features/README.md дополнен разделом \"Tool / Skill Registry (experimental)\"."
+    "T47: Добавлен экспериментальный слой ToolRegistry (src/ai/tool_registry.py) и reference-документ docs/architecture/TOOL_REGISTRY_REFERENCE.md; docs/06-features/README.md дополнен разделом \"Tool / Skill Registry (experimental)\".",
+    "T48: Добавлены примеры сценариев BA→Dev→QA и DR rehearsal в src/ai/scenario_examples.py и отражены в AI_SCENARIO_HUB_REFERENCE.md как база для будущего API / YAML-плейбуков."
   ],
   "open_risks": [
     {
@@ -351,6 +352,12 @@
       "title": "ToolRegistry: базовый реестр инструментов/skills",
       "status": "completed",
       "details": "В src/ai/tool_registry.py реализованы экспериментальные типы ToolDescriptor/ToolEndpoint/ToolRegistry и ToolUsageExample, а также docs/architecture/TOOL_REGISTRY_REFERENCE.md и раздел \"Tool / Skill Registry (experimental)\" в docs/06-features/README.md."
+    },
+    {
+      "id": "T48",
+      "title": "Scenario Hub: примерные планы BA→Dev→QA и DR rehearsal",
+      "status": "completed",
+      "details": "В src/ai/scenario_examples.py добавлены функции example_ba_dev_qa_scenario/example_dr_rehearsal_scenario/example_empty_execution_report, AI_SCENARIO_HUB_REFERENCE.md обновлён с упоминанием этих примеров как базы для будущего API / YAML-плейбуков."
     }
   ]
 }
