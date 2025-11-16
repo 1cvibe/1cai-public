@@ -48,7 +48,8 @@
     "T43: README.md: \"Последние улучшения\" превращён в журнал последних 7 релизов (новые сверху) с явной отсылкой к CHANGELOG; пока заполнена только дата 2025-11-16, остальные слоты будут заполняться по мере релизов.",
     "T44: Заполнены слоты журнала релизов в README.md для дат 2025-11-10…2025-11-15 на основе CHANGELOG и progress_memory (security, DevEx, BA/DR, AI-agents).",
     "T45: Добавлен экспериментальный слой типов Scenario Hub (src/ai/scenario_hub.py) для целей/сценариев/плейбуков, уровней риска и автономности, trust-score.",
-    "T46: Создан docs/architecture/AI_SCENARIO_HUB_REFERENCE.md и раздел \"Scenario Hub & Execution Plans (experimental)\" в docs/06-features/README.md."
+    "T46: Создан docs/architecture/AI_SCENARIO_HUB_REFERENCE.md и раздел \"Scenario Hub & Execution Plans (experimental)\" в docs/06-features/README.md.",
+    "T47: Добавлен экспериментальный слой ToolRegistry (src/ai/tool_registry.py) и reference-документ docs/architecture/TOOL_REGISTRY_REFERENCE.md; docs/06-features/README.md дополнен разделом \"Tool / Skill Registry (experimental)\"."
   ],
   "open_risks": [
     {
@@ -344,6 +345,12 @@
       "title": "Scenario Hub: архитектурный reference-документ",
       "status": "completed",
       "details": "Создан docs/architecture/AI_SCENARIO_HUB_REFERENCE.md и добавлен раздел \"Scenario Hub & Execution Plans (experimental)\" в docs/06-features/README.md; документ описывает двухконтурный режим, уровни автономности и trust-score."
+    },
+    {
+      "id": "T47",
+      "title": "ToolRegistry: базовый реестр инструментов/skills",
+      "status": "completed",
+      "details": "В src/ai/tool_registry.py реализованы экспериментальные типы ToolDescriptor/ToolEndpoint/ToolRegistry и ToolUsageExample, а также docs/architecture/TOOL_REGISTRY_REFERENCE.md и раздел \"Tool / Skill Registry (experimental)\" в docs/06-features/README.md."
     }
   ]
 }

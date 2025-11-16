@@ -161,6 +161,17 @@
 
 ---
 
+### 🧰 Tool / Skill Registry (experimental)
+**Единый реестр инструментов и skills**
+
+- Абстракция инструментов поверх HTTP/MCP/скриптов
+- Описание риска, категорий, схем входа/выхода и SLO
+- База для Scenario Hub и Orchestrator при выборе маршрута
+
+**Docs:** [`TOOL_REGISTRY_REFERENCE`](../architecture/TOOL_REGISTRY_REFERENCE.md)
+
+---
+
 ### 🧭 [BA-03 Process & Journey Modelling](./BA_PROCESS_MODELLING_GUIDE.md)
 **Моделирование процессов и customer journeys**
 
