@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлен reference-слой Scenario Hub в `src/ai/scenario_hub.py` и документ `docs/architecture/AI_SCENARIO_HUB_REFERENCE.md` (цели/сценарии/плейбуки, уровни риска и автономности, trust-score).
 - Реализован экспериментальный реестр инструментов/skills в `src/ai/tool_registry.py` и документ `docs/architecture/TOOL_REGISTRY_REFERENCE.md` (protocol-agnostic описание инструментов, привязка к риску и категориям).
 - Добавлены примерные планы сценариев BA→Dev→QA и DR rehearsal в `src/ai/scenario_examples.py` и read-only endpoint `/api/scenarios/examples` в `src/ai/orchestrator.py` для их получения.
+ - Добавлены YAML-плейбуки `playbooks/ba_dev_qa_example.yaml` и `playbooks/dr_vault_example.yaml`, dry-run исполнитель `src/ai/playbook_executor.py` и CLI `scripts/runbooks/run_playbook.py`; в tests/unit добавлен `test_playbook_executor.py`.
 
 ### Added
 - Initial project structure

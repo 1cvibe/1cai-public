@@ -94,3 +94,22 @@ curl http://localhost:8000/api/scenarios/examples | jq
 
 Подробнее: `docs/architecture/AI_SCENARIO_HUB_REFERENCE.md` и `docs/architecture/TOOL_REGISTRY_REFERENCE.md`.
 
+---
+
+## 8. Запустить YAML-плейбук Scenario Hub (dry-run)
+
+Для локальной проверки структуры плейбука можно выполнить dry-run:
+
+```bash
+python scripts/runbooks/run_playbook.py playbooks/ba_dev_qa_example.yaml
+```
+
+Аналогично для DR rehearsal:
+
+```bash
+python scripts/runbooks/run_playbook.py playbooks/dr_vault_example.yaml
+```
+
+Скрипт не выполняет реальные действия — только печатает отчёт по шагам
+и уровню риска/автономности сценария.
+

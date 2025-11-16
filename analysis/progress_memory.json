@@ -53,7 +53,8 @@
     "T48: Добавлены примеры сценариев BA→Dev→QA и DR rehearsal в src/ai/scenario_examples.py и отражены в AI_SCENARIO_HUB_REFERENCE.md как база для будущего API / YAML-плейбуков.",
     "T49: В src/ai/orchestrator.py добавлен экспериментальный read-only endpoint /api/scenarios/examples, отдающий примерные ScenarioPlan (BA→Dev→QA и DR rehearsal); AI_SCENARIO_HUB_REFERENCE.md обновлён.",
     "T50: Добавлен unit-тест tests/unit/test_scenarios_api.py для проверки формы ответа /api/scenarios/examples, CHANGELOG и README обновлены (Scenario Hub & Tool Registry).",
-    "T51: Обновлён docs/research/alkoleft_todo.md (Ноябрь 2025, версия 5.3.0) и добавлен блок \"Scenario Hub & MCP-free архитектура\" с зафиксированными реализованными частями и будущими TODO (YAML-плейбуки, интеграция в Orchestrator/агентов)."
+    "T51: Обновлён docs/research/alkoleft_todo.md (Ноябрь 2025, версия 5.3.0) и добавлен блок \"Scenario Hub & MCP-free архитектура\" с зафиксированными реализованными частями и будущими TODO (YAML-плейбуки, интеграция в Orchestrator/агентов).",
+    "T52: Добавлены YAML-плейбуки playbooks/ba_dev_qa_example.yaml и playbooks/dr_vault_example.yaml, dry-run исполнитель src/ai/playbook_executor.py, CLI scripts/runbooks/run_playbook.py, тест tests/unit/test_playbook_executor.py и новые рецепты в docs/01-getting-started/cookbook.md; AI_SCENARIO_HUB_REFERENCE.md и CHANGELOG обновлены."
   ],
   "open_risks": [
     {
