@@ -147,10 +147,10 @@ class OneCCodeGraphBuilder:
             function_nodes[func_name] = func_node
             nodes_created += 1
 
-            # Связь: функция принадлежит модулю
+            # Связь: функция принадлежит модулю (используем OWNS, но можно использовать BSL_HAS_MODULE для модулей объектов)
             edge = Edge(
-                source=func_node_id,
-                target=module_node_id,
+                source=module_node_id,
+                target=func_node_id,
                 kind=EdgeKind.OWNS,
                 props={"relationship": "function_in_module"},
             )
@@ -214,11 +214,12 @@ class OneCCodeGraphBuilder:
                 # Ищем в текущем модуле
                 if called_name in all_callables:
                     target_node = all_callables[called_name]
+                    # Используем BSL_CALLS для более специфичной связи вызова функции
                     edge = Edge(
                         source=callable_node.id,
                         target=target_node.id,
-                        kind=EdgeKind.DEPENDS_ON,
-                        props={"relationship": "calls", "call_type": "internal"},
+                        kind=EdgeKind.BSL_CALLS,
+                        props={"relationship": "calls", "call_type": "internal", "line": callable_data.get("start_line")},
                     )
                     await self.backend.upsert_edge(edge)
                     edges_created += 1
@@ -240,11 +241,12 @@ class OneCCodeGraphBuilder:
                     else:
                         external_node = existing
 
+                    # Используем BSL_CALLS для внешних вызовов
                     edge = Edge(
                         source=callable_node.id,
                         target=external_node_id,
-                        kind=EdgeKind.DEPENDS_ON,
-                        props={"relationship": "calls", "call_type": "external"},
+                        kind=EdgeKind.BSL_CALLS,
+                        props={"relationship": "calls", "call_type": "external", "dynamic": True, "line": callable_data.get("start_line")},
                     )
                     await self.backend.upsert_edge(edge)
                     edges_created += 1
@@ -253,11 +255,41 @@ class OneCCodeGraphBuilder:
         variables = parsed.get("variables", [])
         queries = parsed.get("queries", [])
 
-        # Создать узлы для запросов (как db_table/db_view, если это SQL-запросы)
+        # Создать узлы для запросов (используем BSL_QUERY для SQL-запросов)
         for query in queries:
             query_text = query.get("text", "")
             if not query_text:
                 continue
+
+            # Создать узел запроса
+            query_hash = hash(query_text) % (10 ** 8)  # Простой hash для уникальности
+            query_node_id = f"bsl_query:{module_path}:{query_hash}"
+            query_type = query.get("type", "SELECT")
+            
+            query_node = Node(
+                id=query_node_id,
+                kind=NodeKind.BSL_QUERY,
+                display_name=f"SQL-запрос: {query_type}",
+                labels=["bsl", "1c", "query"],
+                props={
+                    "query_text": query_text,
+                    "query_type": query_type,
+                    "module": module_path,
+                    "line": query.get("line"),
+                },
+            )
+            await self.backend.upsert_node(query_node)
+            nodes_created += 1
+
+            # Связь: модуль выполняет запрос
+            edge = Edge(
+                source=module_node_id,
+                target=query_node_id,
+                kind=EdgeKind.BSL_EXECUTES_QUERY,
+                props={"line": query.get("line")},
+            )
+            await self.backend.upsert_edge(edge)
+            edges_created += 1
 
             # Извлечь имена таблиц из запроса
             tables = self._extract_table_names_from_query(query_text)
@@ -275,12 +307,19 @@ class OneCCodeGraphBuilder:
                     await self.backend.upsert_node(table_node)
                     nodes_created += 1
 
-                # Связь: модуль использует таблицу
+                # Связь: запрос читает/пишет таблицу
+                if query_type == "SELECT":
+                    edge_kind = EdgeKind.BSL_READS_TABLE
+                    operation = "read"
+                else:
+                    edge_kind = EdgeKind.BSL_WRITES_TABLE
+                    operation = "write"
+
                 edge = Edge(
-                    source=module_node_id,
+                    source=query_node_id,
                     target=table_node_id,
-                    kind=EdgeKind.DEPENDS_ON,
-                    props={"relationship": "queries_table"},
+                    kind=edge_kind,
+                    props={"operation": operation, "query_type": query_type},
                 )
                 await self.backend.upsert_edge(edge)
                 edges_created += 1
