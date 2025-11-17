@@ -312,6 +312,152 @@ class SmartTestGenerator:
             assert_code=assert_code
         )
     
+    def _generate_yaxunit_test(
+        self,
+        test_name: str,
+        module_name: str,
+        arrange_code: str,
+        act_code: str,
+        assert_code: str,
+        result_variable: str = "Результат",
+        test_description: str = ""
+    ) -> str:
+        """Генерация YAxUnit теста"""
+        return self.test_templates["yaxunit_test"].format(
+            test_name=test_name,
+            module_name=module_name,
+            arrange_code=arrange_code,
+            act_code=act_code,
+            assert_code=assert_code
+        )
+    
+    def _generate_yaxunit_arrange(self, params: List[Dict]) -> str:
+        """Генерация Arrange секции для YAxUnit"""
+        arrange_lines = []
+        for param in params:
+            value = self._generate_test_value(param)
+            arrange_lines.append(f"    {param['name']} = {value};")
+        
+        if not arrange_lines:
+            return "    // Нет параметров для подготовки"
+        
+        return "\n".join(arrange_lines)
+    
+    def _generate_test_value(self, param: Dict) -> str:
+        """Генерация тестового значения для параметра"""
+        param_type = param.get('type', 'any')
+        param_name = param.get('name', 'value')
+        
+        if param_type == 'string':
+            return f'"{param_name}_test_value"'
+        elif param_type == 'number':
+            return '100'
+        elif param_type == 'boolean':
+            return 'Истина'
+        elif param_type == 'array':
+            return 'Новый Массив'
+        else:
+            return 'Неопределено'
+    
+    def _generate_yaxunit_assert(self, return_type: str, variable: str) -> str:
+        """Генерация Assert секции для YAxUnit"""
+        if return_type == 'number':
+            return f"""    ЮТест.ОжидаетЧто({variable}, "Результат функции")
+        .Заполнено()
+        .ИмеетТип("Число")
+        .Больше(0);"""
+        elif return_type == 'string':
+            return f"""    ЮТест.ОжидаетЧто({variable}, "Результат функции")
+        .Заполнено()
+        .ИмеетТип("Строка")
+        .ИмеетДлинуБольше(0);"""
+        elif return_type == 'boolean':
+            return f"""    ЮТест.ОжидаетЧто({variable}, "Результат функции")
+        .ИмеетТип("Булево")
+        .ЭтоНеНеопределено();"""
+        else:
+            return f"""    ЮТест.ОжидаетЧто({variable}, "Результат функции")
+        .ЭтоНеНеопределено();"""
+    
+    async def generate_yaxunit_tests_for_ai_code(
+        self,
+        generated_code: str,
+        function_name: str,
+        test_scenarios: Optional[List[str]] = None
+    ) -> str:
+        """
+        Генерация YAxUnit тестов для AI-сгенерированного кода
+        
+        Args:
+            generated_code: AI-сгенерированный BSL код
+            function_name: Название функции
+            test_scenarios: Опциональные сценарии тестирования
+        
+        Returns:
+            Полный файл с YAxUnit тестами
+        """
+        logger.info(
+            "Generating YAxUnit tests for AI-generated code",
+            extra={"function_name": function_name}
+        )
+        
+        tests_result = await self.generate_tests_for_function(
+            generated_code,
+            function_name
+        )
+        
+        # Объединить все тесты в один файл
+        all_tests = []
+        all_tests.extend(tests_result.get("yaxunit_tests", []))
+        
+        # Добавить тесты для edge cases
+        for edge_case in tests_result.get("edge_cases", []):
+            test_code = self._generate_edge_case_test(
+                function_name,
+                edge_case,
+                tests_result.get("unit_tests", [])[0] if tests_result.get("unit_tests") else ""
+            )
+            all_tests.append(test_code)
+        
+        # Объединить в один файл
+        file_header = f"""// Тесты для AI-сгенерированной функции {function_name}
+// Генерировано автоматически QA Agent Extended
+// Формат: YAxUnit
+
+#Область Тесты_{function_name}
+"""
+        
+        file_footer = """
+#КонецОбласти
+"""
+        
+        return file_header + "\n\n".join(all_tests) + file_footer
+    
+    def _generate_edge_case_test(
+        self,
+        function_name: str,
+        edge_case: Dict,
+        base_test: str
+    ) -> str:
+        """Генерация теста для edge case"""
+        test_name = edge_case.get("test_name", f"Тест_{function_name}_EdgeCase")
+        case = edge_case.get("case", "")
+        
+        return f"""// Edge case: {case}
+Процедура {test_name}() Экспорт
+    
+    // Arrange - подготовка edge case данных
+    // TODO: Добавить специфичные данные для {case}
+    
+    // Act - выполнение функции
+    // TODO: Вызвать функцию с edge case данными
+    
+    // Assert - проверка обработки edge case
+    // TODO: Добавить проверки через ЮТест.ОжидаетЧто
+    
+КонецПроцедуры
+"""
+    
     def _generate_vanessa_scenario(self, function_name: str, params: List[Dict]) -> str:
         """Генерация Vanessa BDD сценария"""
         return self.test_templates["vanessa_bdd"].format(
