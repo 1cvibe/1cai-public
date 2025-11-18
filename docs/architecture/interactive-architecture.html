@@ -321,11 +321,23 @@
                 description: 'React + FastAPI портал для управления безопасностью',
                 doc: 'docs/security/policy_as_code.md'
             },
-            'Celery': { 
+            'EventBus': { 
+                category: 'core', 
+                label: '🚀 Event Bus', 
+                description: 'NATS Event-Driven Architecture для асинхронной обработки',
+                doc: 'docs/06-features/REVOLUTIONARY_TECHNOLOGIES_GUIDE.md'
+            },
+            'EventWorkers': { 
                 category: 'workers', 
                 label: '🔍 Analysis Workers', 
-                description: 'Celery workers для анализа BSL кода и аудитов',
+                description: 'Event-Driven workers (NATS) для анализа BSL кода и аудитов',
                 doc: 'docs/06-features/EDT_PARSER_GUIDE.md'
+            },
+            'YAxUnit': { 
+                category: 'workers', 
+                label: '🧪 YAxUnit Test Runner', 
+                description: 'Фреймворк для unit-тестирования BSL кода (BIA-Technologies)',
+                doc: 'docs/06-features/YAXUNIT_INTEGRATION_GUIDE.md'
             },
             'MLPipelines': { 
                 category: 'workers', 
@@ -482,12 +494,16 @@
             { from: 'API', to: 'Neo4j', label: 'Graph' },
             { from: 'API', to: 'Qdrant', label: 'Vector search' },
             { from: 'API', to: 'Redis', label: 'Cache' },
-            { from: 'API', to: 'Celery', label: 'Jobs' },
+            { from: 'API', to: 'EventBus', label: 'Publish events' },
             { from: 'API', to: 'ITSScraper', label: 'Trigger' },
-            { from: 'Celery', to: 'Postgres', label: 'Update' },
-            { from: 'Celery', to: 'Neo4j', label: 'Update' },
-            { from: 'Celery', to: 'Qdrant', label: 'Sync' },
-            { from: 'Celery', to: 'Minio', label: 'Store' },
+            { from: 'EventBus', to: 'EventWorkers', label: 'Route events' },
+            { from: 'EventWorkers', to: 'Postgres', label: 'Update' },
+            { from: 'EventWorkers', to: 'Neo4j', label: 'Update' },
+            { from: 'EventWorkers', to: 'Qdrant', label: 'Sync' },
+            { from: 'EventWorkers', to: 'Minio', label: 'Store' },
+            { from: 'EventWorkers', to: 'EventBus', label: 'Publish results' },
+            { from: 'YAxUnit', to: 'Postgres', label: 'Store results' },
+            { from: 'YAxUnit', to: 'EventBus', label: 'Publish events' },
             { from: 'MLPipelines', to: 'Minio', label: 'Store' },
             { from: 'MLPipelines', to: 'Qdrant', label: 'Embeddings' },
             { from: 'MLPipelines', to: 'Postgres', label: 'Metadata' },
@@ -500,14 +516,18 @@
             { from: 'Marketplace', to: 'API', label: 'Listing' },
             { from: 'Marketplace', to: 'Minio', label: 'Artifacts' },
             { from: 'Prometheus', to: 'API', label: 'Scrape' },
-            { from: 'Prometheus', to: 'Celery', label: 'Scrape' },
+            { from: 'Prometheus', to: 'EventWorkers', label: 'Scrape' },
+            { from: 'Prometheus', to: 'EventBus', label: 'Scrape' },
             { from: 'Prometheus', to: 'ITSScraper', label: 'Scrape' },
+            { from: 'Prometheus', to: 'YAxUnit', label: 'Scrape' },
             { from: 'Prometheus', to: 'Alertmanager', label: 'Alerts' },
             { from: 'Alertmanager', to: 'TelegramBot', label: 'Escalate' },
             { from: 'GitHubActions', to: 'API', label: 'Deploy' },
-            { from: 'GitHubActions', to: 'Celery', label: 'Deploy' },
+            { from: 'GitHubActions', to: 'EventWorkers', label: 'Deploy' },
+            { from: 'GitHubActions', to: 'YAxUnit', label: 'Run tests' },
             { from: 'Faro', to: 'API', label: 'Traces' },
-            { from: 'Faro', to: 'Celery', label: 'Traces' }
+            { from: 'Faro', to: 'EventWorkers', label: 'Traces' },
+            { from: 'Faro', to: 'EventBus', label: 'Traces' }
         ];
 
         connections.forEach(conn => {

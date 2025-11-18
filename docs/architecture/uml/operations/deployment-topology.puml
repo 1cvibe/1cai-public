@@ -15,9 +15,13 @@ cloud "Kubernetes Cluster / Stage" {
       component "API Gateway\n(FastAPI Pods)" as APIPods
       component "Realtime Gateway\n(WebSocket)" as Realtime
     }
+    node "Event-Driven" {
+      component "NATS Event Bus" as NATS
+    }
     node "Workers" {
-      component "Celery Worker Pods" as CeleryPods
+      component "Event-Driven Worker Pods" as EventWorkerPods
       component "ML Worker Pods" as MLPods
+      component "YAxUnit Test Runner" as YAxUnit
     }
     node "Databases" {
       database "PostgreSQL\n(stateful set)" as Postgres
@@ -45,27 +49,35 @@ APIPods --> Postgres
 APIPods --> Neo4j
 APIPods --> Qdrant
 
-CeleryPods --> Postgres
-CeleryPods --> Neo4j
-CeleryPods --> Qdrant
-CeleryPods --> Minio
+APIPods --> NATS : Publish events
+NATS --> EventWorkerPods : Route events
+EventWorkerPods --> Postgres
+EventWorkerPods --> Neo4j
+EventWorkerPods --> Qdrant
+EventWorkerPods --> Minio
+EventWorkerPods --> NATS : Publish results
+YAxUnit --> Postgres : Store test results
+YAxUnit --> NATS : Publish test events
 
 MLPods --> Minio : datasets/models
 MLPods --> Qdrant : embeddings
 
 Prometheus --> Grafana
 Prometheus --> Alertmanager
-CeleryPods --> Prometheus : celery_* metrics
+EventWorkerPods --> Prometheus : event_worker_* metrics
+NATS --> Prometheus : nats_* metrics
+YAxUnit --> Prometheus : yaxunit_* metrics
 APIPods --> Prometheus : api_* metrics
 
 CLI --> Prometheus : its_scraper metrics
 CLI --> Minio : upload artefacts
 
 CI --> APIPods : Deploy / Smoke tests
-CI --> CeleryPods
+CI --> EventWorkerPods : Deploy / Test
+CI --> YAxUnit : Run BSL tests
 CI --> Prometheus : Synthetic metrics
 
-CeleryPods --> ITS : Fetch documentation (ITS Scraper)
+EventWorkerPods --> ITS : Fetch documentation (ITS Scraper)
 MLPods --> AIProviders : model inference/training calls
 
 @enduml

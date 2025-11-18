@@ -12,12 +12,12 @@ System_Ext(Users, "End Users", "Developers, Ops, Product, Security", "Shared")
 System_Boundary(Knowledge, "Knowledge Ingestion", "Domain") {
   System(ITSScraper, "ITS Scraper", "Async Python", "Harvest ITS knowledge base")
   System(ITSWriters, "Writers SDK", "Plugin API", "Persist data to MinIO, S3, partners")
-  System(KnowledgeIndexer, "Knowledge Indexer", "Celery, Qdrant", "Build embeddings and metadata")
+  System(KnowledgeIndexer, "Knowledge Indexer", "Event-Driven (NATS), Qdrant", "Build embeddings and metadata")
 }
 
 System_Boundary(Analysis, "Static and Dynamic Analysis", "Domain") {
   System(GraphAPI, "Graph API", "FastAPI", "Endpoint for analysis requests")
-  System(AnalysisWorkers, "Analysis Workers", "Celery", "Code inspection, architecture audit")
+  System(AnalysisWorkers, "Analysis Workers", "Event-Driven (NATS)", "Code inspection, architecture audit")
   System(BestPracticeEngine, "Best Practice Engine", "Rules DSL", "Linting, anti pattern detection")
 }
 

@@ -19,7 +19,8 @@ rectangle "Trust Zone: DMZ" as DMZ {
 
 rectangle "Trust Zone: Service Mesh" as Mesh {
   component "Auth Service\nOAuth2/JWT" as Auth
-  component "Celery Workers" as Workers
+  component "Event-Driven Workers (NATS)" as Workers
+  component "NATS Event Bus" as EventBus
   component "ML Pipelines" as MLPipelines
   component "ITS Scraper" as Scraper
   component "Security Agent\n(ZAP, custom scans)" as SecurityAgent
@@ -45,7 +46,8 @@ Ingress --> WAF : Routed traffic
 WAF --> APIGateway : Sanitised requests
 APIGateway --> Auth : Token introspection\n(Spoofing)
 Auth --> APIGateway : Claims, scopes
-APIGateway --> Workers : Tasks via Redis queue\n(DoS)
+APIGateway --> EventBus : Publish events via NATS\n(DoS)
+EventBus --> Workers : Route events\n(DoS)
 APIGateway --> Redis : Cache, rate limit tokens
 Workers --> Postgres : Read/write analysis artefacts\n(Tampering)
 Workers --> Neo4j : Update dependency graph

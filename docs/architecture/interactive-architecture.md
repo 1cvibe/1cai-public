@@ -20,11 +20,16 @@ graph TB
         AdminPortal["🛡️ Admin Portal<br/>React, FastAPI<br/>Security agent UI, audit management"]
     end
 
+    subgraph EventDriven["📡 Event-Driven Architecture"]
+        EventBus["🚀 Event Bus<br/>NATS<br/>Event-driven messaging, async processing"]
+    end
+
     subgraph Workers["⚙️ Worker Tier"]
-        Celery["🔍 Analysis Workers<br/>Celery<br/>BSL code analysis, audits"]
+        EventWorkers["🔍 Analysis Workers<br/>Event-Driven (NATS)<br/>BSL code analysis, audits"]
         MLPipelines["🤖 ML Pipelines<br/>Prefect, PyTorch<br/>Training, evaluation, embeddings"]
         ITSScraper["📰 ITS Scraper<br/>Async Python<br/>Stateful ingestion pipeline"]
         Orchestrator["🎯 Task Orchestrator<br/>Bash, scripts<br/>Composite pipelines and CLI"]
+        YAxUnit["🧪 YAxUnit Test Runner<br/>Python + 1C<br/>BSL unit testing framework"]
     end
 
     subgraph DataStores["💾 Data Stores"]
@@ -64,14 +69,18 @@ graph TB
     API -->|Read/write dependency graph| Neo4j
     API -->|Vector search| Qdrant
     API -->|Fast cache, rate limit| Redis
-    API -->|Dispatch jobs| Celery
+    API -->|Publish events| EventBus
     API -->|Trigger ingestion| ITSScraper
+    EventBus -->|Route events| EventWorkers
 
     %% Worker connections
-    Celery -->|Read/write jobs, audit| Postgres
-    Celery -->|Update graph| Neo4j
-    Celery -->|Sync embeddings| Qdrant
-    Celery -->|Store outputs| Minio
+    EventWorkers -->|Read/write jobs, audit| Postgres
+    EventWorkers -->|Update graph| Neo4j
+    EventWorkers -->|Sync embeddings| Qdrant
+    EventWorkers -->|Store outputs| Minio
+    EventWorkers -->|Publish results| EventBus
+    YAxUnit -->|Store test results| Postgres
+    YAxUnit -->|Publish test events| EventBus
     MLPipelines -->|Datasets, models| Minio
     MLPipelines -->|Embeddings| Qdrant
     MLPipelines -->|Metadata| Postgres
@@ -88,15 +97,19 @@ graph TB
 
     %% Operations connections
     Prometheus -->|Scrape metrics| API
-    Prometheus -->|Scrape metrics| Celery
+    Prometheus -->|Scrape metrics| EventWorkers
+    Prometheus -->|Scrape metrics| EventBus
     Prometheus -->|Scrape metrics| ITSScraper
+    Prometheus -->|Scrape metrics| YAxUnit
     Prometheus -->|Push alerts| Alertmanager
     Alertmanager -->|Escalations| TelegramBot
     GitHubActions -->|Deploy, test| API
-    GitHubActions -->|Deploy, test| Celery
+    GitHubActions -->|Deploy, test| EventWorkers
+    GitHubActions -->|Run BSL tests| YAxUnit
     GitHubActions -->|Mock smoke tests| ITSScraper
     Faro -->|Traces/logs| API
-    Faro -->|Traces/logs| Celery
+    Faro -->|Traces/logs| EventWorkers
+    Faro -->|Traces/logs| EventBus
     Faro -->|Logs| GitHubActions
 
     %% Styling
@@ -106,7 +119,7 @@ graph TB
     classDef opsStyle fill:#f6fdf3,stroke:#00cc66,stroke-width:2px
     classDef userStyle fill:#f9f9f9,stroke:#666666,stroke-width:2px
 
-    class API,RestGateway,Auth,AdminPortal coreStyle
+    class API,RestGateway,Auth,AdminPortal,EventBus coreStyle
     class EDTPlugin,n8nNode,TelegramBot,Marketplace integrationStyle
     class Postgres,Neo4j,Qdrant,Redis,Minio,ClickHouse storeStyle
     class Prometheus,Grafana,Alertmanager,GitHubActions,Faro opsStyle

@@ -51,10 +51,15 @@
 - **LLM Provider Abstraction** (`src/ai/llm_provider_abstraction.py`): унифицированный уровень абстракции для работы с разными LLM провайдерами (Kimi, Qwen, GigaChat, YandexGPT) с автоматическим выбором на основе типа запроса, рисков, стоимости и compliance требований.
 - **Intelligent Cache** (`src/ai/intelligent_cache.py`): интеллектуальное кэширование с TTL на основе типа запроса, инвалидацией по тегам и типу запроса, LRU eviction и метриками производительности.
 - **Unified CLI Tool** (`scripts/cli/1cai_cli.py`): командная строка для работы с платформой (Orchestrator, Scenario Hub, Unified Change Graph, LLM провайдеры, кэш).
-- **Фоновые воркеры** (`src/workers`, `scripts/analysis/*`, `scripts/audit/*`): анализ конфигураций, архитектурный аудит, обновление графа зависимостей, генерация метрик.
+- **Event-Driven Architecture** (`src/infrastructure/event_bus.py`, `src/infrastructure/event_bus_nats.py`): замена Celery на NATS для асинхронной обработки событий, Event Store для replayability и аудита.
+- **Фоновые воркеры** (`src/workers`, `scripts/analysis/*`, `scripts/audit/*`): анализ конфигураций, архитектурный аудит, обновление графа зависимостей, генерация метрик. Работают через Event Bus (NATS).
+- **YAxUnit Test Runner** (`scripts/tests/run_yaxunit_tests.py`, `tools/yaxunit/`): фреймворк для unit-тестирования BSL кода, автоматическая валидация AI-сгенерированного кода, интеграция в CI/CD. Автор: BIA-Technologies Limited Liability Company (Apache 2.0).
+- **🚀 Революционные компоненты** (`src/ai/self_evolving_ai*.py`, `src/ai/self_healing_code*.py`, `src/ai/distributed_agent_network*.py`, `src/ai/code_dna*.py`, `src/ai/predictive_code_generation*.py`): Self-Evolving AI (автоматическое улучшение), Self-Healing Code (автоматическое исправление багов), Distributed Agent Network (P2P координация), Code DNA (эволюционное улучшение), Predictive Generation (проактивная разработка).
+- **Unified Data Layer** (`src/infrastructure/data_layer.py`): унифицированный уровень абстракции для работы с множественными БД (PostgreSQL, Neo4j, Qdrant, Elasticsearch, Redis).
 - **ML/AI сервисы** (`src/ml/*`, `scripts/ml/*`): подготовка датасетов, тренировка, оценка, публикация моделей, управление конфигурациями через `config/ml_datasets.json` и `Makefile`.
 - **Интеграции** (EDT Plugin, ITS Scraper, n8n, Telegram Bot, Marketplace): разные точки входа для команд разработки и поддержки.
-- **Хранилища** (PostgreSQL, Neo4j, Qdrant, MinIO/S3, Redis, ClickHouse): обеспечивают долговечность, поиск и кеширование.
+- **Хранилища** (PostgreSQL, Neo4j, Qdrant, MinIO/S3, Redis, ClickHouse): обеспечивают долговечность, поиск и кеширование. Доступ через Unified Data Layer.
+- **Event Bus** (NATS): высокопроизводительная система обмена сообщениями для Event-Driven Architecture, замена Celery.
 - **Observability/Operations** (Prometheus, Grafana, Alertmanager, Loki/Tempo, GitHub Actions): телеметрия, инцидент-менеджмент, CI/CD, IaC.
 
 ### 3.2 Контейнерный ландшафт
@@ -233,7 +238,7 @@
 
 ## 10. Эксплуатация и поддержка
 
-- `docs/MONITORING_GUIDE.md` — описание Grafana dashboard (system, business, celery, scraper, ML, observability).
+- `docs/MONITORING_GUIDE.md` — описание Grafana dashboard (system, business, event-driven workers, NATS, scraper, ML, observability).
 - `Makefile` — единая точка входа (install/test/lint/train/render-uml/adr-new/scrape-its/test-bsl).
 - `run_full_audit.py` — комплексные проверки перед релизом (структура, лицензии, архитектура, качество, git safety).
 - `make test-bsl` → `scripts/tests/run_bsl_tests.py` — единый запуск BSL тестов (YAxUnit/Vanessa), результаты попадают в CI и отчёты.

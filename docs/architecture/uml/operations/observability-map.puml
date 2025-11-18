@@ -6,7 +6,8 @@ skinparam componentStyle rectangle
 
 rectangle "Metrics Producers" {
   component "Graph API" as APIMetrics
-  component "Celery Workers" as WorkerMetrics
+  component "Event-Driven Workers" as WorkerMetrics
+  component "NATS Event Bus" as EventBusMetrics
   component "ITS Scraper" as ScraperMetrics
   component "ML Pipelines" as MLPipelineMetrics
   component "Infrastructure Nodes" as InfraMetrics

@@ -2,66 +2,70 @@
   {
     "name": "yaxunit-ai-generated-code",
     "command": [
-      "oscript",
-      "tools/yaxunit/src/cli/yaxunit-runner.os",
-      "--workspace",
-      "tests/bsl",
-      "--test-file",
-      "test_ai_generated_code.bsl"
+      "python",
+      "scripts/tests/run_yaxunit_tests.py",
+      "--test-files",
+      "test_ai_generated_code.bsl",
+      "--report-format",
+      "jUnit",
+      "--log-level",
+      "info"
     ],
-    "working_directory": "tests/bsl",
-    "env": {
-      "YAXUNIT_OPTS": "--report=junit --output=output/bsl-tests/reports"
-    },
-    "timeout": 1800
+    "working_directory": ".",
+    "env": {},
+    "timeout": 1800,
+    "note": "Требуется настройка --ib-path или --ib-name для запуска. В CI/CD используйте переменные окружения."
   },
   {
     "name": "yaxunit-parsers",
     "command": [
-      "oscript",
-      "tools/yaxunit/src/cli/yaxunit-runner.os",
-      "--workspace",
-      "tests/bsl",
-      "--test-file",
-      "test_parsers.bsl"
+      "python",
+      "scripts/tests/run_yaxunit_tests.py",
+      "--test-files",
+      "test_parsers.bsl",
+      "--report-format",
+      "jUnit",
+      "--log-level",
+      "info"
     ],
-    "working_directory": "tests/bsl",
-    "env": {
-      "YAXUNIT_OPTS": "--report=junit --output=output/bsl-tests/reports"
-    },
-    "timeout": 1800
+    "working_directory": ".",
+    "env": {},
+    "timeout": 1800,
+    "note": "Требуется настройка --ib-path или --ib-name для запуска. В CI/CD используйте переменные окружения."
   },
   {
     "name": "yaxunit-integrations",
     "command": [
-      "oscript",
-      "tools/yaxunit/src/cli/yaxunit-runner.os",
-      "--workspace",
-      "tests/bsl",
-      "--test-file",
-      "test_integrations.bsl"
+      "python",
+      "scripts/tests/run_yaxunit_tests.py",
+      "--test-files",
+      "test_integrations.bsl",
+      "--report-format",
+      "jUnit",
+      "--log-level",
+      "info"
     ],
-    "working_directory": "tests/bsl",
-    "env": {
-      "YAXUNIT_OPTS": "--report=junit --output=output/bsl-tests/reports"
-    },
-    "timeout": 1800
+    "working_directory": ".",
+    "env": {},
+    "timeout": 1800,
+    "note": "Требуется настройка --ib-path или --ib-name для запуска. В CI/CD используйте переменные окружения."
   },
   {
     "name": "yaxunit-mcp-tools",
     "command": [
-      "oscript",
-      "tools/yaxunit/src/cli/yaxunit-runner.os",
-      "--workspace",
-      "tests/bsl",
-      "--test-file",
-      "test_mcp_tools.bsl"
+      "python",
+      "scripts/tests/run_yaxunit_tests.py",
+      "--test-files",
+      "test_mcp_tools.bsl",
+      "--report-format",
+      "jUnit",
+      "--log-level",
+      "info"
     ],
-    "working_directory": "tests/bsl",
-    "env": {
-      "YAXUNIT_OPTS": "--report=junit --output=output/bsl-tests/reports"
-    },
-    "timeout": 1800
+    "working_directory": ".",
+    "env": {},
+    "timeout": 1800,
+    "note": "Требуется настройка --ib-path или --ib-name для запуска. В CI/CD используйте переменные окружения."
   }
 ]
 

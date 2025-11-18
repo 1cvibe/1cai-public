@@ -15,7 +15,8 @@ workspace "1C AI Stack" "Architecture model for Structurizr and PlantUML generat
         authService = container oneCAI "Auth Service" "OAuth2/JWT" "Token issuance, RBAC, SCIM."
         adminPortal = container oneCAI "Admin Portal" "React + FastAPI" "Security agent UI, governance."
 
-        workerTier = container oneCAI "Workers" "Celery" "Long running analysis tasks."
+        eventBus = container oneCAI "Event Bus" "NATS" "Event-driven architecture for async processing."
+        workerTier = container oneCAI "Workers" "Event-Driven (NATS)" "Long running analysis tasks via events."
         mlPipelines = container oneCAI "ML Pipelines" "Prefect / PyTorch" "Training, evaluation, inference."
         itsScraper = container oneCAI "ITS Scraper" "Async Python" "Stateful ingestion pipeline."
         orchestrator = container oneCAI "Orchestrator CLI" "Bash / Make" "Composite pipelines and automation."
@@ -49,7 +50,8 @@ workspace "1C AI Stack" "Architecture model for Structurizr and PlantUML generat
         aiProviders -> mlPipelines "Serves base models" "HTTPS/gRPC"
 
         graphApi -> authService "Token validation" "OAuth2"
-        graphApi -> workerTier "Dispatch tasks" "Redis queue"
+        graphApi -> eventBus "Publish events" "NATS"
+        graphApi -> workerTier "Dispatch tasks" "Event-driven (NATS)"
         graphApi -> postgres "Persist audits"
         graphApi -> neo4j "Read/update dependency graph"
         graphApi -> qdrant "Vector search"
@@ -57,12 +59,14 @@ workspace "1C AI Stack" "Architecture model for Structurizr and PlantUML generat
         graphApi -> prometheus "Metrics endpoint"
         graphApi -> tempo "Traces"
 
+        eventBus -> workerTier "Event routing" "NATS subscriptions"
         workerTier -> postgres "Read/write jobs"
         workerTier -> neo4j "Maintain graph"
         workerTier -> qdrant "Update embeddings"
         workerTier -> minio "Store artefacts"
         workerTier -> prometheus "Worker metrics"
         workerTier -> tempo "Traces"
+        workerTier -> eventBus "Publish results" "NATS"
 
         itsScraper -> itsPortal "Fetch HTML"
         itsScraper -> minio "Persist raw dumps"
@@ -76,7 +80,8 @@ workspace "1C AI Stack" "Architecture model for Structurizr and PlantUML generat
         mlPipelines -> prometheus "ML metrics"
         mlPipelines -> tempo "Tracing"
 
-        orchestrator -> workerTier "Trigger composite jobs"
+        orchestrator -> eventBus "Publish orchestration events" "NATS"
+        orchestrator -> workerTier "Trigger composite jobs" "Event-driven"
         orchestrator -> mlPipelines "Start pipelines"
         orchestrator -> prometheus "Synthetic metrics"
 
@@ -114,6 +119,7 @@ workspace "1C AI Stack" "Architecture model for Structurizr and PlantUML generat
         component graphApi {
             include graphApi
             include authService
+            include eventBus
             include workerTier
             include postgres
             include neo4j
@@ -135,6 +141,7 @@ workspace "1C AI Stack" "Architecture model for Structurizr and PlantUML generat
 
         deployment oneCAI "Kubernetes" {
             include graphApi
+            include eventBus
             include workerTier
             include mlPipelines
             include itsScraper
