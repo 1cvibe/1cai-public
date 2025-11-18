@@ -96,6 +96,7 @@
 - **Intelligent Cache.** Интеллектуальное кэширование с TTL на основе типа запроса, инвалидацией по тегам и типу запроса, LRU eviction и метриками производительности. См. `src/ai/intelligent_cache.py`.
 - **Unified CLI Tool.** Командная строка для работы с платформой (Orchestrator, Scenario Hub, Unified Change Graph, LLM провайдеры, кэш). См. [`docs/01-getting-started/CLI_GUIDE.md`](docs/01-getting-started/CLI_GUIDE.md), `scripts/cli/1cai_cli.py`.
 - **Performance Benchmarks.** Комплексные benchmarks для новых компонентов с целевыми показателями производительности (p95 < 50ms для Scenario Recommender на малом графе, p95 < 1ms для cache hit). См. [`docs/05-development/PERFORMANCE_BENCHMARKS.md`](docs/05-development/PERFORMANCE_BENCHMARKS.md), `tests/performance/test_new_components_performance.py`.
+- **YAxUnit — тестирование BSL кода.** Фреймворк для unit-тестирования BSL кода, автоматическая валидация AI-сгенерированного кода, 4 тестовых сьюта (AI-генерация, парсеры, интеграции, MCP инструменты), интеграция в CI/CD через `make test-bsl`. См. [`docs/06-features/YAXUNIT_INTEGRATION_GUIDE.md`](docs/06-features/YAXUNIT_INTEGRATION_GUIDE.md), [`tests/bsl/`](tests/bsl/), [`scripts/tests/run_yaxunit_tests.py`](scripts/tests/run_yaxunit_tests.py).
 - **🚀 Revolutionary Components.** Прорывные технологии для AI-разработки: Event-Driven Architecture (замена Celery), Self-Evolving AI (автоматическое улучшение), Self-Healing Code (автоматическое исправление багов), Distributed Agent Network (P2P координация), Code DNA (эволюционное улучшение), Predictive Generation (проактивная разработка). См. [`docs/06-features/REVOLUTIONARY_TECHNOLOGIES_GUIDE.md`](docs/06-features/REVOLUTIONARY_TECHNOLOGIES_GUIDE.md), [`docs/06-features/INTEGRATION_WITH_EXISTING_SYSTEM.md`](docs/06-features/INTEGRATION_WITH_EXISTING_SYSTEM.md), [`analysis/REVOLUTIONARY_TECHNOLOGY_ROADMAP.md`](analysis/REVOLUTIONARY_TECHNOLOGY_ROADMAP.md).
 
 ### 🚀 Последние улучшения
@@ -352,7 +353,7 @@ graph TB
 ---
 
 ## ✅ Testing & Quality
-- **YAxUnit + EDT runner** (в планах расширения через репозитории BIA: yaxunit, edt-test-runner).
+- **YAxUnit** ✅ **Внедрено** — фреймворк для тестирования BSL кода, автоматическая валидация AI-сгенерированного кода, 4 тестовых сьюта, интеграция в CI/CD. См. [`docs/06-features/YAXUNIT_INTEGRATION_GUIDE.md`](docs/06-features/YAXUNIT_INTEGRATION_GUIDE.md), `make test-bsl`, [`tests/bsl/`](tests/bsl/).
 - `make test-bsl` (см. [`scripts/tests/run_bsl_tests.py`](scripts/tests/run_bsl_tests.py)).
 - Статический анализ, best practices, проверка зависимостей.
 - Сторожевые скрипты: [`scripts/audit/`](scripts/audit/), [`scripts/analysis/`](scripts/analysis/).
@@ -377,7 +378,7 @@ graph TB
 
 ## 🔗 Integrations
 - **IDE**: MCP сервер (Cursor/VS Code), EDT плагин ([`edt-plugin/`](edt-plugin/)).
-- **Внешние инструменты**: alkoleft платформенные сервисы, yaxunit, GitHub Spec Kit (в работе).
+- **Внешние инструменты**: alkoleft платформенные сервисы, **YAxUnit** ✅ (внедрено), GitHub Spec Kit (в работе).
 - **ITS Scraper**: асинхронный сбор статей, версионирование ([`integrations/its_scraper`](integrations/its_scraper)).
 - **Telegram / n8n / OCR**: дополнительные модули в [`src/`](src/) и [`integrations/`](integrations/).
 
@@ -453,7 +454,7 @@ graph TB
 ## Чего ждать дальше
 
 - Расширение spec-driven практик и интеграции с GitHub Spec Kit — см. [`docs/research/spec_kit_analysis.md`](docs/research/spec_kit_analysis.md), [`docs/research/constitution.md`](docs/research/constitution.md).
-- Новые тестовые раннеры (YAxUnit, edt-test-runner) и сценарии — слежение в [`docs/06-features/TESTING_GUIDE.md`](docs/06-features/TESTING_GUIDE.md), [`docs/research/alkoleft_todo.md`](docs/research/alkoleft_todo.md).
+- **YAxUnit** ✅ **Внедрено** — см. [`docs/06-features/YAXUNIT_INTEGRATION_GUIDE.md`](docs/06-features/YAXUNIT_INTEGRATION_GUIDE.md), `make test-bsl`. Новые тестовые раннеры (edt-test-runner) и сценарии — слежение в [`docs/06-features/TESTING_GUIDE.md`](docs/06-features/TESTING_GUIDE.md), [`docs/research/alkoleft_todo.md`](docs/research/alkoleft_todo.md).
 - UI/презентационный слой для быстрой навигации — наработки в [`docs/09-archive/ui-ux-backup/`](docs/09-archive/ui-ux-backup/).
 
 ## Документация и ресурсы
