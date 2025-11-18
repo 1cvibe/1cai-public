@@ -4,6 +4,8 @@
 LAYOUT_LEFT_RIGHT()
 LAYOUT_WITH_LEGEND()
 
+' Test commit to trigger UML render workflow
+
 AddElementTag("External","#f8f9fa","")
 AddElementTag("Platform","#e8f4ff","")
 
