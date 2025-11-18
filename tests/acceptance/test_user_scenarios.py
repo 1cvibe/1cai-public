@@ -74,7 +74,7 @@ async def test_scenario_new_user_onboarding():
         await conn.close()
         
     except Exception as e:
-        pytest.skip(f"Database not available: {e}")
+        pytest.skip(f"Database not available: {e}", allow_module_level=False)
 
 
 @pytest.mark.asyncio
@@ -198,7 +198,7 @@ async def test_scenario_subscription_upgrade():
         await conn.close()
         
     except Exception as e:
-        pytest.skip(f"Database not available: {e}")
+        pytest.skip(f"Database not available: {e}", allow_module_level=False)
 
 
 @pytest.mark.asyncio
@@ -271,7 +271,7 @@ async def test_scenario_team_collaboration():
         await conn.close()
         
     except Exception as e:
-        pytest.skip(f"Database not available: {e}")
+        pytest.skip(f"Database not available: {e}", allow_module_level=False)
 
 
 @pytest.mark.asyncio

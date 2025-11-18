@@ -36,7 +36,7 @@ async def test_postgres_connection():
         assert result == 1
         
     except Exception as e:
-        pytest.skip(f"PostgreSQL not available: {e}")
+        pytest.skip(f"PostgreSQL not available: {e}", allow_module_level=False)
 
 
 @pytest.mark.asyncio
@@ -81,7 +81,7 @@ async def test_tenant_crud():
         await conn.close()
         
     except Exception as e:
-        pytest.skip(f"Database not available: {e}")
+        pytest.skip(f"Database not available: {e}", allow_module_level=False)
 
 
 # Test AI Agent Integration
@@ -167,7 +167,7 @@ async def test_cache_redis_integration():
         await redis_client.close()
         
     except Exception as e:
-        pytest.skip(f"Redis not available: {e}")
+        pytest.skip(f"Redis not available: {e}", allow_module_level=False)
 
 
 # Test Neo4j Integration
@@ -192,7 +192,7 @@ async def test_neo4j_connection():
         await driver.close()
         
     except Exception as e:
-        pytest.skip(f"Neo4j not available: {e}")
+        pytest.skip(f"Neo4j not available: {e}", allow_module_level=False)
 
 
 # Test Qdrant Integration
@@ -211,7 +211,7 @@ async def test_qdrant_connection():
         assert health is not None
         
     except Exception as e:
-        pytest.skip(f"Qdrant not available: {e}")
+        pytest.skip(f"Qdrant not available: {e}", allow_module_level=False)
 
 
 # Test MCP Server Integration

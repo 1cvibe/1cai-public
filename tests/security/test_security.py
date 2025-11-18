@@ -55,7 +55,7 @@ async def test_sql_injection_prevention():
         await conn.close()
         
     except Exception as e:
-        pytest.skip(f"Database not available: {e}")
+        pytest.skip(f"Database not available: {e}", allow_module_level=False)
 
 
 @pytest.mark.asyncio
@@ -111,7 +111,7 @@ async def test_row_level_security():
         await conn.close()
         
     except Exception as e:
-        pytest.skip(f"Database not available: {e}")
+        pytest.skip(f"Database not available: {e}", allow_module_level=False)
 
 
 def test_xss_detection():

@@ -37,8 +37,14 @@ async def test_api_latency_benchmark():
     
     # Calculate percentiles
     p50 = statistics.median(latencies)
-    p95 = statistics.quantiles(latencies, n=20)[18]  # 95th percentile
-    p99 = statistics.quantiles(latencies, n=100)[98]
+    if len(latencies) >= 20:
+        p95 = statistics.quantiles(latencies, n=20)[18]  # 95th percentile
+    else:
+        p95 = latencies[-1] if latencies else 0
+    if len(latencies) >= 100:
+        p99 = statistics.quantiles(latencies, n=100)[98]
+    else:
+        p99 = latencies[-1] if latencies else 0
     
     print(f"\nLatency Benchmark:")
     print(f"  p50: {p50:.2f}ms")
@@ -156,7 +162,10 @@ async def test_database_query_performance():
             times.append((time.time() - start) * 1000)
         
         avg_time = statistics.mean(times)
-        p95_time = statistics.quantiles(times, n=20)[18]
+        if len(times) >= 20:
+            p95_time = statistics.quantiles(times, n=20)[18]
+        else:
+            p95_time = times[-1] if times else 0
         
         print(f"\nDatabase Performance:")
         print(f"  Avg: {avg_time:.2f}ms")
@@ -167,7 +176,7 @@ async def test_database_query_performance():
         assert p95_time < 50, f"Query too slow: {p95_time:.2f}ms"
         
     except Exception as e:
-        pytest.skip(f"Database not available: {e}")
+        pytest.skip(f"Database not available: {e}", allow_module_level=False)
 
 
 @pytest.mark.asyncio
