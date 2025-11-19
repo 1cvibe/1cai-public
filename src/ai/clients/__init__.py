@@ -5,6 +5,7 @@ from .yandexgpt_client import YandexGPTClient  # noqa: F401
 from .kimi_client import KimiClient, KimiConfig  # noqa: F401
 from .naparnik_client import NaparnikClient, NaparnikConfig  # noqa: F401
 from .ollama_client import OllamaClient, OllamaConfig  # noqa: F401
+from .tabnine_client import TabnineClient, TabnineConfig  # noqa: F401
 from .exceptions import LLMNotConfiguredError, LLMCallError  # noqa: F401
 
 __all__ = [
@@ -16,6 +17,8 @@ __all__ = [
     "NaparnikConfig",
     "OllamaClient",
     "OllamaConfig",
+    "TabnineClient",
+    "TabnineConfig",
     "LLMNotConfiguredError",
     "LLMCallError",
 ]

@@ -193,6 +193,124 @@ impact_analyzer_affected_nodes_count = Histogram(
     buckets=[1, 5, 10, 50, 100, 500, 1000]
 )
 
+# LLM Gateway metrics
+llm_gateway_requests_total = Counter(
+    'llm_gateway_requests_total',
+    'Total LLM Gateway requests',
+    ['provider', 'role', 'status']  # status: success, error, hit (cache)
+)
+
+llm_gateway_latency_seconds = Histogram(
+    'llm_gateway_latency_seconds',
+    'LLM Gateway request latency',
+    ['provider', 'role'],
+    buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0]
+)
+
+llm_gateway_fallbacks_total = Counter(
+    'llm_gateway_fallbacks_total',
+    'Total fallback operations',
+    ['from_provider', 'to_provider', 'reason']
+)
+
+llm_provider_health = Gauge(
+    'llm_provider_health',
+    'LLM provider health status (1=healthy, 0.5=degraded, 0=unhealthy)',
+    ['provider']
+)
+
+llm_provider_latency_ms = Gauge(
+    'llm_provider_latency_ms',
+    'LLM provider latency in milliseconds',
+    ['provider']
+)
+
+# DNS Manager metrics
+dns_resolution_total = Counter(
+    'dns_resolution_total',
+    'Total DNS resolution requests',
+    ['resolver', 'type', 'status']  # type: doh, dot, standard
+)
+
+dns_resolution_duration_seconds = Histogram(
+    'dns_resolution_duration_seconds',
+    'DNS resolution duration',
+    ['resolver', 'type'],
+    buckets=[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0]
+)
+
+dns_resolver_health = Gauge(
+    'dns_resolver_health',
+    'DNS resolver health status (1=healthy, 0=unhealthy)',
+    ['resolver']
+)
+
+# Network Resilience metrics
+network_path_health = Gauge(
+    'network_path_health',
+    'Network path health status (1=healthy, 0=unhealthy)',
+    ['path_id', 'path_type']
+)
+
+network_path_latency_ms = Gauge(
+    'network_path_latency_ms',
+    'Network path latency in milliseconds',
+    ['path_id', 'path_type']
+)
+
+network_failover_total = Counter(
+    'network_failover_total',
+    'Total network failover operations',
+    ['from_path', 'to_path', 'reason']
+)
+
+# Traffic Shaping metrics
+traffic_shaping_operations_total = Counter(
+    'traffic_shaping_operations_total',
+    'Total traffic shaping operations',
+    ['operation_type', 'status']
+)
+
+traffic_shaping_delay_seconds = Histogram(
+    'traffic_shaping_delay_seconds',
+    'Traffic shaping delay',
+    ['operation_type'],
+    buckets=[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0]
+)
+
+# VPN Manager metrics
+vpn_tunnel_health = Gauge(
+    'vpn_tunnel_health',
+    'VPN tunnel health status (1=healthy, 0=unhealthy)',
+    ['tunnel_name', 'tunnel_type']
+)
+
+vpn_tunnel_latency_ms = Gauge(
+    'vpn_tunnel_latency_ms',
+    'VPN tunnel latency in milliseconds',
+    ['tunnel_name', 'tunnel_type']
+)
+
+vpn_tunnel_throughput_bytes = Gauge(
+    'vpn_tunnel_throughput_bytes',
+    'VPN tunnel throughput in bytes per second',
+    ['tunnel_name', 'tunnel_type']
+)
+
+# Protocol Obfuscation metrics
+protocol_obfuscation_operations_total = Counter(
+    'protocol_obfuscation_operations_total',
+    'Total protocol obfuscation operations',
+    ['obfuscation_type', 'status']
+)
+
+protocol_obfuscation_overhead_bytes = Histogram(
+    'protocol_obfuscation_overhead_bytes',
+    'Protocol obfuscation overhead in bytes',
+    ['obfuscation_type'],
+    buckets=[0, 64, 128, 256, 512, 1024, 2048, 4096]
+)
+
 # LLM Provider Abstraction metrics
 llm_provider_selections_total = Counter(
     'llm_provider_selections_total',

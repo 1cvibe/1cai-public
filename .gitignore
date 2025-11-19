@@ -163,6 +163,36 @@ output/audit/unused_files_third_pass.txt
 analysis/progress_memory.json
 analysis/git_ls_files.txt
 
+# Research and analysis files (рассуждения и исследования не должны попадать в git)
+analysis/*_research.md
+analysis/*_analysis.md
+analysis/*_scenario*.md
+analysis/*_plan.md
+analysis/*_report.md
+analysis/*_summary.md
+analysis/*_status.md
+analysis/*_checklist.md
+analysis/*_roadmap.md
+analysis/*_comparison*.md
+analysis/*_review*.md
+analysis/*_usefulness*.md
+analysis/*_uniqueness*.md
+analysis/*_improvements*.md
+analysis/*_complete*.md
+analysis/*_final*.md
+analysis/*_implementation*.md
+analysis/*_integration*.md
+analysis/*_publication*.md
+analysis/*_remaining*.md
+analysis/*_revolutionary*.md
+analysis/*_ultimate*.md
+analysis/*_expanded*.md
+analysis/*_strategy*.md
+analysis/*_exercises*.md
+analysis/functionality_review/
+analysis/project_architecture/
+analysis/offline-exercises/
+
 # 1C Commercial Configurations (protection against accidental commits)
 1c_configurations/*/*.xml
 1c_configurations/*/*.epf

@@ -258,6 +258,7 @@ class AIService(Enum):
     OPENAI = "openai"
     NAPARNIK = "naparnik"
     KIMI_K2 = "kimi_k2"  # Kimi-K2-Thinking for complex reasoning and tool orchestration
+    TABNINE = "tabnine"  # Tabnine AI code completion and generation
 
 
 @dataclass
@@ -351,7 +352,7 @@ class QueryClassifier:
                 r"реализуй\s+",
                 r"добавь\s+(функци|процедур|метод)",
             ],
-            "services": [AIService.QWEN_CODER, AIService.EXTERNAL_AI],
+            "services": [AIService.QWEN_CODER, AIService.TABNINE, AIService.EXTERNAL_AI],
         },
         QueryType.SEMANTIC_SEARCH: {
             "keywords": [
@@ -669,6 +670,26 @@ class AIOrchestrator:
                 extra={"error": str(e), "error_type": type(e).__name__},
             )
             self.ollama_client = None
+
+        # Initialize Tabnine client
+        try:
+            from src.ai.clients.tabnine_client import TabnineClient, TabnineConfig
+
+            tabnine_config = TabnineConfig()
+            self.tabnine_client = TabnineClient(config=tabnine_config)
+            if self.tabnine_client.is_configured:
+                logger.info("Tabnine client initialized")
+            else:
+                logger.warning(
+                    "Tabnine client not configured. Check TABNINE_AUTH_TOKEN environment variable."
+                )
+                self.tabnine_client = None
+        except Exception as e:
+            logger.warning(
+                "Tabnine client not available",
+                extra={"error": str(e), "error_type": type(e).__name__},
+            )
+            self.tabnine_client = None
 
     def register_client(self, service: AIService, client: Any):
         """Register AI service client"""
@@ -1527,6 +1548,27 @@ class AIOrchestrator:
                         )
                     )
                     service_names.append("naparnik")
+                elif (
+                    service == AIService.TABNINE
+                    and self.tabnine_client
+                    and self.tabnine_client.is_configured
+                ):
+                    # Use Tabnine for code completion and generation
+                    system_prompt = context.get(
+                        "system_prompt",
+                        "You are an expert AI assistant specialized in code generation and completion. "
+                        "Provide accurate, efficient, and well-structured code solutions.",
+                    )
+                    tasks.append(
+                        self.tabnine_client.generate(
+                            prompt=query,
+                            system_prompt=system_prompt,
+                            temperature=context.get("temperature", 0.2),
+                            max_tokens=context.get("max_tokens", 2048),
+                            context=context.get("code_context"),
+                        )
+                    )
+                    service_names.append("tabnine")
                 elif (
                     self.ollama_client
                     and self.ollama_client.is_configured
