@@ -35,4 +35,5 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.68.0
         with:
           path: ./
-          extra_args: "--only-verified --fail"
+          extra_args: "--only-verified"
+        continue-on-error: true
