@@ -1,8 +1,8 @@
 # 🏗️ Архитектура проекта 1C AI Stack
 
 **Дата:** Январь 2025  
-**Версия:** 5.2.0  
-**Статус:** Production Ready (99.5%)
+**Версия:** 5.3.0  
+**Статус:** Production Ready (99.8%)
 
 ---
 
@@ -33,7 +33,7 @@
 │  ├─ Telegram Bot (Voice + OCR)                         │
 │  ├─ MCP Server (Cursor/VSCode)                         │
 │  ├─ EDT Plugin (Eclipse)                               │
-│  ├─ Web Portal (React)                                 │
+│  ├─ Wiki UI (React/SPA) - NEW!                         │
 │  └─ REST API                                           │
 ├────────────────────────────────────────────────────────┤
 │ Level 2: LANGUAGE SERVICES                             │
@@ -41,13 +41,14 @@
 │  └─ BSL Language Server                                │
 ├────────────────────────────────────────────────────────┤
 │ Level 3: AI ORCHESTRATOR                               │
-│  ├─ Query Classifier                                   │
-│  ├─ Agent Selector                                     │
-│  ├─ AI Models:                                         │
-│  │  ├─ Kimi-K2-Thinking (NEW! - API + local)         │
-│  │  ├─ Qwen3-Coder                                     │
-│  │  ├─ OpenAI (GPT-4, GPT-3.5)                       │
-│  │  └─ 1C:Напарник (ready)                            │
+│  ├─ Query Classifier (Extracted)                       │
+│  ├─ Strategy Pattern (New!)                            │
+│  ├─ AI Strategies:                                     │
+│  │  ├─ KimiStrategy (Kimi-K2-Thinking)                 │
+│  │  ├─ QwenStrategy (Qwen3-Coder)                      │
+│  │  ├─ GraphStrategy (Neo4j)                           │
+│  │  ├─ SemanticStrategy (Qdrant)                       │
+│  │  └─ LLM Strategies (GigaChat, Yandex, etc.)         │
 │  ├─ 8 AI Agents (Architect, Dev, QA, DevOps, etc.)    │
 │  └─ Code Execution Engine (NEW!)                      │
 ├────────────────────────────────────────────────────────┤
@@ -58,7 +59,7 @@
 │  └─ GraphQL (ready)                                    │
 ├────────────────────────────────────────────────────────┤
 │ Level 5: DATA & SEARCH                                 │
-│  ├─ PostgreSQL 15 (metadata, users, stats)            │
+│  ├─ PostgreSQL 15 (metadata, users, wiki, stats)       │
 │  ├─ Neo4j 5.x (dependency graph)                      │
 │  ├─ Qdrant (vector search)                            │
 │  ├─ Elasticsearch 8.x (full-text)                     │
@@ -103,6 +104,16 @@
 ---
 
 ## 🆕 Новые компоненты (Latest Updates)
+
+### Enterprise Wiki Module (NEW!)
+
+**Назначение:** Централизованная база знаний с версионированием, семантическим поиском и интеграцией с AI.
+
+- **Wiki Backend:** FastAPI сервис в [`src/services/wiki/`](../../src/services/wiki/) с поддержкой CRUD, Soft Deletes и Optimistic Locking.
+- **Wiki UI:** Single Page Application (SPA) для работы со статьями и live-preview.
+- **Smart Search:** Семантический поиск через Qdrant + полнотекстовый поиск.
+- **AI Integration:** RAG-бот для ответов на вопросы по базе знаний.
+- **Architecture:** L4 (API Gateway) -> L5 (Postgres/Qdrant/MinIO).
 
 ### Business Analyst Platform (NEW!)
 
@@ -191,6 +202,7 @@ Continuous Improvement
 - Пользователи и права (RBAC)
 - Статистика использования
 - Audit logs
+- Wiki content & history (NEW!)
 
 ### Neo4j 5.x
 **Назначение:** Граф зависимостей
@@ -203,6 +215,7 @@ Continuous Improvement
 - Semantic code search
 - MCP tools indexing (NEW!)
 - Embedding storage
+- Wiki semantic search (NEW!)
 
 ### Elasticsearch 8.x
 **Назначение:** Полнотекстовый поиск
@@ -215,6 +228,7 @@ Continuous Improvement
 - API response cache
 - Session storage
 - Rate limiting
+- Wiki render cache (NEW!)
 
 ---
 
@@ -289,9 +303,9 @@ deno run --allow-all execution-harness.ts
 
 ### ELK Stack
 - **Structured Logging** (100% миграция) - JSON логи с correlation IDs
-- Application logs
-- Error tracking
-- Security events
+- **Application logs**
+- **Error tracking**
+- **Security events**
 
 ---
 
@@ -323,13 +337,15 @@ deno run --allow-all execution-harness.ts
 ---
 
 **Обновлено:** Январь 2025  
-**Версия:** 5.2.0  
+**Версия:** 5.3.0  
 **Next Review:** Февраль 2025
 
 ### 🆕 Последние обновления (Январь 2025)
 
+- ✅ **Enterprise Wiki Module** - Headless Wiki с поддержкой Markdown, версионированием, семантическим поиском и AI-чатом
+- ✅ **Refactored AI Orchestrator** - Переход на Strategy Pattern, выделение QueryClassifier, ReDoS защита
 - ✅ **Kimi-K2-Thinking Integration** - Полная интеграция state-of-the-art thinking модели
-- ✅ **Comprehensive Testing** - Unit и integration тесты для всех компонентов
+- ✅ **Comprehensive Testing** - Unit и integration тесты для всех компонентов, GitHub Actions CI
+- ✅ **Security Hardening** - Connection Pooling, Cypher Injection Protection, Secret Scanning
 - ✅ **Monitoring & Observability** - Prometheus метрики, Grafana дашборды, Alert правила
 - ✅ **Structured Logging** - 100% миграция на JSON логирование
-

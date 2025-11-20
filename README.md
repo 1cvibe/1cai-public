@@ -66,6 +66,7 @@
 ### Ключевые компоненты
 
 - **AI Orchestrator** — интеллектуальная маршрутизация запросов к AI-сервисам
+- **Enterprise Wiki** (New!) — headless wiki с интеграцией с кодом, векторным поиском и версионированием
 - **Scenario Hub** — протокол-независимый слой для выполнения сценариев
 - **Unified Change Graph** — автоматическое построение графа из BSL кода
 - **LLM Provider Abstraction** — унификация работы с разными LLM провайдерами
@@ -86,6 +87,7 @@
 
 ### Что уже работает
 - **Многослойный анализ конфигураций.** Парсер EDT, `bsl-language-server` и диагностические скрипты из [`src/`](src/) и [`scripts/analysis/`](scripts/analysis/) превращают 1C-конфигурации в метаданные, отчёты и графы зависимостей (см. [`docs/06-features/EDT_PARSER_GUIDE.md`](docs/06-features/EDT_PARSER_GUIDE.md)).
+- **Enterprise Wiki (New!).** Полноценный модуль Wiki с поддержкой Markdown, Transclusion (вставки кода), семантического поиска (Qdrant) и комментариев. Доступен UI по `/wiki-ui`.
 - **Автоматизация и MCP-инструменты.** [`src/ai/mcp_server.py`](src/ai/mcp_server.py), spec-driven workflow и готовые CLI помогают создавать задачи, генерировать код и запускать тесты из IDE или CI (см. [`docs/06-features/MCP_SERVER_GUIDE.md`](docs/06-features/MCP_SERVER_GUIDE.md)).
 - **Промышленный контур.** Helm charts, Argo CD, Linkerd, Vault и Terraform-модули в [`infrastructure/`](infrastructure/) + регламенты в [`docs/ops/`](docs/ops/README.md) позволяют разворачивать и поддерживать стек в облаке без ручных «магических» шагов.
 - **Блок бизнес-аналитики.** Агент BA с расширенными интеграциями (Jira/Confluence/PowerBI/Docflow) и собственным API лежит в [`src/ai/agents/business_analyst_agent_extended.py`](src/ai/agents/business_analyst_agent_extended.py), сервисы — в [`src/api/ba_sessions.py`](src/api/ba_sessions.py) и [`src/services/ba_session_manager.py`](src/services/ba_session_manager.py); документация и сценарии — в [`docs/06-features/BUSINESS_ANALYST_GUIDE.md`](docs/06-features/BUSINESS_ANALYST_GUIDE.md), [`docs/07-integrations/BA_INTEGRATION_PLAN.md`](docs/07-integrations/BA_INTEGRATION_PLAN.md), [`docs/08-e2e-tests/BA_E2E_MATRIX.md`](docs/08-e2e-tests/BA_E2E_MATRIX.md).
@@ -106,7 +108,26 @@
 
 ### 🚀 Последние улучшения
 
-Журнал **последних 8 релизов** (новые сверху). Детали по каждому релизу см. в `docs/05-development/CHANGELOG.md`.
+Журнал **последних 15 релизов** (новые сверху). Детали по каждому релизу см. в `docs/05-development/CHANGELOG.md`.
+
+#### 2025-11-20 — Enterprise Wiki Module
+- **Wiki Backend:** Реализован полный цикл (CRUD) управления статьями с версионированием (Optimistic Locking) и Soft Deletes.
+- **Wiki UI:** Добавлен Single Page Application (SPA) для работы с Wiki (просмотр, редактирование с Live Preview).
+- **AI Integration:** Внедрен семантический поиск (Qdrant) и заглушка для RAG-чатбота ("Ask Wiki").
+- **Markdown Renderer:** Реализован расширенный рендерер с поддержкой `[[WikiLinks]]` и `{{code:transclusion}}`.
+- **Attachments:** Реализована загрузка файлов в S3-compatible storage.
+- **Threading:** Добавлена система древовидных комментариев к статьям.
+- **Testing:** Написаны интеграционные тесты для всего Wiki API.
+- **Migrations:** Настроены Alembic миграции для новых таблиц Wiki.
+
+#### 2025-11-19 — Архитектурный рефакторинг и безопасность
+- **AI Orchestrator:** Переписан на Strategy Pattern, что позволяет легко добавлять новые AI-стратегии.
+- **Query Classifier:** Выделен в отдельный компонент с защитой от ReDoS атак.
+- **PostgreSQL:** Внедрен Connection Pooling для повышения производительности БД.
+- **Neo4j Security:** Клиент защищен от Cypher Injection (параметризованные запросы).
+- **Embedding Service:** Рефакторинг монолита на модульную архитектуру (Cache/Model/Resource Managers).
+- **CI/CD:** Добавлен GitHub Actions workflow для линтинга, тестирования и сканирования безопасности.
+- **Docker:** Внедрен Multi-stage build для уменьшения размера образов и повышения безопасности.
 
 #### 2025‑11‑19 — Network Resilience Layer: Комплексная сетевая отказоустойчивость
 
@@ -135,7 +156,7 @@
   - `docs/06-features/NETWORK_RESILIENCE_LEGAL_DISCLAIMER.md` — юридическое уведомление
   - Обновлён `README.md` с информацией о модуле
 
-#### 2025‑01‑XX — Гибридный CPU+GPU: Продвинутые оптимизации и мониторинг
+#### 2025-11-18 — Гибридный CPU+GPU: Продвинутые оптимизации и мониторинг
 
 - **🚀 Продвинутые оптимизации Embedding Service**
   - Код: `src/services/embedding_service.py` (v2.7.0), `src/services/advanced_optimizations.py` (v2.2.0)
@@ -193,45 +214,6 @@
   - API: `/api/scenarios/examples` (поддержка уровней автономности и policy_decisions) и `/api/tools/registry/examples` в `src/ai/orchestrator.py`.  
   - Документация/UX: `docs/architecture/AI_SCENARIO_HUB_REFERENCE.md`, `docs/architecture/TOOL_REGISTRY_REFERENCE.md`, рецепты в `docs/01-getting-started/cookbook.md`.
 
-#### 2025‑11‑15 — Orchestrator & AI‑контур
-
-- **AI Orchestrator**: базовые unit‑тесты (`tests/unit/test_ai_orchestrator_basic.py`, `tests/unit/test_query_classifier.py`) для классификации запросов, кэша и offline‑режима.  
-- **AI Agents**: дополнительные unit‑тесты для TechLogAnalyzer, RAS Monitor, Issue Classifier (ML/rule‑based).  
-- **LLM Diagnostics**: `scripts/diagnostics/check_llm_endpoints.py` + юнит‑тесты, DevOps offline‑гайд обновлён под новые проверки.
-
-#### 2025‑11‑14 — Security & Audit
-
-- **Secret Scanning**: `scripts/audit/check_secrets.py` + отчёт `analysis/secret_scan_report.json`.  
-- **Hidden Dirs / Git Safety**: `scripts/audit/check_hidden_dirs.py`, `check_git_safety.py`, интеграция в `make security-audit`.  
-- **Security Docs**: обновлены `SECURITY_IMPROVEMENTS.md`, раздел Security в `CHANGELOG`, зафиксирован риск по CVE FastAPI/Starlette/urllib3.  
-- **Windows Security**: `scripts/windows/security-audit.ps1` как единая точка входа для аудита в PowerShell.
-
-#### 2025‑11‑13 — Агентские гайды и E2E
-
-- **Developer AI Secure**: `docs/06-features/DEVELOPER_AGENT_GUIDE.md` + unit‑тесты approve‑флоу.  
-- **QA Engineer AI**: `docs/06-features/QA_ENGINEER_GUIDE.md`, system‑тесты маршрутизатора ролей (`tests/system/test_role_based_routing.py`).  
-- **Business Analyst**: интеграционные тесты Jira/Confluence/PowerBI/Docflow (`tests/unit/test_business_analyst_integrations.py`).  
-- **SQL Optimizer**: гайд `SQL_OPTIMIZER_GUIDE.md` и unit‑тесты secure‑режима.
-
-#### 2025‑11‑12 — DevEx, Windows и Cookbook
-
-- **Windows Quickstart**: `docs/01-getting-started/windows_quickstart.md` с пошаговым запуском без GNU Make.  
-- **Usage Cookbook**: `docs/01-getting-started/cookbook.md` (частые сценарии: тесты, security-audit, BA→Dev→QA, Orchestrator latency, DR rehearsal).  
-- **Runtime Checks**: `scripts/setup/check_runtime.py` + обновлённая `docs/research/constitution.md` (проверки Python 3.11, make, docker).
-
-#### 2025‑11‑11 — BA‑подсистема и DR
-
-- **BA Guides**: `BA_PROCESS_MODELLING_GUIDE`, `BA_ANALYTICS_KPI_GUIDE`, `BA_TRACEABILITY_COMPLIANCE_GUIDE`, `BA_INTEGRATIONS_COLLAB_GUIDE`, `BA_ENABLEMENT_GUIDE` + индексы в `docs/06-features/README.md`.  
-- **DR / Resilience**: план `docs/runbooks/dr_rehearsal_plan.md`, интеграция DR rehearsal в общий процесс.  
-- **DORA / Status**: `docs/status/weekly_summary_template.md` и обновлённый `docs/status/README.md`.
-
-#### 2025‑11‑10 — Архитектура, Feature Flags и README
-
-- **Feature Flags**: `docs/06-features/FEATURE_FLAGS_GUIDE.md`, ссылки в `docs/06-features/README.md` и `README`.  
-- **Architecture / UML**: диаграмма CursorExt (`docs/architecture/uml/integrations/cursorext-overview.puml`) и артефакт PNG в `docs/architecture/images/`.  
-- **README & Usage**: очищен от merge‑конфликтов, добавлен раздел Usage, таблица статусов подсистем и ссылки на основные гайды.  
-- **Приватный push‑процесс**: документация в `docs/05-development/README.md` и `docs/01-getting-started/CONTRIBUTING.md`.
-
 ## Архитектура платформы
 
 ```mermaid
@@ -243,6 +225,7 @@ graph TB
 
     subgraph Core["🔵 Core Services"]
         API["🌐 Graph API<br/>FastAPI<br/>GraphQL, REST, MCP endpoints"]
+        Wiki["📚 Enterprise Wiki<br/>Headless CMS, Docs, Comments"]
         RestGateway["⚡ Realtime Gateway<br/>Starlette, WebSocket"]
         Auth["🔐 Auth and RBAC<br/>OAuth2, JWT"]
         AdminPortal["🛡️ Admin Portal<br/>React, FastAPI"]
@@ -279,6 +262,7 @@ graph TB
 
     Developer -->|Graph queries, MCP| API
     Developer -->|IDE commands| EDTPlugin
+    Developer -->|Docs, Knowledge| Wiki
     Operator -->|Dashboards| Grafana
 
     API -->|Auth| Auth
@@ -288,6 +272,10 @@ graph TB
     API -->|Cache| Redis
     API -->|Events| NATS
     API -->|Embeddings| EmbeddingService
+    
+    Wiki -->|Content| Postgres
+    Wiki -->|Search| Qdrant
+    Wiki -->|Files| Minio
 
     NATS -->|Events| EventWorkers
     EventWorkers -->|Update| Postgres
@@ -310,7 +298,7 @@ graph TB
     classDef storeStyle fill:#f0f7ff,stroke:#0066cc,stroke-width:2px
     classDef opsStyle fill:#f6fdf3,stroke:#00cc66,stroke-width:2px
 
-    class API,RestGateway,Auth,AdminPortal coreStyle
+    class API,RestGateway,Auth,AdminPortal,Wiki coreStyle
     class EDTPlugin,n8nNode,TelegramBot,Marketplace integrationStyle
     class Postgres,Neo4j,Qdrant,Redis,Minio storeStyle
     class Prometheus,Grafana,Alertmanager,GitHubActions opsStyle
@@ -422,7 +410,7 @@ graph TB
 - Smoke проверки: `make smoke-tests`, CI job `smoke-tests`, артефакты pytest — см. [`output/tests`](output/tests/).
 - Наблюдаемость: `/metrics` (Prometheus), SLO/Runbooks (`docs/observability/SLO.md`, `docs/runbooks/alert_slo_runbook.md`), автоматические отчёты DORA.
 - **Secret scanning & Security**
-  - Workflows [`.github/workflows/secret-scan.yml`](.github/workflows/secret-scan.yml) (Gitleaks) и [`.github/workflows/trufflehog.yml`](.github/workflows/trufflehog.yml) — регулярное сканирование репозитория на утечки токенов.
+  - Workflows [`.github/workflows/secret-scan.yml`](.github/workflows/secret-scan.yml) и [`.github/workflows/trufflehog.yml`](.github/workflows/trufflehog.yml) — регулярное сканирование репозитория на утечки токенов.
   - Policy-as-code: [`policy/`](policy/) (Rego) + [`scripts/security/run_policy_checks.sh`](scripts/security/run_policy_checks.sh) (Conftest Kubernetes + Terraform, Semgrep, Checkov/Trivy) → `make policy-check` / CI стадии.
   - Infrastructure scanners: [`scripts/security/run_checkov.sh`](scripts/security/run_checkov.sh) (Checkov + Trivy) подключён в Jenkins/GitLab/Azure pipeline.
   - GitOps: [`infrastructure/argocd/`](infrastructure/argocd/), [`scripts/gitops/`](scripts/gitops/), make `gitops-apply`, `gitops-sync`.

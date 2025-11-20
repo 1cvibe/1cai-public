@@ -99,6 +99,9 @@ RESUME_IT_DIRECTOR.md
 READY_FOR_GITHUB.txt
 CODE_EXECUTION_*.md
 FINAL_IMPLEMENTATION_*.md
+CODE_AUDIT.json
+DEEP_CODE_AUDIT.json
+wiki_implementation_analysis.json
 
 # Archive and backups
 archive/
@@ -352,4 +355,4 @@ tools/plantuml-*.jar
 # Metrics artifacts
 output/metrics/
 output/test-results/
-output/test-results/allure/
+output/test-results/allure/wiki_implementation_analysis.json
