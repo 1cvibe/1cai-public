@@ -13,7 +13,6 @@ from typing import Dict, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-
 RESULTS_DIR = Path(__file__).resolve().parent / "runs"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 

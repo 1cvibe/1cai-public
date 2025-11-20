@@ -4,12 +4,14 @@
 Тесты для менеджера промптов.
 """
 
-import pytest
 import json
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-from src.py_server.code_generation.prompts.manager import PromptManager, PromptTemplate
+import pytest
+
+from src.py_server.code_generation.prompts.manager import (PromptManager,
+                                                           PromptTemplate)
 
 
 class TestPromptTemplate:

@@ -36,19 +36,20 @@ import statistics
 import sys
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from contextlib import contextmanager
-from dataclasses import dataclass, asdict
-from functools import wraps
-from typing import Dict, List, Optional, Tuple, Any, Callable
-from unittest.mock import Mock
 import warnings
+from concurrent.futures import (ProcessPoolExecutor, ThreadPoolExecutor,
+                                as_completed)
+from contextlib import contextmanager
+from dataclasses import asdict, dataclass
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Tuple
+from unittest.mock import Mock
 
 # Добавляем путь для импортов
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pytest
 import psutil
+import pytest
 from memory_profiler import profile
 
 # Попытка импорта pytest-benchmark
@@ -59,21 +60,16 @@ except ImportError:
     HAS_BENCHMARK = False
     pytest_benchmark = None
 
-# Импорт компонентов системы
-from ratelimit import (
-    MemoryRateLimitStore,
-    RedisRateLimitStore, 
-    SlidingWindowCounter,
-    TokenBucket,
-    FixedWindowCounter,
-    RateLimitManager
-)
-from cache import MemoryCache, MCP_CACHE
-from main import app
-
 # Настройка тестового окружения
 import uvicorn
 from fastapi.testclient import TestClient
+# Импорт компонентов системы
+from ratelimit import (FixedWindowCounter, MemoryRateLimitStore,
+                       RateLimitManager, RedisRateLimitStore,
+                       SlidingWindowCounter, TokenBucket)
+
+from cache import MCP_CACHE, MemoryCache
+from main import app
 
 # =============================================================================
 # PERFORMANCE METRICS DATA STRUCTURES
@@ -1488,8 +1484,8 @@ class TestSystemVolume:
         print("\n=== Testing Concurrent File Operations ===")
         
         # Создаем временные файлы для тестирования
-        import tempfile
         import shutil
+        import tempfile
         
         temp_dir = tempfile.mkdtemp(prefix="performance_test_")
         num_files = 1000

@@ -16,9 +16,10 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional
 
-# Импорты модулей
-from cache import OAuthCacheManager, SecurityLevel, OAuthCacheFactory
 from auth.oauth2 import OAuth2Service, OAuth2Store
+
+# Импорты модулей
+from cache import OAuthCacheFactory, OAuthCacheManager, SecurityLevel
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)

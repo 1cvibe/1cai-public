@@ -7,30 +7,19 @@
 retry политик и fallback стратегий в реальных сценариях.
 """
 
-import time
-import random
 import asyncio
-from typing import Dict, Any, List
 import logging
+import random
+import time
+from typing import Any, Dict, List
 
-from . import (
-    CircuitBreaker, 
-    CircuitBreakerConfig,
-    RetryPolicy,
-    RetryPolicyConfig,
-    GracefulDegradationManager,
-    GracefulDegradationConfig,
-    ServiceType,
-    ServiceContext,
-    FallbackStrategy,
-    FallbackResult,
-    create_resilient_operation,
-    get_circuit_breaker_manager,
-    get_retry_policy_manager,
-    get_graceful_degradation_manager,
-    get_fallback_strategy_manager,
-    with_exponential_backoff
-)
+from . import (CircuitBreaker, CircuitBreakerConfig, FallbackResult,
+               FallbackStrategy, GracefulDegradationConfig,
+               GracefulDegradationManager, RetryPolicy, RetryPolicyConfig,
+               ServiceContext, ServiceType, create_resilient_operation,
+               get_circuit_breaker_manager, get_fallback_strategy_manager,
+               get_graceful_degradation_manager, get_retry_policy_manager,
+               with_exponential_backoff)
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -274,7 +263,7 @@ def example_7_monitoring_and_status():
     print("\n=== Пример 7: Мониторинг системы ===")
     
     from . import get_resilience_status
-    
+
     # Создаем несколько компонентов устойчивости
     circuit_breaker = create_circuit_breaker("monitored_service", ServiceType.EXTERNAL_API)
     retry_policy = create_retry_policy("monitored_retry", "external_api")
@@ -322,14 +311,9 @@ def example_8_configuration_and_customization():
     """Пример 8: Конфигурация и кастомизация"""
     print("\n=== Пример 8: Конфигурация системы ===")
     
-    from .config import (
-        CircuitBreakerConfig,
-        RetryPolicyConfig, 
-        GracefulDegradationConfig,
-        ResilienceConfig,
-        update_config
-    )
-    
+    from .config import (CircuitBreakerConfig, GracefulDegradationConfig,
+                         ResilienceConfig, RetryPolicyConfig, update_config)
+
     # Создаем кастомную конфигурацию
     custom_config = ResilienceConfig(
         circuit_breakers={

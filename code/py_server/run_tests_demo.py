@@ -8,10 +8,11 @@
 
 """
 
+import os
 import subprocess
 import sys
-import os
 from pathlib import Path
+
 
 def run_command(command, description):
     """Запустить команду с описанием"""

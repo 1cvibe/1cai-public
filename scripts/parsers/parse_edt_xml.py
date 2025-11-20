@@ -6,16 +6,16 @@
 Версия: 2.0.0 - PostgreSQL Integration
 """
 
-import os
-import sys
-import json
-import xml.etree.ElementTree as ET
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-import re
-from collections import defaultdict
 import hashlib
+import json
+import os
+import re
+import sys
+import xml.etree.ElementTree as ET
+from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -27,7 +27,7 @@ except ImportError:
 
 try:
     import psycopg2
-    from psycopg2.extras import execute_values, Json
+    from psycopg2.extras import Json, execute_values
     POSTGRES_AVAILABLE = True
 except ImportError:
     print("[WARN] psycopg2 not installed. Install: pip install psycopg2-binary")
@@ -1042,9 +1042,9 @@ class EDTXMLParser:
 
 def parse_do_configuration():
     """Парсинг конфигурации DO из EDT XML файлов"""
-    import sys
     import io
-    
+    import sys
+
     # Устанавливаем правильную кодировку для вывода
     if sys.platform == 'win32':
         sys.stdout.reconfigure(encoding='utf-8')
@@ -1086,7 +1086,7 @@ def parse_do_configuration():
 def parse_erp_configuration():
     """Парсинг конфигурации ERP из EDT XML файлов"""
     import sys
-    
+
     # Устанавливаем правильную кодировку для вывода
     if sys.platform == 'win32':
         sys.stdout.reconfigure(encoding='utf-8')
@@ -1128,7 +1128,7 @@ def parse_erp_configuration():
 def parse_zup_configuration():
     """Парсинг конфигурации ZUP из EDT XML файлов"""
     import sys
-    
+
     # Устанавливаем правильную кодировку для вывода
     if sys.platform == 'win32':
         sys.stdout.reconfigure(encoding='utf-8')
@@ -1170,7 +1170,7 @@ def parse_zup_configuration():
 def parse_buh_configuration():
     """Парсинг конфигурации BUH из EDT XML файлов"""
     import sys
-    
+
     # Устанавливаем правильную кодировку для вывода
     if sys.platform == 'win32':
         sys.stdout.reconfigure(encoding='utf-8')

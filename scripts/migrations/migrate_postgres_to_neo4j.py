@@ -6,11 +6,11 @@
 Создание графа метаданных 1С
 """
 
+import logging
 import os
 import sys
-import logging
-from typing import Dict, List, Any
 from pathlib import Path
+from typing import Any, Dict, List
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,8 +25,8 @@ except ImportError:
     logger.warning("python-dotenv not installed")
 
 try:
-    from src.db.postgres_saver import PostgreSQLSaver
     from src.db.neo4j_client import Neo4jClient
+    from src.db.postgres_saver import PostgreSQLSaver
 except ImportError as e:
     logger.error(f"Import error: {e}")
     logger.error("Make sure src/db/ modules exist")

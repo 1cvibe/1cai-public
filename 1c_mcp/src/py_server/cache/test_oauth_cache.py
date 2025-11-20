@@ -12,24 +12,17 @@
 """
 
 import asyncio
-import pytest
 import secrets
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
 # Импорты тестируемых модулей
-from cache.oauth_cache import (
-    OAuthCacheManager,
-    OAuthTokenCache,
-    SessionManager,
-    TokenValidator,
-    SecureStorage,
-    CachedToken,
-    UserSession,
-    CacheStrategy,
-    SecurityLevel,
-    OAuthCacheFactory
-)
+from cache.oauth_cache import (CachedToken, CacheStrategy, OAuthCacheFactory,
+                               OAuthCacheManager, OAuthTokenCache,
+                               SecureStorage, SecurityLevel, SessionManager,
+                               TokenValidator, UserSession)
 
 
 class TestSecureStorage:

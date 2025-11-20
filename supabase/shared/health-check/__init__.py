@@ -5,66 +5,34 @@ Health Check System - Main Index
 Комплексная система health checks для всех сервисов
 """
 
-from .endpoints import (
-    BasicHealthChecker,
-    DependenciesHealthChecker,
-    BusinessHealthChecker,
-    PerformanceHealthChecker,
-    CustomMetricsHealthChecker,
-    ComprehensiveHealthChecker,
-    create_fastapi_health_endpoints,
-    create_flask_health_blueprints,
-    DEFAULT_DEPENDENCIES_CONFIG,
-    DEFAULT_BUSINESS_CONFIG,
-    DEFAULT_PERFORMANCE_CONFIG,
-    DEFAULT_CUSTOM_METRICS_CONFIG
-)
-
-from .manager import (
-    HealthCheckManager,
-    OverallHealthStatus,
-    IssueSeverity,
-    IssueCategory,
-    HealthIssue,
-    ServiceHealth,
-    HealthMetrics,
-    HealthIssueDetector,
-    RecommendationEngine
-)
-
-from .kubernetes.k8s_probes import (
-    KubernetesProbesGenerator,
-    ProbeType,
-    ProbeProtocol,
-    generate_all_k8s_configs,
-    SERVICE_CONFIGS
-)
-
-from .dashboard.dashboard_server import (
-    HealthDashboardServer,
-    ServiceStatus,
-    DashboardService,
-    DashboardMetrics,
-    Incident,
-    create_dashboard_template
-)
-
-from .recovery.auto_recovery import (
-    AutomatedRecoverySystem,
-    RecoveryStatus,
-    RecoveryType,
-    RecoveryAction,
-    RecoveryExecution,
-    CircuitBreaker,
-    ServiceRestartHandler,
-    CacheClearer,
-    TrafficSwitcher
-)
-
-import os
 import asyncio
-from typing import Dict, Any, Optional
 import logging
+import os
+from typing import Any, Dict, Optional
+
+from .dashboard.dashboard_server import (DashboardMetrics, DashboardService,
+                                         HealthDashboardServer, Incident,
+                                         ServiceStatus,
+                                         create_dashboard_template)
+from .endpoints import (DEFAULT_BUSINESS_CONFIG, DEFAULT_CUSTOM_METRICS_CONFIG,
+                        DEFAULT_DEPENDENCIES_CONFIG,
+                        DEFAULT_PERFORMANCE_CONFIG, BasicHealthChecker,
+                        BusinessHealthChecker, ComprehensiveHealthChecker,
+                        CustomMetricsHealthChecker, DependenciesHealthChecker,
+                        PerformanceHealthChecker,
+                        create_fastapi_health_endpoints,
+                        create_flask_health_blueprints)
+from .kubernetes.k8s_probes import (SERVICE_CONFIGS, KubernetesProbesGenerator,
+                                    ProbeProtocol, ProbeType,
+                                    generate_all_k8s_configs)
+from .manager import (HealthCheckManager, HealthIssue, HealthIssueDetector,
+                      HealthMetrics, IssueCategory, IssueSeverity,
+                      OverallHealthStatus, RecommendationEngine, ServiceHealth)
+from .recovery.auto_recovery import (AutomatedRecoverySystem, CacheClearer,
+                                     CircuitBreaker, RecoveryAction,
+                                     RecoveryExecution, RecoveryStatus,
+                                     RecoveryType, ServiceRestartHandler,
+                                     TrafficSwitcher)
 
 logger = logging.getLogger(__name__)
 

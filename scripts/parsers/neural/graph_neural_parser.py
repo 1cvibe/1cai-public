@@ -18,13 +18,14 @@ Graph Neural Network Parser для BSL кода
 Версия: 1.0.0 Revolutionary
 """
 
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import List, Dict, Any, Tuple
-from dataclasses import dataclass
-from enum import Enum
-import numpy as np
 
 
 class NodeType(Enum):
@@ -458,8 +459,8 @@ class GraphBasedBSLParser:
         Опционально (требует networkx + matplotlib)
         """
         try:
-            import networkx as nx
             import matplotlib.pyplot as plt
+            import networkx as nx
             
             G = nx.DiGraph()
             

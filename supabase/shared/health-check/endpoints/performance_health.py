@@ -5,16 +5,18 @@ Performance Health Check Endpoint
 Проверка производительности: время отклика, память, нагрузка
 """
 
-import time
-import psutil
 import asyncio
-import aiohttp
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
-from enum import Enum
-import statistics
 import json
+import statistics
+import time
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+import aiohttp
+import psutil
+
 
 class PerformanceStatus(Enum):
     EXCELLENT = "excellent"

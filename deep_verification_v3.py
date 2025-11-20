@@ -4,18 +4,18 @@ DEEP VERIFICATION V3 - ULTIMATE PROJECT AUDIT
 Strictly follows "CRITICAL RULES OF VERIFICATION" (Nov 7, 2025)
 """
 
-import os
-import re
-import sys
 import ast
 import json
-import time
+import os
+import re
 import socket
-import urllib.request
+import sys
+import time
 import urllib.error
-from pathlib import Path
+import urllib.request
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 # Configuration
 IGNORE_DIRS = {

@@ -14,7 +14,6 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-
 ROOT_DIR = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT_DIR / "config" / "ml_datasets.json"
 

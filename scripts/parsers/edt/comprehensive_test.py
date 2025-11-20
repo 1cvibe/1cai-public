@@ -9,7 +9,9 @@
 import sys
 import time
 from pathlib import Path
+
 from edt_parser import EDTConfigurationParser
+
 
 def test_common_modules(parser, limit=50):
     """Тест парсинга общих модулей"""

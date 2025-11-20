@@ -23,13 +23,12 @@ import argparse
 import json
 import os
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
 import httpx
-
 
 DEFAULT_REPOS: Tuple[str, ...] = (
     "1c-syntax/bsl-language-server",

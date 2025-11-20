@@ -12,7 +12,7 @@ import json
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, Tuple, List
+from typing import Any, Dict, List, Tuple
 
 from scripts.analysis.tree_sitter_adapter import ensure_parser, extract_calls
 

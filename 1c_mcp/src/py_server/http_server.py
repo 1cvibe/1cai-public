@@ -5,28 +5,27 @@
 import asyncio
 import json
 import logging
-from typing import Dict, Any, Optional
 from contextlib import asynccontextmanager
-from urllib.parse import urlencode, parse_qs
+from typing import Any, Dict, Optional
+from urllib.parse import parse_qs, urlencode
 
-from fastapi import FastAPI, Request, Response, HTTPException, Form
-from fastapi.responses import StreamingResponse, HTMLResponse, RedirectResponse, JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 import httpx
-
+import uvicorn
+from fastapi import FastAPI, Form, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import (HTMLResponse, JSONResponse, RedirectResponse,
+                               StreamingResponse)
+from mcp.server.models import InitializationOptions
 from mcp.server.sse import SseServerTransport
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
-from mcp.server.models import InitializationOptions
 from starlette.applications import Starlette
-from starlette.routing import Mount, Route
-from starlette.types import Scope, Receive, Send
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.routing import Mount, Route
+from starlette.types import Receive, Scope, Send
 
-from .mcp_server import MCPProxy, current_onec_credentials
-from .config import Config
 from .auth import OAuth2Service, OAuth2Store
-
+from .config import Config
+from .mcp_server import MCPProxy, current_onec_credentials
 
 logger = logging.getLogger(__name__)
 

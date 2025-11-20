@@ -12,28 +12,27 @@
 """
 
 import asyncio
-import json
-import time
-import hashlib
 import base64
+import hashlib
+import json
+import os
 import secrets
-from typing import Dict, Any, List, Optional
-from unittest.mock import Mock, patch, AsyncMock
-from datetime import datetime, timedelta
-
-import pytest
-import httpx
-from factory import Factory, Trait
-from factory.fuzzy import FuzzyText, FuzzyInteger, FuzzyChoice
-from freezegun import freeze_time
-
 # Импорты приложения
 import sys
-import os
+import time
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+from unittest.mock import AsyncMock, Mock, patch
+
+import httpx
+import pytest
+from factory import Factory, Trait
+from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyText
+from freezegun import freeze_time
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import app
-
 
 # =============================================================================
 # SSE (SERVER-SENT EVENTS) ТЕСТЫ

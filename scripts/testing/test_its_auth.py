@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from src.services.its_library_service import get_its_service
 
+
 async def test_auth():
     """Тест авторизации"""
     print("Тестирование авторизации в ИТС...")

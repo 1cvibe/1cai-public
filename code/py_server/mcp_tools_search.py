@@ -7,7 +7,8 @@ Semantic search для MCP tools (progressive disclosure)
 """
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from tool_indexer import ToolIndexer
 
 logger = logging.getLogger(__name__)

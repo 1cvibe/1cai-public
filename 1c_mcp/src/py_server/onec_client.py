@@ -2,14 +2,14 @@
 
 """Клиент для взаимодействия с 1С."""
 
+import base64
 import json
 import logging
 from typing import Any, Dict, List, Optional
+
 import httpx
 from mcp import types
 from mcp.server.lowlevel.helper_types import ReadResourceContents
-import base64
-
 
 logger = logging.getLogger(__name__)
 

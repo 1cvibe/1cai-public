@@ -11,9 +11,10 @@
 """
 
 import os
-from typing import Dict, List, Optional, Any
-from pydantic import BaseSettings, Field
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseSettings, Field
 
 
 class Environment(str, Enum):

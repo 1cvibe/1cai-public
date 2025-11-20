@@ -4,18 +4,10 @@
 Automated Recovery System Index
 """
 
-from .auto_recovery import (
-    AutomatedRecoverySystem,
-    RecoveryStatus,
-    RecoveryType,
-    RecoveryAction,
-    RecoveryExecution,
-    CircuitBreaker,
-    KubernetesOperator,
-    ServiceRestartHandler,
-    CacheClearer,
-    TrafficSwitcher
-)
+from .auto_recovery import (AutomatedRecoverySystem, CacheClearer,
+                            CircuitBreaker, KubernetesOperator, RecoveryAction,
+                            RecoveryExecution, RecoveryStatus, RecoveryType,
+                            ServiceRestartHandler, TrafficSwitcher)
 
 __all__ = [
     'AutomatedRecoverySystem',

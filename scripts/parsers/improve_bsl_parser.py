@@ -7,8 +7,8 @@
 """
 
 import re
-from typing import List, Dict, Any, Optional
 from collections import defaultdict
+from typing import Any, Dict, List, Optional
 
 
 class ImprovedBSLParser:

@@ -4,27 +4,31 @@
 Конфигурация pytest для тестирования системы генерации кода 1С.
 """
 
-import pytest
 import asyncio
-import sys
-from pathlib import Path
-from unittest.mock import Mock, patch
-import tempfile
 import json
 import os
+import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
 
 # Добавляем путь к исходному коду
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.py_server.code_generation.prompts.manager import PromptManager, PromptTemplate
-from src.py_server.code_generation.prompts.optimizer import PromptOptimizer
-from src.py_server.code_generation.prompts.context import ContextualPromptBuilder, ContextData, ComplexityLevel, QualityRequirement
-from src.py_server.code_generation.templates.library import TemplateLibrary, CodeTemplate
-from src.py_server.code_generation.templates.processor import TemplateProcessor
 from src.py_server.code_generation.engine import CodeGenerationEngine
-from src.py_server.code_generation.validation.validator import CodeValidator
-from src.py_server.code_generation.security.manager import SecurityManager
 from src.py_server.code_generation.llm.client import LLMClient
+from src.py_server.code_generation.prompts.context import (
+    ComplexityLevel, ContextData, ContextualPromptBuilder, QualityRequirement)
+from src.py_server.code_generation.prompts.manager import (PromptManager,
+                                                           PromptTemplate)
+from src.py_server.code_generation.prompts.optimizer import PromptOptimizer
+from src.py_server.code_generation.security.manager import SecurityManager
+from src.py_server.code_generation.templates.library import (CodeTemplate,
+                                                             TemplateLibrary)
+from src.py_server.code_generation.templates.processor import TemplateProcessor
+from src.py_server.code_generation.validation.validator import CodeValidator
 
 
 @pytest.fixture
@@ -66,7 +70,8 @@ def mock_template_library(temp_dir):
 @pytest.fixture
 def sample_code_template():
     """Пример шаблона кода для тестов."""
-    from src.py_server.code_generation.templates.library import TemplateMetadata
+    from src.py_server.code_generation.templates.library import \
+        TemplateMetadata
     
     metadata = TemplateMetadata(
         name="test_template",

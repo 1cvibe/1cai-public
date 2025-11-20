@@ -11,31 +11,25 @@
 - Корреляционные ID
 """
 
-import pytest
+import asyncio
 import json
 import time
-import asyncio
+from typing import Any, Dict
 from unittest.mock import Mock, patch
-from typing import Dict, Any
+
+import pytest
 
 # Импорт тестируемых модулей
-from .config import setup_logging, LoggingConfig, logging_config
-from .formatter import (
-    LogLevel, create_log_structure, StructuredFormatter,
-    HTTPRequestFormatter, PerformanceFormatter
-)
-from .sanitizers import (
-    DataSanitizer, sanitize_sensitive_data, sanitize_user_data,
-    MaskingRule
-)
-from .middleware import (
-    correlation_context, correlation_context_manager,
-    LoggingMiddleware, with_correlation_id, log_execution_time
-)
-from .handlers import (
-    ConsoleHandler, FileHandler, MonitorHandler, APMHandler,
-    StructuredLogger
-)
+from .config import LoggingConfig, logging_config, setup_logging
+from .formatter import (HTTPRequestFormatter, LogLevel, PerformanceFormatter,
+                        StructuredFormatter, create_log_structure)
+from .handlers import (APMHandler, ConsoleHandler, FileHandler, MonitorHandler,
+                       StructuredLogger)
+from .middleware import (LoggingMiddleware, correlation_context,
+                         correlation_context_manager, log_execution_time,
+                         with_correlation_id)
+from .sanitizers import (DataSanitizer, MaskingRule, sanitize_sensitive_data,
+                         sanitize_user_data)
 
 
 class TestLoggingConfig:

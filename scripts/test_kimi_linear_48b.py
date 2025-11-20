@@ -6,13 +6,13 @@ Test Kimi-Linear-48B для анализа больших конфигураци
 Проверка целесообразности использования модели с 200K контекстом
 """
 
+import json
+import logging
 import os
 import sys
-import logging
 import time
 from pathlib import Path
 from typing import Dict, List, Optional
-import json
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer

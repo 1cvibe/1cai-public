@@ -9,19 +9,12 @@
 """
 
 # Экспорт основных тестовых классов
-from .test_mcp_cache import (
-    TestCacheEntry,
-    TestCacheMetrics,
-    TestCacheStrategy,
-    TestCacheInvalidation,
-    TestPersistentCache,
-    TestMCPToolsCache,
-    TestAsyncOperations,
-    TestDecorator,
-    TestSpecializedCacheFunctions,
-    TestCacheStatistics,
-    TestEdgeCases
-)
+from .test_mcp_cache import (TestAsyncOperations, TestCacheEntry,
+                             TestCacheInvalidation, TestCacheMetrics,
+                             TestCacheStatistics, TestCacheStrategy,
+                             TestDecorator, TestEdgeCases, TestMCPToolsCache,
+                             TestPersistentCache,
+                             TestSpecializedCacheFunctions)
 
 __all__ = [
     'TestCacheEntry',

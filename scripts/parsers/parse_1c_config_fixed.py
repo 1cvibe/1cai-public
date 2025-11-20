@@ -6,20 +6,21 @@
 Версия: 3.0.0
 """
 
-import os
-import sys
 import json
-import xml.etree.ElementTree as ET
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+import os
 import re
+import sys
+import xml.etree.ElementTree as ET
 from collections import defaultdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from src.services.configuration_knowledge_base import get_knowledge_base
     from improve_bsl_parser import ImprovedBSLParser
+
+    from src.services.configuration_knowledge_base import get_knowledge_base
 except ImportError as e:
     print(f"[ERROR] Ошибка импорта: {e}")
     sys.exit(1)

@@ -6,8 +6,9 @@ from pathlib import Path
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.services.wiki.sync_worker import CodeSyncService
 from src.services.wiki.service import WikiService
+from src.services.wiki.sync_worker import CodeSyncService
+
 
 async def main():
     print("Initializing CodeSync...")

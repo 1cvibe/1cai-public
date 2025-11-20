@@ -11,14 +11,14 @@ Template Manager для 1C AI MCP Code Generation
 Дата: 30.10.2025
 """
 
-import json
-import os
-import hashlib
 import asyncio
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
+import hashlib
+import json
 import logging
+import os
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 

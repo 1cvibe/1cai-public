@@ -8,8 +8,9 @@ SECURITY AUDIT SCRIPT
 
 import os
 import re
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
+
 
 class SecurityAuditor:
     def __init__(self):

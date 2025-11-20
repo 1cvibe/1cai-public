@@ -9,16 +9,16 @@ Usage:
     python scripts/index_github_repo_simple.py --repo DmitrL-dev/1cai-public
 """
 
-import os
-import sys
 import argparse
+import json
 import logging
+import os
 import shutil
 import subprocess
-from pathlib import Path
-from typing import List, Dict, Any, Optional
+import sys
 from datetime import datetime
-import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -132,7 +132,7 @@ class SimpleGitHubRepoIndexer:
             
             # Простой regex парсинг функций
             import re
-            
+
             # Паттерн для функций/процедур
             func_pattern = r'(?:Функция|Процедура)\s+(\w+)\s*\([^)]*\)\s*(?:Экспорт)?'
             functions = re.findall(func_pattern, code, re.IGNORECASE | re.MULTILINE)

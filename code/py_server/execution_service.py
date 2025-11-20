@@ -9,9 +9,10 @@ Code Execution Service
 import asyncio
 import json
 import logging
-from typing import Dict, Any, Optional
-import httpx
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+import httpx
 
 logger = logging.getLogger(__name__)
 

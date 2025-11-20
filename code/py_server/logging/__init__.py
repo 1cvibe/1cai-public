@@ -10,11 +10,11 @@
 - Middleware для HTTP запросов
 """
 
-from .config import setup_logging, get_logger, get_correlation_id
-from .middleware import LoggingMiddleware, correlation_context
-from .handlers import StructuredLogger, MonitorHandler, APMHandler
-from .sanitizers import DataSanitizer, sanitize_sensitive_data
+from .config import get_correlation_id, get_logger, setup_logging
 from .formatter import StructuredFormatter, create_log_structure
+from .handlers import APMHandler, MonitorHandler, StructuredLogger
+from .middleware import LoggingMiddleware, correlation_context
+from .sanitizers import DataSanitizer, sanitize_sensitive_data
 
 __version__ = "1.0.0"
 

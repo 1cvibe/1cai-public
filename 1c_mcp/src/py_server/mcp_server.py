@@ -3,19 +3,18 @@
 """Основной MCP-сервер, который проксирует запросы в 1С."""
 
 import asyncio
-import logging
 import contextvars
+import logging
 from contextlib import asynccontextmanager
-from typing import Any, Dict, List, Optional, AsyncIterator, Tuple
+from typing import Any, AsyncIterator, Dict, List, Optional, Tuple
 
-from mcp.server import Server
-from mcp.server.models import InitializationOptions
-from mcp.server.lowlevel import NotificationOptions
 from mcp import types
+from mcp.server import Server
+from mcp.server.lowlevel import NotificationOptions
+from mcp.server.models import InitializationOptions
 
-from .onec_client import OneCClient
 from .config import Config
-
+from .onec_client import OneCClient
 
 logger = logging.getLogger(__name__)
 

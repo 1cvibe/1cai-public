@@ -17,12 +17,13 @@ Inspired by: SimCLR, CLIP
 Версия: 1.0.0
 """
 
+import random
+from typing import Dict, List, Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import List, Dict, Tuple
-import numpy as np
-import random
 
 
 class ContrastiveLoss(nn.Module):
@@ -171,7 +172,8 @@ class ContrastiveCodeLearner:
     def __init__(self, encoder: nn.Module = None):
         # Encoder (может быть наш Transformer или GNN)
         if encoder is None:
-            from scripts.parsers.neural.neural_bsl_parser import CodeTransformerEncoder
+            from scripts.parsers.neural.neural_bsl_parser import \
+                CodeTransformerEncoder
             encoder = CodeTransformerEncoder()
         
         self.encoder = encoder

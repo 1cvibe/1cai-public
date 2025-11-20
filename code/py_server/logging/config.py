@@ -6,12 +6,13 @@
 Настройки для structlog, обработчиков и middleware.
 """
 
+import logging.config
 import os
 import sys
-import structlog
-import logging.config
-from typing import Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+import structlog
 
 
 class LoggingConfig:

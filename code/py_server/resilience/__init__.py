@@ -35,59 +35,27 @@
 """
 
 # Импорт основных классов
-from .circuit_breaker import (
-    CircuitBreaker, 
-    CircuitBreakerState, 
-    CircuitBreakerStats,
-    CircuitBreakerManager,
-    CircuitBreakerOpenError
-)
-
-from .graceful_degradation import (
-    GracefulDegradationManager,
-    ServiceMetrics,
-    FallbackData,
-    DefaultFallbackHandler,
-    DegradationLevel
-)
-
-from .retry_policy import (
-    RetryPolicy,
-    RetryPolicyConfig,
-    RetryAttempt,
-    RetryStats,
-    RetryPolicyManager,
-    RetryResult,
-    retry,
-    with_exponential_backoff,
-    with_linear_backoff,
-    with_fixed_delay
-)
-
-from .fallback_strategies import (
-    FallbackStrategy,
-    ServiceContext,
-    FallbackResult,
-    OneCFallbackStrategy,
-    OAuth2FallbackStrategy,
-    MCPClientFallbackStrategy,
-    AdminNotificationStrategy,
-    FallbackStrategyManager
-)
-
-from .config import (
-    ServiceType,
-    DegradationLevel as ConfigDegradationLevel,
-    CircuitBreakerConfig,
-    RetryPolicyConfig,
-    GracefulDegradationConfig,
-    ResilienceConfig,
-    DEFAULT_CONFIG,
-    get_config,
-    get_circuit_breaker_config,
-    get_retry_policy_config,
-    update_config
-)
+from .circuit_breaker import (CircuitBreaker, CircuitBreakerManager,
+                              CircuitBreakerOpenError, CircuitBreakerState,
+                              CircuitBreakerStats)
+from .config import DEFAULT_CONFIG, CircuitBreakerConfig
+from .config import DegradationLevel as ConfigDegradationLevel
+from .config import (GracefulDegradationConfig, ResilienceConfig,
+                     RetryPolicyConfig, ServiceType,
+                     get_circuit_breaker_config, get_config,
+                     get_retry_policy_config, update_config)
+from .fallback_strategies import (AdminNotificationStrategy, FallbackResult,
+                                  FallbackStrategy, FallbackStrategyManager,
+                                  MCPClientFallbackStrategy,
+                                  OAuth2FallbackStrategy, OneCFallbackStrategy,
+                                  ServiceContext)
+from .graceful_degradation import (DefaultFallbackHandler, DegradationLevel,
+                                   FallbackData, GracefulDegradationManager,
+                                   ServiceMetrics)
+from .retry_policy import (RetryAttempt, RetryPolicy, RetryPolicyConfig,
+                           RetryPolicyManager, RetryResult, RetryStats, retry,
+                           with_exponential_backoff, with_fixed_delay,
+                           with_linear_backoff)
 
 # Версия пакета
 __version__ = "1.0.0"
@@ -147,12 +115,9 @@ __all__ = [
 
 # Интеграция с FastAPI (опционально)
 try:
-    from .fastapi_integration import (
-        CircuitBreakerMiddleware,
-        retry_dependency,
-        resilience_depends,
-        get_resilience_status
-    )
+    from .fastapi_integration import (CircuitBreakerMiddleware,
+                                      get_resilience_status,
+                                      resilience_depends, retry_dependency)
     __all__.extend([
         "CircuitBreakerMiddleware",
         "retry_dependency", 
@@ -349,6 +314,7 @@ def reset_all_resilience_systems():
 
 # Инициализация логгера при импорте
 import logging
+
 logger = logging.getLogger(__name__)
 if not logger.handlers:
     handler = logging.StreamHandler()

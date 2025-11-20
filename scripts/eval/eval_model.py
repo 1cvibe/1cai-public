@@ -17,7 +17,8 @@ from pathlib import Path
 from statistics import mean
 from typing import Any, Dict, List, Optional
 
-from scripts.ml.config_utils import get_config, load_configs, format_config_info
+from scripts.ml.config_utils import (format_config_info, get_config,
+                                     load_configs)
 
 
 def load_dataset(path: Path, limit: int) -> List[Dict[str, Any]]:

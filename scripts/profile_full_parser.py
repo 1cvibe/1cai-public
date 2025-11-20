@@ -6,11 +6,11 @@
 С реальными измерениями
 """
 
-import time
-import sys
 import io
-from pathlib import Path
+import sys
+import time
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 

@@ -8,13 +8,13 @@ correlation_id, метрик и APM интеграции.
 """
 
 import json
-import uuid
-import time
 import logging
-from typing import Any, Dict, Optional, List
+import time
+import traceback
+import uuid
 from datetime import datetime, timezone
 from enum import Enum
-import traceback
+from typing import Any, Dict, List, Optional
 
 
 class LogLevel(Enum):

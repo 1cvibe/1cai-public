@@ -8,17 +8,17 @@ Middleware для работы с correlation_id и контекстом зап�
 """
 
 import asyncio
+import threading
 import time
 import uuid
-import threading
-from typing import Dict, Any, Optional, Callable
 from contextlib import contextmanager
 from contextvars import ContextVar
+from typing import Any, Callable, Dict, Optional
+
 import structlog
 
 from .config import logging_config
 from .formatter import LogLevel, create_log_structure
-
 
 # Context variables для thread-safe хранения контекста
 _correlation_id_var: ContextVar[str] = ContextVar('correlation_id', default=str(uuid.uuid4()))

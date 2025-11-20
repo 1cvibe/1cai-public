@@ -7,9 +7,9 @@
 для генерации кода 1С с помощью LLM.
 """
 
+from .context import ContextualPromptBuilder
 from .manager import PromptManager, PromptTemplate
 from .optimizer import PromptOptimizer
-from .context import ContextualPromptBuilder
 
 __all__ = [
     'PromptManager',

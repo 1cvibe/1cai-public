@@ -49,14 +49,9 @@ async def main() -> None:
 
     args = parse_args()
 
-    from src.security.roles import (
-        grant_role,
-        revoke_role,
-        grant_permission,
-        revoke_permission,
-    )
-
     from src.database import create_pool
+    from src.security.roles import (grant_permission, grant_role,
+                                    revoke_permission, revoke_role)
 
     await create_pool()
 

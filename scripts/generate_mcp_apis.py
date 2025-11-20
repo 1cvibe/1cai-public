@@ -8,8 +8,8 @@ Usage:
 """
 
 import asyncio
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add parent directory to path

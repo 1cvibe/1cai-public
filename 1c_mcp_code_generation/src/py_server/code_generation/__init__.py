@@ -11,7 +11,8 @@
 Дата: 30.10.2025
 """
 
-from .engine import CodeGenerationEngine, CodeGenerationRequest, CodeGenerationResult, CodeGenerationStatus
+from .engine import (CodeGenerationEngine, CodeGenerationRequest,
+                     CodeGenerationResult, CodeGenerationStatus)
 
 __version__ = "1.0.0"
 __author__ = "MiniMax Agent"

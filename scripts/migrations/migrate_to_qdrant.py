@@ -6,11 +6,11 @@
 Векторизация кода и документации для семантического поиска
 """
 
+import logging
 import os
 import sys
-import logging
-from typing import Dict, List
 import uuid
+from typing import Dict, List
 
 logging.basicConfig(
     level=logging.INFO,

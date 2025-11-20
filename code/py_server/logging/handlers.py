@@ -10,14 +10,15 @@
 - Файлы и консоль
 """
 
-import json
-import time
 import asyncio
+import json
 import logging
 import threading
-from typing import Dict, Any, Optional, List, Callable, Union
-from datetime import datetime
+import time
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional, Union
+
 import aiohttp
 import structlog
 
@@ -757,8 +758,8 @@ class DatabaseHandler(BaseHandler):
 
     def _connect_sqlite(self):
         """Подключение к SQLite"""
-        import sqlite3
         import os
+        import sqlite3
 
         db_path = self.db_config.get("path", "logs.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)

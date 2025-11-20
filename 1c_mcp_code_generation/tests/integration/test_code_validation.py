@@ -7,11 +7,12 @@
 соответствие стандартам 1C, производительность.
 """
 
-import pytest
 import re
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
-from src.core.validator import CodeValidator, ValidationResult, ValidationIssue
+import pytest
+
+from src.core.validator import CodeValidator, ValidationIssue, ValidationResult
 from src.security.manager import SecurityManager
 
 

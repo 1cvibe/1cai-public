@@ -17,18 +17,10 @@ Cache Module - Модуль кэширования для 1C MCP сервера
 - Интеграция с существующим OAuth2 модулем
 """
 
-from .oauth_cache import (
-    OAuthCacheManager,
-    OAuthTokenCache,
-    SessionManager, 
-    TokenValidator,
-    SecureStorage,
-    CachedToken,
-    UserSession,
-    CacheStrategy,
-    SecurityLevel,
-    OAuthCacheFactory
-)
+from .oauth_cache import (CachedToken, CacheStrategy, OAuthCacheFactory,
+                          OAuthCacheManager, OAuthTokenCache, SecureStorage,
+                          SecurityLevel, SessionManager, TokenValidator,
+                          UserSession)
 
 __version__ = "1.0.0"
 __author__ = "1C MCP Development Team"

@@ -14,27 +14,27 @@
 import logging
 import traceback
 from typing import Any, Dict, Optional, Union
+
+import httpx
+# Импорты иерархии исключений
+from errors.base import ErrorSeverity as McpErrorSeverity
+from errors.base import McpError, SystemError
+from errors.integration import IntegrationError
+from errors.mcp import (McpInternalServerError, McpInvalidRequestError,
+                        McpPromptError, McpProtocolError, McpRateLimitError,
+                        McpResourceError, McpToolError)
+from errors.transport import TransportError
+from errors.validation import ValidationError
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse
-import httpx
 
+from .correlation import (format_correlation_context, get_correlation_id,
+                          log_with_correlation)
 # Импорты модулей проекта
-from .response_models import ErrorResponse, Language, ErrorSeverity, ErrorCategory
-from .correlation import get_correlation_id, log_with_correlation, format_correlation_context
-
-# Импорты иерархии исключений
-from errors.base import McpError, ErrorSeverity as McpErrorSeverity
-from errors.mcp import (
-    McpProtocolError, McpToolError, McpResourceError, McpPromptError,
-    McpInternalServerError, McpInvalidRequestError, McpRateLimitError
-)
-from errors.validation import ValidationError
-from errors.transport import TransportError
-from errors.integration import IntegrationError
-from errors.base import SystemError
-
+from .response_models import (ErrorCategory, ErrorResponse, ErrorSeverity,
+                              Language)
 
 logger = logging.getLogger(__name__)
 
@@ -568,7 +568,7 @@ def setup_global_exception_handler(
         # Настраиваем JSON форматтер для логгера если нужно
         import json
         from logging.handlers import RotatingFileHandler
-        
+
         # Проверяем наличие JSON форматтера
         if not any(isinstance(h, RotatingFileHandler) for h in logger.handlers):
             handler = logging.StreamHandler()

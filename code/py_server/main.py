@@ -10,21 +10,18 @@
 - Документацию OpenAPI
 """
 
-from fastapi import FastAPI, Request, Depends
+import logging
+import os
+from typing import Any, Dict
+
+import uvicorn
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import logging
-import uvicorn
-import os
-from typing import Dict, Any
 
 # Импорт API администрирования кэша
-from api import (
-    cache_admin_router,
-    cache_middleware,
-    MemoryCache,
-    cache_metrics
-)
+from api import (MemoryCache, cache_admin_router, cache_metrics,
+                 cache_middleware)
 
 # Настройка логирования
 logging.basicConfig(

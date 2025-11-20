@@ -16,7 +16,6 @@ import argparse
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 TEMPLATE_PATH = ROOT / "docs" / "runbooks" / "postmortem_template.md"
 OUTPUT_DIR = ROOT / "docs" / "runbooks" / "postmortems"

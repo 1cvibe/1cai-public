@@ -10,12 +10,12 @@
 - Интеграция с OpenTelemetry
 """
 
-import uuid
-import traceback
-from datetime import datetime
-from typing import Dict, Any, Optional, List
-from enum import Enum
 import json
+import traceback
+import uuid
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 # Условный импорт логирования для избежания конфликтов
 try:

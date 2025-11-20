@@ -9,12 +9,10 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Type
 
 from scripts.ba_pipeline.base import BaseCollector, CollectorResult
-from scripts.ba_pipeline.collectors import (
-    ConferenceCollector,
-    InternalUsageCollector,
-    JobMarketCollector,
-    RegulationCollector,
-)
+from scripts.ba_pipeline.collectors import (ConferenceCollector,
+                                            InternalUsageCollector,
+                                            JobMarketCollector,
+                                            RegulationCollector)
 from scripts.ba_pipeline.utils import figure_output_dir, setup_logging
 
 logger = logging.getLogger("ba_pipeline.orchestrator")

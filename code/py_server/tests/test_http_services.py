@@ -18,36 +18,30 @@ Comprehensive тесты HTTP сервисов для 1С MCP сервера
 """
 
 import asyncio
-import json
-import time
 import hashlib
-import uuid
-from typing import Dict, Any, List, Optional
-from unittest.mock import Mock, patch, AsyncMock
-from datetime import datetime, timedelta
-
-import pytest
-import httpx
-from pytest import fixture, mark
-from factory import Factory, Trait
-from factory.fuzzy import FuzzyText, FuzzyInteger, FuzzyChoice
-from freezegun import freeze_time
-
+import json
+import os
 # Импорты приложения
 import sys
-import os
+import time
+import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+from unittest.mock import AsyncMock, Mock, patch
+
+import httpx
+import pytest
+from factory import Factory, Trait
+from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyText
+from freezegun import freeze_time
+from pytest import fixture, mark
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from api.cache_admin import (CacheHealth, CacheKeyInfo, CacheStats,
+                             MemoryCache, cache_metrics)
+from config import Environment, config
 from main import app
-from api.cache_admin import (
-    MemoryCache,
-    CacheStats,
-    CacheHealth,
-    CacheKeyInfo,
-    cache_metrics
-)
-from config import config, Environment
-
 
 # =============================================================================
 # ФАБРИКИ ТЕСТОВЫХ ДАННЫХ
@@ -1123,7 +1117,7 @@ def test_config():
     os.environ["MCP_ENVIRONMENT"] = "testing"
     
     # Применяем тестовые настройки
-    from config import apply_environment_config, Environment
+    from config import Environment, apply_environment_config
     apply_environment_config(Environment.TESTING)
     
     yield

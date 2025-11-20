@@ -16,12 +16,13 @@ Use case:
 Версия: 1.0.0 Revolutionary
 """
 
+import copy
+from collections import defaultdict
+from typing import Any, Dict, List, Tuple
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from typing import List, Dict, Any, Tuple
-import copy
-from collections import defaultdict
 
 
 class ParsingTask:
@@ -219,7 +220,8 @@ class FewShotBSLParser:
     
     def __init__(self, model_path: str = None):
         # Base encoder
-        from scripts.parsers.neural.neural_bsl_parser import CodeTransformerEncoder
+        from scripts.parsers.neural.neural_bsl_parser import \
+            CodeTransformerEncoder
         self.encoder = CodeTransformerEncoder()
         
         # MAML meta-learner

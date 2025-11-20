@@ -15,13 +15,8 @@ from typing import Deque, Dict, Iterable, List, Optional, Set, Tuple
 
 import httpx
 from bs4 import BeautifulSoup
-from tenacity import (
-    AsyncRetrying,
-    RetryError,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-)
+from tenacity import (AsyncRetrying, RetryError, retry_if_exception_type,
+                      stop_after_attempt, wait_exponential)
 
 from .config import ScrapeConfig
 from .types import Article

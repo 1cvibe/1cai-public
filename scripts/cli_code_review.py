@@ -7,12 +7,13 @@ CLI инструмент для Code Review
 """
 
 import argparse
-import sys
 import json
+import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
+
 import httpx
-from datetime import datetime
 
 
 class CodeReviewCLI:

@@ -12,10 +12,10 @@ LLM Client для 1C AI MCP Code Generation
 
 import asyncio
 import json
-import time
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass
 import logging
+import time
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

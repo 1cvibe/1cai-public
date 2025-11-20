@@ -8,15 +8,17 @@ Real-time dashboard для мониторинга состояния всех с
 import asyncio
 import json
 import time
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
 from enum import Enum
-import websockets
-from flask import Flask, render_template, jsonify, request
-from flask_socketio import SocketIO, emit
+from typing import Any, Dict, List, Optional
+
 import plotly.graph_objs as go
 import plotly.utils
+import websockets
+from flask import Flask, jsonify, render_template, request
+from flask_socketio import SocketIO, emit
+
 
 class ServiceStatus(Enum):
     HEALTHY = "healthy"

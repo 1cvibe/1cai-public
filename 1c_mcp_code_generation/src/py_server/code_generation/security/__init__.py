@@ -10,7 +10,7 @@ Security Package для 1C AI MCP Code Generation
 Дата: 30.10.2025
 """
 
-from .manager import SecurityManager, SecurityThreat, SecurityAnalysisResult
+from .manager import SecurityAnalysisResult, SecurityManager, SecurityThreat
 
 __version__ = "1.0.0"
 __all__ = ['SecurityManager', 'SecurityThreat', 'SecurityAnalysisResult']

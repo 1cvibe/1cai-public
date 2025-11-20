@@ -3,14 +3,14 @@
 """
 Политики ретраев с экспоненциальной задержкой и джиттером
 """
-import time
-import random
 import asyncio
-from typing import Callable, Any, List, Optional, Type, Union, Dict, Awaitable
+import logging
+import random
+import threading
+import time
 from dataclasses import dataclass, field
 from enum import Enum, auto
-import logging
-import threading
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Type, Union
 
 from .config import RetryPolicyConfig, get_logger
 

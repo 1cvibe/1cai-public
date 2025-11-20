@@ -6,14 +6,16 @@ Health Check Middleware для Python приложений (FastAPI/Flask/Django
 """
 
 import asyncio
-import time
-import psutil
-import os
 import json
 import logging
-from typing import Dict, Any, Optional
+import os
+import time
 from datetime import datetime, timezone
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from typing import Any, Dict, Optional
+
+import psutil
+from prometheus_client import (CONTENT_TYPE_LATEST, Counter, Gauge, Histogram,
+                               generate_latest)
 
 try:
     from fastapi import FastAPI, Request, Response
@@ -23,14 +25,14 @@ except ImportError:
     FASTAPI_AVAILABLE = False
 
 try:
-    from flask import Flask, request, jsonify, Response
+    from flask import Flask, Response, jsonify, request
     FLASK_AVAILABLE = True
 except ImportError:
     FLASK_AVAILABLE = False
 
 try:
-    import asyncpg
     import aioredis
+    import asyncpg
     import httpx
     ASYNC_DEPS_AVAILABLE = True
 except ImportError:
@@ -483,7 +485,7 @@ if FLASK_AVAILABLE:
 # Пример использования
 if __name__ == "__main__":
     import uvicorn
-    
+
     # FastAPI пример
     if FASTAPI_AVAILABLE:
         config = {

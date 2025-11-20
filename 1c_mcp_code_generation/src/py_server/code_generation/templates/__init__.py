@@ -10,8 +10,8 @@
 - Документы
 """
 
-from .manager import TemplateManager, CodeTemplate
 from .library import TemplateLibrary
+from .manager import CodeTemplate, TemplateManager
 from .processor import TemplateProcessor
 
 __all__ = [

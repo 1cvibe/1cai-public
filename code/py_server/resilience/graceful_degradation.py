@@ -3,14 +3,14 @@
 """
 Менеджер graceful degradation для управления уровнями деградации сервисов
 """
-import time
-import threading
 import json
-from enum import Enum, auto
-from typing import Dict, List, Any, Optional, Callable, Union
-from dataclasses import dataclass, field
-from collections import defaultdict, deque
 import logging
+import threading
+import time
+from collections import defaultdict, deque
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from .config import DegradationLevel, GracefulDegradationConfig, get_logger
 

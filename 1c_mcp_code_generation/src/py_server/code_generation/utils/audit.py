@@ -12,12 +12,13 @@ Audit Logger для 1C AI MCP Code Generation
 
 import json
 import logging
-import time
 import os
-from typing import Dict, Any, Optional
-from datetime import datetime, timezone
-from dataclasses import dataclass, asdict
+import time
 import uuid
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
+
 
 @dataclass
 class AuditEvent:

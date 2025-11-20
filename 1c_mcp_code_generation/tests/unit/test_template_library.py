@@ -4,14 +4,15 @@
 Тесты для библиотеки шаблонов.
 """
 
-import pytest
 import json
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from src.py_server.code_generation.templates.library import (
-    TemplateLibrary, CodeTemplate, TemplateMetadata
-)
+import pytest
+
+from src.py_server.code_generation.templates.library import (CodeTemplate,
+                                                             TemplateLibrary,
+                                                             TemplateMetadata)
 
 
 class TestTemplateMetadata:

@@ -6,10 +6,10 @@
 Исправляет все коммиты с проблемами кодировки.
 """
 
+import os
 import subprocess
 import sys
 import tempfile
-import os
 from pathlib import Path
 
 # Маппинг полных хешей на правильные сообщения

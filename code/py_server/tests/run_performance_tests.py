@@ -12,14 +12,14 @@
 Версия: 1.0.0
 """
 
-import os
-import sys
-import json
-import time
-import subprocess
 import argparse
-from pathlib import Path
+import json
+import os
+import subprocess
+import sys
+import time
 from datetime import datetime
+from pathlib import Path
 
 # Добавляем путь к модулям
 sys.path.append(str(Path(__file__).parent.parent))

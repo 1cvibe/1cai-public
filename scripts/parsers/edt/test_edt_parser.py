@@ -10,6 +10,7 @@ from pathlib import Path
 
 from edt_parser import EDTConfigurationParser
 
+
 def main():
     """Тестирование парсера"""
     # Путь относительно корня проекта

@@ -5,11 +5,13 @@ Kubernetes Health Probes Configuration
 Настройка Liveness, Readiness и Startup probes
 """
 
-import yaml
 import json
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+import yaml
+
 
 class ProbeType(Enum):
     LIVENESS = "livenessProbe"

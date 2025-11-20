@@ -6,17 +6,17 @@
 Простая тестовая версия для проверки базовой функциональности исключений
 """
 
-import sys
-import os
 import json
+import os
+import sys
 
 # Добавляем текущую папку в путь для импорта
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from base import McpError, ErrorSeverity
-from validation import ValidationError
-from transport import TransportError
+from base import ErrorSeverity, McpError
 from integration import IntegrationError
+from transport import TransportError
+from validation import ValidationError
 
 
 def test_basic_error():

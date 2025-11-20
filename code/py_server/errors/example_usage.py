@@ -12,20 +12,20 @@
 - MCP интеграцию
 """
 
-import sys
-import os
 import json
+import os
+import sys
 from datetime import datetime
 
 # Добавляем текущую папку в путь для импорта
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from base import McpError, ErrorSeverity
-from validation import InvalidInputDataError, MissingRequiredFieldError
-from transport import NetworkError, ConnectionTimeoutError
+from base import ErrorSeverity, McpError
 from integration import ExternalServiceUnavailableError
-from mcp import McpToolError, McpProtocolError
-from mapping import translate_python_error_to_1c, prepare_api_error_response
+from mapping import prepare_api_error_response, translate_python_error_to_1c
+from mcp import McpProtocolError, McpToolError
+from transport import ConnectionTimeoutError, NetworkError
+from validation import InvalidInputDataError, MissingRequiredFieldError
 
 
 def demo_validation_errors():

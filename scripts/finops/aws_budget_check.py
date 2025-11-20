@@ -7,11 +7,11 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 from typing import Any
 
 import boto3
 import requests
-import subprocess
 
 BUDGET_NAMES = os.environ.get("AWS_BUDGET_NAMES", "").split(",")
 WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")

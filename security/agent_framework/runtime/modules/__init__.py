@@ -3,7 +3,8 @@
 """Module registry for security agent."""
 
 from .bsl import BSLStaticSecurityModule
-from .http_basic import HttpReachabilityModule, HttpTelemetryModule, SecurityHeadersModule
+from .http_basic import (HttpReachabilityModule, HttpTelemetryModule,
+                         SecurityHeadersModule)
 from .n8n_workflow import N8nWorkflowSecurityModule
 from .repo_static import RepoSecretsModule, SensitiveFilesModule
 

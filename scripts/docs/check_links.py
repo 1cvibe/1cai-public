@@ -21,7 +21,7 @@
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
 
 def extract_links(content: str) -> List[Tuple[str, str]]:

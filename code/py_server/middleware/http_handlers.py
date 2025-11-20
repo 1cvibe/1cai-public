@@ -13,30 +13,28 @@ HTTP обработчики для FastAPI приложения
 """
 
 import asyncio
-import logging
 import json
+import logging
 import time
-from typing import Any, Dict, List, Optional, Callable, Union
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Request, Response, HTTPException, Depends
-from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import ASGIApp
-
-# Импорты модулей проекта
-from .response_models import (
-    ErrorResponse, HealthCheckResponse, Language, ErrorSeverity, ErrorCategory
-)
-from .correlation import get_correlation_id, format_correlation_context
-from .error_handler import with_error_handling
+from typing import Any, Callable, Dict, List, Optional, Union
 
 # Импорты иерархии исключений
 from errors.base import McpError
-from errors.validation import ValidationError
-from errors.transport import RateLimitExceededError
 from errors.mcp import McpRateLimitError
+from errors.transport import RateLimitExceededError
+from errors.validation import ValidationError
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
 
+from .correlation import format_correlation_context, get_correlation_id
+from .error_handler import with_error_handling
+# Импорты модулей проекта
+from .response_models import (ErrorCategory, ErrorResponse, ErrorSeverity,
+                              HealthCheckResponse, Language)
 
 logger = logging.getLogger(__name__)
 

@@ -6,9 +6,9 @@
 Использует git filter-branch для переписывания истории.
 """
 
+import re
 import subprocess
 import sys
-import re
 from pathlib import Path
 
 # Маппинг проблемных сообщений на правильные (на английском)

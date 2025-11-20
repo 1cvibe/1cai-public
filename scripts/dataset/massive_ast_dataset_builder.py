@@ -21,20 +21,21 @@ Massive AST Dataset Builder
 """
 
 import asyncio
+import hashlib
 import json
 import logging
 import sys
-from pathlib import Path
-from typing import List, Dict, Any, Optional
 from datetime import datetime
-import hashlib
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     import asyncpg
-    from src.services.configuration_knowledge_base import get_knowledge_base
+
     from scripts.parsers.bsl_ast_parser import BSLASTParser
+    from src.services.configuration_knowledge_base import get_knowledge_base
 except ImportError as e:
     print(f"[ERROR] Missing dependencies: {e}")
     print("Install: pip install asyncpg")

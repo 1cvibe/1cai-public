@@ -15,36 +15,23 @@
 import asyncio
 import json
 import os
+# Импортируем модули для тестирования
+import sys
 import tempfile
 import time
 import unittest
 from unittest.mock import Mock, patch
 
-# Импортируем модули для тестирования
-import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from cache.mcp_cache import (
-    MCPToolsCache,
-    LRUStrategy,
-    TTLCacheStrategy,
-    CacheEntry,
-    CacheMetrics,
-    CacheInvalidation,
-    PersistentCache,
-    init_cache,
-    get_cache,
-    cached,
-    cached_async,
-    cache_tool_result,
-    get_cached_tool_result,
-    cache_metadata_1c,
-    get_cached_metadata_1c,
-    cache_aggregates,
-    get_cached_aggregates,
-    get_cache_stats,
-    cleanup_expired
-)
+from cache.mcp_cache import (CacheEntry, CacheInvalidation, CacheMetrics,
+                             LRUStrategy, MCPToolsCache, PersistentCache,
+                             TTLCacheStrategy, cache_aggregates,
+                             cache_metadata_1c, cache_tool_result, cached,
+                             cached_async, cleanup_expired, get_cache,
+                             get_cache_stats, get_cached_aggregates,
+                             get_cached_metadata_1c, get_cached_tool_result,
+                             init_cache)
 
 
 class TestCacheEntry(unittest.TestCase):

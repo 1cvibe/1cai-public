@@ -8,19 +8,16 @@ Complete training pipeline for 1C BSL code generation
 Best Practice: Fine-tune Qwen2.5-Coder on 1C BSL dataset
 """
 
-import os
 import logging
+import os
 from pathlib import Path
+
 import torch
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    TrainingArguments,
-    Trainer,
-    DataCollatorForLanguageModeling
-)
-from peft import LoraConfig, get_peft_model, TaskType
 from datasets import load_dataset
+from peft import LoraConfig, TaskType, get_peft_model
+from transformers import (AutoModelForCausalLM, AutoTokenizer,
+                          DataCollatorForLanguageModeling, Trainer,
+                          TrainingArguments)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

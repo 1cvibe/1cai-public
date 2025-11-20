@@ -6,31 +6,21 @@
 """
 
 import asyncio
-import time
 import json
+import time
 from unittest.mock import Mock
+
 try:
-    from .request_tracker import (
-        RequestTracker,
-        IPTracker,
-        UserTracker,
-        ToolTracker,
-        DistributedTracker,
-        RequestMetrics
-    )
+    from .request_tracker import (DistributedTracker, IPTracker,
+                                  RequestMetrics, RequestTracker, ToolTracker,
+                                  UserTracker)
 except ImportError:
     # Для запуска как скрипта
-    import sys
     import os
+    import sys
     sys.path.insert(0, os.path.dirname(__file__))
-    from request_tracker import (
-        RequestTracker,
-        IPTracker,
-        UserTracker,
-        ToolTracker,
-        DistributedTracker,
-        RequestMetrics
-    )
+    from request_tracker import (DistributedTracker, IPTracker, RequestMetrics,
+                                 RequestTracker, ToolTracker, UserTracker)
 
 
 async def create_mock_request(ip="192.168.1.100", method="GET", path="/api/test"):
@@ -268,7 +258,8 @@ async def test_context_manager():
     """Тестирование контекстного менеджера"""
     print("\n=== Тестирование контекстного менеджера ===")
     
-    from ratelimit import init_request_tracker, get_request_tracker, request_tracking_context
+    from ratelimit import (get_request_tracker, init_request_tracker,
+                           request_tracking_context)
     
     await init_request_tracker({"use_redis": False})
     tracker = get_request_tracker()

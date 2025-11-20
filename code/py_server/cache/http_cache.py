@@ -17,15 +17,15 @@ docs/1c_mcp_structure/1c_mcp_code_structure_analysis.md
 
 import hashlib
 import hmac
-import time
 import json
 import logging
+import time
 import weakref
-from typing import Dict, Any, Optional, List, Set, Tuple, Callable
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from collections import defaultdict, deque
 from contextvars import ContextVar
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
@@ -973,7 +973,7 @@ def setup_cache_middleware(
         Настроенный middleware
     """
     from fastapi import FastAPI
-    
+
     # Создаем middleware
     middleware = HTTPCacheMiddleware(
         app=app,

@@ -1,9 +1,9 @@
+import json
 import os
 import sys
-import json
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 
 # Configuration
 REPO_OWNER = "DmitrL-dev"

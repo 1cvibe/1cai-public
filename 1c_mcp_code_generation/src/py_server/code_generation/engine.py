@@ -15,17 +15,17 @@ import asyncio
 import json
 import logging
 import time
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 # Импорт внутренних модулей
 from .llm.client import LLMClient
-from .templates.manager import TemplateManager
-from .validation.validator import CodeValidator
 from .security.manager import SecurityManager
+from .templates.manager import TemplateManager
 from .utils.audit import AuditLogger
 from .utils.context import ContextCollector
+from .validation.validator import CodeValidator
 
 # Настройка логирования
 logging.basicConfig(

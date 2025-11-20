@@ -6,11 +6,13 @@
 import asyncio
 import sys
 from pathlib import Path
+
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.services.its_library_service import get_its_service
+
 
 async def find_endpoints():
     """Поиск правильных эндпоинтов"""

@@ -2,8 +2,8 @@
 
 #!/usr/bin/env python3
 """Git filter script for fixing commit messages"""
-import sys
 import os
+import sys
 
 COMMIT_FIXES = {
     "1d328ff3d9bb6202cd0e8fb4529c949fc12b97a0": "ci: sync coverage threshold with .coveragerc in perfect-ci-cd",

@@ -37,14 +37,14 @@ import re
 import sys
 import threading
 import time
-from collections import defaultdict, OrderedDict
+import warnings
+from collections import OrderedDict, defaultdict
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import wraps
-from queue import Queue, Empty
-from typing import Dict, List, Optional, Any, Callable, Union
-from unittest.mock import Mock, patch, MagicMock
-import warnings
+from queue import Empty, Queue
+from typing import Any, Callable, Dict, List, Optional, Union
+from unittest.mock import MagicMock, Mock, patch
 
 # Добавляем путь для импортов
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -53,12 +53,11 @@ import pytest
 import redis
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.testclient import TestClient
 from fastapi.middleware.base import BaseHTTPMiddleware
+from fastapi.testclient import TestClient
 
 # Import configuration
-from config import config, Environment
-
+from config import Environment, config
 
 # =============================================================================
 # FIXTURES И UTILITIES

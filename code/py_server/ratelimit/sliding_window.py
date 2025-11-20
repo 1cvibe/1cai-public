@@ -12,14 +12,14 @@
 - Сравнительный анализ эффективности
 """
 
-import time
 import heapq
+import logging
+import statistics
 import threading
+import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Any
-import statistics
-import logging
+from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass

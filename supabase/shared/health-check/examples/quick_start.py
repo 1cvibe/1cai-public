@@ -7,7 +7,8 @@ Health Check System - Quick Start Example
 
 import asyncio
 import time
-from typing import Dict, Any
+from typing import Any, Dict
+
 
 # Вариант 1: FastAPI интеграция
 def create_fastapi_example():
@@ -15,7 +16,7 @@ def create_fastapi_example():
     
     from fastapi import FastAPI
     from health_check import setup_health_checks_for_service
-    
+
     # Создание FastAPI приложения
     app = setup_health_checks_for_service(
         service_name="my-fastapi-service",
@@ -48,7 +49,7 @@ def create_flask_example():
     
     from flask import Flask, jsonify
     from health_check import setup_health_checks_for_service
-    
+
     # Создание Flask приложения
     app = setup_health_checks_for_service(
         service_name="my-flask-service",
@@ -80,7 +81,7 @@ async def create_standalone_monitoring():
     """Создание standalone системы мониторинга"""
     
     from health_check import HealthCheckSystem
-    
+
     # Создание системы health checks
     health_system = HealthCheckSystem()
     
@@ -149,10 +150,11 @@ async def create_standalone_monitoring():
 def create_minimal_integration():
     """Минимальная интеграция health checks"""
     
-    from health_check.endpoints import BasicHealthChecker
     import asyncio
     from datetime import datetime
-    
+
+    from health_check.endpoints import BasicHealthChecker
+
     # Создание простого health check
     checker = BasicHealthChecker("my-service", "1.0.0")
     

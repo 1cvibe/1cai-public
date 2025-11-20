@@ -10,8 +10,8 @@ Utils Package для 1C AI MCP Code Generation
 Дата: 30.10.2025
 """
 
-from .audit import AuditLogger, AuditEvent
-from .context import ContextCollector, ConfigurationContext
+from .audit import AuditEvent, AuditLogger
+from .context import ConfigurationContext, ContextCollector
 
 __version__ = "1.0.0"
 __all__ = ['AuditLogger', 'AuditEvent', 'ContextCollector', 'ConfigurationContext']

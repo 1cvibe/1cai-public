@@ -6,19 +6,19 @@ Self-healing mechanisms, circuit breakers, and emergency procedures
 """
 
 import asyncio
-import time
 import json
 import logging
+import time
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Callable
-from dataclasses import dataclass, asdict
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
 import aiohttp
 import psutil
 
-from ..manager.health_manager import (
-    HealthCheckManager, HealthIssue, IssueSeverity, IssueCategory
-)
+from ..manager.health_manager import (HealthCheckManager, HealthIssue,
+                                      IssueCategory, IssueSeverity)
 
 logger = logging.getLogger(__name__)
 

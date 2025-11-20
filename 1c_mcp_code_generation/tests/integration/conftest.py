@@ -9,23 +9,24 @@
 
 import asyncio
 import json
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
-from typing import AsyncGenerator, Dict, List, Any, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
 from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 import pytest_asyncio
 
 from src.core.engine import CodeGenerationEngine
 from src.core.validator import CodeValidator
-from src.security.manager import SecurityManager
-from src.templates.manager import TemplateManager
 from src.llm.client import LLMClient
+from src.prompts.context import ContextualPromptBuilder
 from src.prompts.manager import PromptManager
 from src.prompts.optimizer import PromptOptimizer
-from src.prompts.context import ContextualPromptBuilder
+from src.security.manager import SecurityManager
 from src.templates.library import TemplateLibrary
+from src.templates.manager import TemplateManager
 from src.templates.processor import TemplateProcessor
 
 

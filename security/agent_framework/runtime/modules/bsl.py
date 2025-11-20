@@ -9,7 +9,6 @@ from pathlib import Path
 
 from ..agent import BaseModule, Finding, ModuleResult, ScanContext
 
-
 DANGEROUS_PATTERNS = [
     (re.compile(r"\bВыполнить\s*\("), "Использование Выполнить() может приводить к RCE."),
     (re.compile(r"\bExecute\s*\("), "Использование Execute() может приводить к RCE."),

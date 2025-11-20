@@ -6,9 +6,9 @@
 Версия: 1.0.0
 """
 
-import re
-import json
 import asyncio
+import json
+import re
 import sys
 from pathlib import Path
 

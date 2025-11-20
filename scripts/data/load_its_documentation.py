@@ -6,18 +6,18 @@
 Версия: 1.0.0
 """
 
-import os
-import sys
 import asyncio
 import json
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from src.services.its_library_service import get_its_service
     from src.services.configuration_knowledge_base import get_knowledge_base
+    from src.services.its_library_service import get_its_service
 except ImportError as e:
     print(f"[ERROR] Ошибка импорта: {e}")
     print("Установите зависимости: pip install httpx beautifulsoup4")

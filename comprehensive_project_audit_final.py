@@ -7,11 +7,12 @@
 Версия 2.0 - с учетом всех уроков
 """
 
+import json
 import os
 import re
-import json
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
+
 
 class ComprehensiveAuditor:
     def __init__(self):

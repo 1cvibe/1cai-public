@@ -13,17 +13,18 @@
 """
 
 import asyncio
-import time
 import json
 import logging
+import time
 import uuid
+import weakref
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List, Callable, Union
-from dataclasses import dataclass, asdict
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Union
+
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
-import weakref
 
 # Настройка логгера
 logger = logging.getLogger(__name__)

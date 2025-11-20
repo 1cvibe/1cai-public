@@ -4,12 +4,14 @@
 Тесты для оптимизатора промптов.
 """
 
-import pytest
 import json
-from unittest.mock import Mock, patch
 from datetime import datetime
+from unittest.mock import Mock, patch
 
-from src.py_server.code_generation.prompts.optimizer import PromptOptimizer, PromptMetrics
+import pytest
+
+from src.py_server.code_generation.prompts.optimizer import (PromptMetrics,
+                                                             PromptOptimizer)
 
 
 class TestPromptMetrics:

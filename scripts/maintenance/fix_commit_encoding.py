@@ -6,10 +6,11 @@
 Проверяет последние N коммитов и предлагает исправления.
 """
 
+import re
 import subprocess
 import sys
-import re
 from pathlib import Path
+
 
 def get_commit_messages(count=30):
     """Получить список commit messages"""

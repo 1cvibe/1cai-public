@@ -4,17 +4,13 @@
 Простой тест системы конфигурируемых лимитов
 """
 
-import sys
 import os
+import sys
 
 # Добавляем путь к модулю
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config_limits import (
-    ConfigurationManager,
-    TimeWindow,
-    LimitRule
-)
+from config_limits import ConfigurationManager, LimitRule, TimeWindow
 
 
 def test_basic_functionality():

@@ -13,19 +13,15 @@
 """
 
 import logging
-from typing import Dict, Any, Optional, Set
-from fastapi import FastAPI, Request, Response, HTTPException
-from fastapi.responses import JSONResponse
-import uvicorn
+from typing import Any, Dict, Optional, Set
 
-from .http_cache import (
-    ETagManager,
-    CacheHeaders,
-    HTTPCacheMiddleware,
-    setup_cache_middleware,
-    metrics_collector,
-    CacheEntry
-)
+import uvicorn
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
+
+from .http_cache import (CacheEntry, CacheHeaders, ETagManager,
+                         HTTPCacheMiddleware, metrics_collector,
+                         setup_cache_middleware)
 
 logger = logging.getLogger(__name__)
 

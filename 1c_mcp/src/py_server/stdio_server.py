@@ -6,9 +6,9 @@ import asyncio
 import logging
 
 import mcp.server.stdio
-from .mcp_server import MCPProxy
-from .config import Config
 
+from .config import Config
+from .mcp_server import MCPProxy
 
 logger = logging.getLogger(__name__)
 

@@ -12,21 +12,23 @@
 Основан на стандартах из проекта 1c_mcp и RFC 7807 (Problem Details).
 """
 
-from typing import Dict, Any, Optional, Type, Union, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
 try:
-    from .base import McpError, ErrorSeverity, ErrorCategory
-    from .validation import *
-    from .transport import *
+    from .base import ErrorCategory, ErrorSeverity, McpError
     from .integration import *
     from .mcp import *
+    from .transport import *
+    from .validation import *
 except ImportError:
     from base import McpError, ErrorSeverity, ErrorCategory
     from validation import *
     from transport import *
     from integration import *
     from mcp import *
-import uuid
+
 import json
+import uuid
 
 # Условный импорт логирования
 try:

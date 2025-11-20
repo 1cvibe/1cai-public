@@ -6,13 +6,13 @@ Model Security Scanner
 Сканирует AI модели на вредоносный код и уязвимости
 """
 
-import subprocess
-import sys
 import json
 import logging
-from pathlib import Path
-from typing import List, Dict, Optional
+import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

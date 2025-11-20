@@ -10,8 +10,8 @@ by falling back to regex-based extraction (where applicable).
 
 from __future__ import annotations
 
-import logging
 import ctypes
+import logging
 from pathlib import Path
 from typing import Dict, Iterator, Optional, Sequence
 

@@ -9,8 +9,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.services.its_library_service import get_its_service
 from bs4 import BeautifulSoup
+
+from src.services.its_library_service import get_its_service
 
 
 async def find_config_ids():

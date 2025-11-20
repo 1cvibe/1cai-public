@@ -4,8 +4,9 @@
 # -*- coding: utf-8 -*-
 """Бенчмарк XML парсинга"""
 
-import xml.etree.ElementTree as ET
 import time
+import xml.etree.ElementTree as ET
+
 
 def test_xml_sizes():
     """Тест парсинга XML разных размеров"""

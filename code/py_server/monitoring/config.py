@@ -6,9 +6,9 @@
 """
 
 import os
-from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class Environment(Enum):

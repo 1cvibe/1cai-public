@@ -18,22 +18,14 @@
 """
 
 # Прямые импорты для обратной совместимости
-from base import (
-    McpError,
-    RecoverableError,
-    NonRecoverableError,
-    SystemError,
-    ServiceUnavailableError,
-    TimeoutError,
-    ErrorSeverity,
-    ErrorCategory
-)
-
-from validation import *
-from transport import *
+from base import (ErrorCategory, ErrorSeverity, McpError, NonRecoverableError,
+                  RecoverableError, ServiceUnavailableError, SystemError,
+                  TimeoutError)
 from integration import *
-from mcp import *
 from mapping import *
+from mcp import *
+from transport import *
+from validation import *
 
 # Основные экспорты
 __all__ = [

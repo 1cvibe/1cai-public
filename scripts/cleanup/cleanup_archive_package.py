@@ -13,10 +13,11 @@ P0 задача: Удаление дубликатов
 """
 
 import os
-import sys
 import shutil
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
 
 def analyze_archive_package(archive_dir: Path) -> dict:
     """Анализ содержимого archive_package"""

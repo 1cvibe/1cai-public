@@ -15,22 +15,21 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import statistics
 import sys
 import time
 from dataclasses import dataclass
-from typing import List
-
 from pathlib import Path
-import os
+from typing import List
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in os.sys.path:
     os.sys.path.insert(0, str(REPO_ROOT))
 
-from src.ai.clients.kimi_client import KimiClient, KimiConfig, LLMNotConfiguredError  # type: ignore[attr-defined]
+from src.ai.clients.kimi_client import (  # type: ignore[attr-defined]
+    KimiClient, KimiConfig, LLMNotConfiguredError)
 from src.utils.structured_logging import StructuredLogger
-
 
 logger = StructuredLogger(__name__).logger
 

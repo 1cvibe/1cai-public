@@ -10,11 +10,12 @@
 - Интеграцию с иерархией исключений из errors/
 """
 
-from datetime import datetime
-from typing import Optional, Dict, Any, List, Union
-from enum import Enum
-from pydantic import BaseModel, Field
 import uuid
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field
 
 
 class ErrorSeverity(str, Enum):

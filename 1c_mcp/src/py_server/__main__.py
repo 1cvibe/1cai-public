@@ -3,6 +3,7 @@
 """Точка входа для запуска модуля как пакета."""
 
 import asyncio
+
 from .main import main
 
 if __name__ == "__main__":

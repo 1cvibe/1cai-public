@@ -278,7 +278,7 @@ def delete_files(dry_run: bool = True):
 
 if __name__ == "__main__":
     import sys
-    
+
     # Check if user wants to execute
     dry_run = "--execute" not in sys.argv
     

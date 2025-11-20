@@ -11,7 +11,7 @@
 """
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from agent_orchestrator import AgentOrchestrator, get_orchestrator
 from mcp_tools_search import SearchToolsService, get_search_service

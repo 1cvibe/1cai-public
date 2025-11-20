@@ -7,12 +7,12 @@
 и других конфиденциальной информации в логах.
 """
 
-import re
 import hashlib
 import logging
-from typing import Any, Dict, List, Optional, Pattern, Union, Set
+import re
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Pattern, Set, Union
 
 
 class MaskingRule(Enum):

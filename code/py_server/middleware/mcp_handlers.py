@@ -12,33 +12,32 @@
 """
 
 import asyncio
-import logging
 import json
+import logging
 import traceback
-from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
-from fastapi import FastAPI, Request, Response, HTTPException
-from fastapi.responses import JSONResponse, StreamingResponse
-from starlette.responses import Response as StarletteResponse
-
-# Импорты модулей проекта
-from .response_models import (
-    ErrorResponse, McpResponse, McpSuccessResponse, McpErrorResponse,
-    HealthCheckResponse, Language, ErrorSeverity, ErrorCategory
-)
-from .correlation import get_correlation_id, format_correlation_context, log_with_correlation
-from .error_handler import with_error_handling
+from typing import Any, Dict, List, Optional, Union
 
 # Импорты иерархии исключений
 from errors.base import McpError, ServiceUnavailableError, TimeoutError
-from errors.mcp import (
-    McpProtocolError, McpToolError, McpResourceError, McpPromptError,
-    McpToolNotFoundError, McpResourceNotFoundError, McpPromptNotFoundError,
-    McpInvalidRequestError, McpRateLimitError, McpJsonRpcError
-)
+from errors.mcp import (McpInvalidRequestError, McpJsonRpcError,
+                        McpPromptError, McpPromptNotFoundError,
+                        McpProtocolError, McpRateLimitError, McpResourceError,
+                        McpResourceNotFoundError, McpToolError,
+                        McpToolNotFoundError)
+from errors.transport import ServiceUnavailableTransportError, TransportError
 from errors.validation import ValidationError
-from errors.transport import TransportError, ServiceUnavailableTransportError
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import JSONResponse, StreamingResponse
+from starlette.responses import Response as StarletteResponse
 
+from .correlation import (format_correlation_context, get_correlation_id,
+                          log_with_correlation)
+from .error_handler import with_error_handling
+# Импорты модулей проекта
+from .response_models import (ErrorCategory, ErrorResponse, ErrorSeverity,
+                              HealthCheckResponse, Language, McpErrorResponse,
+                              McpResponse, McpSuccessResponse)
 
 logger = logging.getLogger(__name__)
 

@@ -8,18 +8,19 @@
 в FastAPI приложениях.
 """
 
-import time
 import logging
-from typing import Dict, Any, Optional, Callable, List
-from functools import wraps
+import time
 from contextlib import asynccontextmanager
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional
 
 try:
-    from fastapi import FastAPI, Request, Response, HTTPException, Depends
+    from fastapi import Depends, FastAPI, HTTPException, Request, Response
     from fastapi.middleware.base import BaseHTTPMiddleware
     from fastapi.responses import JSONResponse
     from starlette.middleware.base import RequestResponseEndpoint
-    from starlette.status import HTTP_503_SERVICE_UNAVAILABLE, HTTP_504_GATEWAY_TIMEOUT
+    from starlette.status import (HTTP_503_SERVICE_UNAVAILABLE,
+                                  HTTP_504_GATEWAY_TIMEOUT)
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
@@ -36,21 +37,15 @@ except ImportError:
     class Response:
         def __init__(self): pass
 
+from . import (CircuitBreakerConfig, DegradationLevel, RetryPolicyConfig,
+               get_circuit_breaker_manager, get_fallback_strategy_manager,
+               get_graceful_degradation_manager, get_retry_policy_manager)
 from .circuit_breaker import CircuitBreaker, CircuitBreakerOpenError
-from .retry_policy import RetryPolicy
-from .graceful_degradation import GracefulDegradationManager
+from .config import (ServiceType, get_circuit_breaker_config,
+                     get_retry_policy_config)
 from .fallback_strategies import FallbackStrategyManager, ServiceContext
-from .config import ServiceType, get_circuit_breaker_config, get_retry_policy_config
-from . import (
-    get_circuit_breaker_manager,
-    get_retry_policy_manager,
-    get_graceful_degradation_manager,
-    get_fallback_strategy_manager,
-    CircuitBreakerConfig,
-    RetryPolicyConfig,
-    DegradationLevel
-)
-
+from .graceful_degradation import GracefulDegradationManager
+from .retry_policy import RetryPolicy
 
 logger = logging.getLogger("resilience.fastapi")
 

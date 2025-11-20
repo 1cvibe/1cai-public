@@ -5,8 +5,8 @@
 Демонстрирует различные настройки для разных сценариев
 """
 
-from typing import Dict, Any
 import os
+from typing import Any, Dict
 
 # Конфигурация для разработки
 DEVELOPMENT_CONFIG = {

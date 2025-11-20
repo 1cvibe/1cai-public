@@ -19,16 +19,14 @@ MCP сервера и клиента 1С.
 import asyncio
 import json
 import logging
-from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from .mcp_cache import (
-    init_cache, get_cache, cached, cached_async,
-    cache_tool_result, get_cached_tool_result,
-    cache_metadata_1c, get_cached_metadata_1c,
-    cache_aggregates, get_cached_aggregates,
-    get_cache_stats, cleanup_expired
-)
+from .mcp_cache import (cache_aggregates, cache_metadata_1c, cache_tool_result,
+                        cached, cached_async, cleanup_expired, get_cache,
+                        get_cache_stats, get_cached_aggregates,
+                        get_cached_metadata_1c, get_cached_tool_result,
+                        init_cache)
 
 logger = logging.getLogger(__name__)
 
@@ -196,7 +194,7 @@ class MCPServerCacheIntegration:
     def _generate_tool_cache_key(self, tool_name: str, arguments: Dict[str, Any]) -> str:
         """Генерирует ключ кэша для инструмента"""
         import hashlib
-        
+
         # Сортируем аргументы для консистентности
         sorted_args = json.dumps(arguments, sort_keys=True)
         key_data = f"tool:{tool_name}:{sorted_args}"
@@ -586,7 +584,7 @@ async def periodic_cache_maintenance():
 if __name__ == "__main__":
     # Пример инициализации и использования
     import hashlib
-    
+
     # Настройка логирования
     logging.basicConfig(level=logging.INFO)
     

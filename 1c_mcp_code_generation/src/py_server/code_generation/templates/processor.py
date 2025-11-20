@@ -6,11 +6,11 @@
 Выполняет замену переменных в шаблонах и формирует итоговый код.
 """
 
-import re
 import logging
-from typing import Dict, List, Optional, Any, Union
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass

@@ -2,13 +2,13 @@
 
 """Основной файл запуска MCP-прокси сервера."""
 
+import argparse
 import asyncio
 import logging
 import os
 import sys
-from typing import Optional
-import argparse
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -142,7 +142,7 @@ async def main():
 	if sys.platform == "win32":
 		import locale
 		import os
-		
+
 		# Устанавливаем кодировку для Python I/O
 		os.environ['PYTHONIOENCODING'] = 'utf-8'
 		

@@ -7,14 +7,15 @@
 доступ к системным ресурсам, валидация входных данных.
 """
 
-import pytest
 import re
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 from unittest.mock import patch
 
-from src.security.manager import SecurityManager, SecurityThreat, ThreatLevel
-from src.security.analyzer import SecurityAnalyzer
+import pytest
+
 from src.core.validator import CodeValidator
+from src.security.analyzer import SecurityAnalyzer
+from src.security.manager import SecurityManager, SecurityThreat, ThreatLevel
 
 
 @pytest.mark.integration

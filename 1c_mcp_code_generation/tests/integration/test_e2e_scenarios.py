@@ -7,15 +7,16 @@ End-to-End С‚РµСЃС‚С‹ РґР»СЏ РїРѕР»РЅРѕРіРѕ С�
 РІРєР»СЋС‡Р°СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ РёРЅС‚РµСЂС„РµР№СЃС‹ Рё РІРЅРµС€РЅРёРµ РёРЅС‚РµРіСЂР°С†РёРё.
 """
 
-import pytest
 import asyncio
 import time
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
+import pytest
+
+from src.cli.interface import CLIInterface
 from src.core.engine import CodeGenerationEngine
 from src.mcp.server import MCP1CServer
-from src.cli.interface import CLIInterface
 
 
 @pytest.mark.integration

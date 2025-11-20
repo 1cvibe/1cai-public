@@ -1,6 +1,7 @@
 import re
 import sys
 
+
 def sanitize_file(filepath):
     try:
         with open(filepath, 'r', encoding='utf-8') as f:

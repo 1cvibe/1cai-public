@@ -14,31 +14,30 @@
 """
 
 import asyncio
-import time
-import threading
 import concurrent.futures
-import multiprocessing
-import psutil
 import gc
-from typing import Dict, List, Any, Callable
-from unittest.mock import Mock, patch
-from dataclasses import dataclass
-from collections import defaultdict, deque
-from functools import wraps
-
-import pytest
-import httpx
-from factory import Factory, Trait
-from factory.fuzzy import FuzzyText, FuzzyInteger, FuzzyChoice
-import pytest_benchmark
-
+import multiprocessing
+import os
 # Импорты приложения
 import sys
-import os
+import threading
+import time
+from collections import defaultdict, deque
+from dataclasses import dataclass
+from functools import wraps
+from typing import Any, Callable, Dict, List
+from unittest.mock import Mock, patch
+
+import httpx
+import psutil
+import pytest
+import pytest_benchmark
+from factory import Factory, Trait
+from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyText
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from api.cache_admin import MemoryCache, cache_metrics
-
 
 # =============================================================================
 # ПРОИЗВОДИТЕЛЬНОСТЬ И МЕТРИКИ

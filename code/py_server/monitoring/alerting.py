@@ -7,15 +7,16 @@
 
 import asyncio
 import json
-import smtplib
-import aiohttp
 import logging
-from typing import Dict, List, Optional, Callable, Any
+import smtplib
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
-from enum import Enum
-from email.mime.text import MimeText
 from email.mime.multipart import MimeMultipart
+from email.mime.text import MimeText
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
+import aiohttp
 
 
 class AlertSeverity(Enum):

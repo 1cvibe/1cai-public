@@ -10,6 +10,7 @@ import os
 import re
 from pathlib import Path
 
+
 class READMECodeChecker:
     def __init__(self):
         self.issues = []

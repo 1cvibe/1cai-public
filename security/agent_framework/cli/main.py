@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -15,24 +15,16 @@ import yaml
 from rich.console import Console
 from rich.table import Table
 
-from security.agent_framework.runtime import (
-    SecurityAgent,
-    generate_html_report,
-    generate_markdown_report,
-)
-from security.agent_framework.presets import (
-    copy_preset_to,
-    get_preset_path,
-    list_presets,
-)
-from security.agent_framework.publishers import (
-    ConfluencePublishError,
-    S3PublishError,
-    publish_to_confluence,
-    send_ticket_webhook,
-    upload_to_s3,
-)
-
+from security.agent_framework.presets import (copy_preset_to, get_preset_path,
+                                              list_presets)
+from security.agent_framework.publishers import (ConfluencePublishError,
+                                                 S3PublishError,
+                                                 publish_to_confluence,
+                                                 send_ticket_webhook,
+                                                 upload_to_s3)
+from security.agent_framework.runtime import (SecurityAgent,
+                                              generate_html_report,
+                                              generate_markdown_report)
 
 DEFAULT_MANAGER_URL = "http://localhost:9100"
 DEFAULT_PROFILE = "web-api"
@@ -518,8 +510,10 @@ def handle_local_run(args: argparse.Namespace, spec: RunSpec, run_id: str) -> in
         if not (args.neo4j_user and args.neo4j_password):
             print("⚠️  Не указаны учетные данные Neo4j; синхронизация пропущена.")
         else:
-            from security.agent_framework.integrations import push_results_to_neo4j
-            from security.agent_framework.integrations.neo4j import Neo4jSyncError
+            from security.agent_framework.integrations import \
+                push_results_to_neo4j
+            from security.agent_framework.integrations.neo4j import \
+                Neo4jSyncError
 
             try:
                 push_results_to_neo4j(

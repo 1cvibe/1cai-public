@@ -5,10 +5,11 @@
 Проверка актуальности архитектурных файлов
 """
 
-import os
-from pathlib import Path
-from datetime import datetime
 import json
+import os
+from datetime import datetime
+from pathlib import Path
+
 
 def check_architecture_files():
     """Проверка архитектурных файлов"""

@@ -7,61 +7,33 @@
 retry политики и fallback стратегии.
 """
 
-import unittest
-import time
 import asyncio
-import threading
-from unittest.mock import Mock, patch, MagicMock
-import tempfile
 import os
+import tempfile
+import threading
+import time
+import unittest
+from unittest.mock import MagicMock, Mock, patch
 
-from resilience import (
-    # Circuit Breaker
-    CircuitBreaker, 
-    CircuitBreakerState,
-    CircuitBreakerStats,
-    CircuitBreakerManager,
-    CircuitBreakerOpenError,
-    
-    # Graceful Degradation
-    GracefulDegradationManager,
-    ServiceMetrics,
-    FallbackData,
-    DegradationLevel,
-    
-    # Retry Policy
-    RetryPolicy,
-    RetryPolicyConfig,
-    RetryAttempt,
-    RetryStats,
-    RetryPolicyManager,
-    
-    # Fallback Strategies
-    FallbackStrategy,
-    ServiceContext,
-    FallbackResult,
-    OneCFallbackStrategy,
-    OAuth2FallbackStrategy,
-    MCPClientFallbackStrategy,
-    AdminNotificationStrategy,
-    FallbackStrategyManager,
-    
-    # Configuration
-    CircuitBreakerConfig,
-    RetryPolicyConfig as DefaultRetryPolicyConfig,
-    GracefulDegradationConfig,
-    ServiceType,
-    
-    # Utils
-    get_circuit_breaker_manager,
-    get_retry_policy_manager,
-    get_graceful_degradation_manager,
-    get_fallback_strategy_manager,
-    create_circuit_breaker,
-    create_retry_policy,
-    get_resilience_status,
-    reset_all_resilience_systems
-)
+from resilience import (AdminNotificationStrategy, CircuitBreaker,
+                        CircuitBreakerConfig, CircuitBreakerManager,
+                        CircuitBreakerOpenError, CircuitBreakerState,
+                        CircuitBreakerStats, DegradationLevel, FallbackData,
+                        FallbackResult, FallbackStrategy,
+                        FallbackStrategyManager, GracefulDegradationConfig,
+                        GracefulDegradationManager, MCPClientFallbackStrategy,
+                        OAuth2FallbackStrategy, OneCFallbackStrategy,
+                        RetryAttempt, RetryPolicy)
+from resilience import \
+    RetryPolicyConfig  # Circuit Breaker; Graceful Degradation; Retry Policy; Fallback Strategies; Configuration; Utils
+from resilience import RetryPolicyConfig as DefaultRetryPolicyConfig
+from resilience import (RetryPolicyManager, RetryStats, ServiceContext,
+                        ServiceMetrics, ServiceType, create_circuit_breaker,
+                        create_retry_policy, get_circuit_breaker_manager,
+                        get_fallback_strategy_manager,
+                        get_graceful_degradation_manager,
+                        get_resilience_status, get_retry_policy_manager,
+                        reset_all_resilience_systems)
 
 
 class TestCircuitBreaker(unittest.TestCase):

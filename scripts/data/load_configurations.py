@@ -6,12 +6,12 @@
 Версия: 1.0.0
 """
 
+import json
 import os
 import sys
-import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 # Добавляем путь к проекту
 sys.path.insert(0, str(Path(__file__).parent))

@@ -15,28 +15,27 @@ import asyncio
 import json
 import os
 import sys
-import time
 import tempfile
-from pathlib import Path
-from typing import AsyncGenerator, Dict, Any, Optional
-from unittest.mock import AsyncMock, Mock, patch
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, AsyncGenerator, Dict, Optional
+from unittest.mock import AsyncMock, Mock, patch
 
-import pytest
 import httpx
 import psutil
+import pytest
 from factory import Factory
 from freezegun import freeze_time
 
 # Добавляем путь к приложению
 sys.path.append(str(Path(__file__).parent.parent))
 
+from api.cache_admin import MemoryCache, active_caches, cache_metrics
+from config import Environment, config
 # Импорты приложения
 from main import app
-from api.cache_admin import MemoryCache, cache_metrics, active_caches
-from config import config, Environment
-
 
 # =============================================================================
 # КОНФИГУРАЦИЯ ТЕСТОВОГО ОКРУЖЕНИЯ

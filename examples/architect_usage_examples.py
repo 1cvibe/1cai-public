@@ -13,9 +13,10 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import asyncio
+
 from src.ai.agents.architect_agent_extended import ArchitectAgentExtended
-from src.ai.agents.technology_selector import TechnologySelector
 from src.ai.agents.performance_analyzer import PerformanceAnalyzer
+from src.ai.agents.technology_selector import TechnologySelector
 
 
 async def example_1_graph_analysis():

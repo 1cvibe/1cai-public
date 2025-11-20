@@ -5,13 +5,13 @@
 Включает автоматическую отправку исключений, группировку ошибок и APM мониторинг.
 """
 
-import os
-import time
 import functools
+import os
 import threading
-from typing import Optional, Dict, Any, Callable
+import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, Optional
 
 
 class SentryIntegration:
@@ -50,7 +50,7 @@ class SentryIntegration:
         try:
             import sentry_sdk
             from sentry_sdk.integrations.logging import LoggingIntegration
-            
+
             # Настройка логирования для Sentry
             sentry_logging = LoggingIntegration(
                 level=logging.INFO,
@@ -350,7 +350,7 @@ class ErrorGrouper:
             Хэш группы ошибки
         """
         import hashlib
-        
+
         # Базовые параметры для группировки
         group_key = {
             'error_type': type(error).__name__,

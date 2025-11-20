@@ -14,20 +14,21 @@ Parser Integration Module
 Версия: 1.0.0
 """
 
-import os
-import sys
+import asyncio
 import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Iterator
+import os
+import sys
 from datetime import datetime
-import asyncio
+from pathlib import Path
+from typing import Any, Dict, Iterator, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 try:
+    from scripts.parsers.bsl_ast_parser import (BSLASTParser,
+                                                BSLLanguageServerClient)
     from scripts.parsers.optimized_xml_parser import OptimizedXMLParser
-    from scripts.parsers.bsl_ast_parser import BSLASTParser, BSLLanguageServerClient
     from src.services.configuration_knowledge_base import get_knowledge_base
 except ImportError as e:
     print(f"[ERROR] Import error: {e}")
@@ -84,7 +85,8 @@ class IntegratedParser:
                 logger.warning(f"⚠️ AST парсинг недоступен: {e}")
                 logger.warning("Используется fallback regex parser")
                 self.use_ast = False
-                from scripts.parsers.improve_bsl_parser import ImprovedBSLParser
+                from scripts.parsers.improve_bsl_parser import \
+                    ImprovedBSLParser
                 self.bsl_parser = ImprovedBSLParser()
         else:
             from scripts.parsers.improve_bsl_parser import ImprovedBSLParser

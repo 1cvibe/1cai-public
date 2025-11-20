@@ -32,7 +32,8 @@ async def prepare_dataset():
     print("STEP 1: Подготовка Training Dataset")
     print("=" * 70)
     
-    from scripts.dataset.prepare_neural_training_data import NeuralDatasetPreparer
+    from scripts.dataset.prepare_neural_training_data import \
+        NeuralDatasetPreparer
     
     preparer = NeuralDatasetPreparer()
     await preparer.prepare_from_postgres()
@@ -48,10 +49,8 @@ def train_model(dataset_dir: Path, epochs: int, batch_size: int):
     print("=" * 70)
     
     from scripts.parsers.neural.train_neural_parser import (
-        NeuralParserTrainer,
-        BSLCodeDataset
-    )
-    
+        BSLCodeDataset, NeuralParserTrainer)
+
     # Создаем trainer
     trainer = NeuralParserTrainer(
         learning_rate=1e-4,

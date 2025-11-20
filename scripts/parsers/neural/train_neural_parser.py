@@ -14,23 +14,18 @@
 Версия: 1.0.0
 """
 
+import json
+from pathlib import Path
+from typing import Any, Dict, List
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from typing import List, Dict, Any
-import json
-from pathlib import Path
+from neural_bsl_parser import (BSLTokenizer, CodeIntent,
+                               CodeTransformerEncoder, IntentClassifier,
+                               NeuralBSLParser, QualityScorer)
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-
-from neural_bsl_parser import (
-    NeuralBSLParser,
-    CodeIntent,
-    BSLTokenizer,
-    CodeTransformerEncoder,
-    IntentClassifier,
-    QualityScorer
-)
 
 
 class BSLCodeDataset(Dataset):

@@ -3,8 +3,8 @@
 #!/usr/bin/env python3
 """Проверка результатов парсинга всех конфигураций"""
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 # Устанавливаем кодировку для вывода

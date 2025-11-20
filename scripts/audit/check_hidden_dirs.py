@@ -17,7 +17,6 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Set
 
-
 DEFAULT_ALLOWLIST = {
     ".ci",
     ".cursor",

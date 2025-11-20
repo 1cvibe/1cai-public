@@ -5,23 +5,17 @@
 """
 
 import asyncio
-import time
-import sys
 import os
+import sys
+import time
 
 # Добавляем путь к текущей директории
 sys.path.insert(0, os.path.dirname(__file__))
 
 # Импортируем основные компоненты напрямую
 try:
-    from request_tracker import (
-        RequestTracker,
-        IPTracker,
-        UserTracker,
-        ToolTracker,
-        DistributedTracker,
-        RequestMetrics
-    )
+    from request_tracker import (DistributedTracker, IPTracker, RequestMetrics,
+                                 RequestTracker, ToolTracker, UserTracker)
     print("✅ Импорт RequestTracker успешен")
 except ImportError as e:
     print(f"❌ Ошибка импорта RequestTracker: {e}")

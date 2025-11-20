@@ -4,14 +4,16 @@
 """Анализ структуры страниц ИТС после авторизации"""
 
 import asyncio
-import sys
 import os
+import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.services.its_library_service import get_its_service
 from bs4 import BeautifulSoup
+
+from src.services.its_library_service import get_its_service
+
 
 async def analyze_its_structure():
     """Анализ структуры страниц ИТС"""

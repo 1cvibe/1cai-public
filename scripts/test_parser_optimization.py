@@ -11,20 +11,21 @@
     python scripts/test_parser_optimization.py --full
 """
 
-import sys
-import time
 import argparse
 import asyncio
+import json
+import sys
+import time
 from pathlib import Path
 from typing import Dict, List
-import json
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
-    from scripts.parsers.parser_integration import IntegratedParser
-    from scripts.parsers.parse_1c_config_fixed import Fixed1CConfigParser
     import psutil
+
+    from scripts.parsers.parse_1c_config_fixed import Fixed1CConfigParser
+    from scripts.parsers.parser_integration import IntegratedParser
     PSUTIL_AVAILABLE = True
 except ImportError as e:
     print(f"[ERROR] {e}")

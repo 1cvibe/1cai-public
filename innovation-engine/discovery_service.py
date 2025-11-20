@@ -5,12 +5,13 @@ Discovery Service - Automatic discovery of new 1C projects and technologies
 Stage 5: Continuous Innovation Engine
 """
 
-import os
-import logging
 import asyncio
-import aiohttp
-from typing import List, Dict, Any
+import logging
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 

@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import json
+from enum import Enum
 from pathlib import Path
 from typing import Iterable, List, Optional
-
-from enum import Enum
 
 from pydantic import BaseModel, Field, field_validator
 

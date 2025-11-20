@@ -33,34 +33,22 @@
 
 import asyncio
 import logging
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional
 
-from .config import (
-    MonitoringConfig, get_config, init_config,
-    PrometheusConfig, SentryConfig, AlertConfig,
-    OpenTelemetryConfig, MonitoringThresholds
-)
-
-from .prometheus_metrics import (
-    PrometheusMetrics, get_metrics, init_metrics,
-    record_error, record_circuit_breaker_state,
-    monitor_mcp_operation, monitor_http_request
-)
-
-from .sentry_integration import (
-    SentryIntegration, get_sentry, init_sentry,
-    sentry_transaction, sentry_span,
-    capture_exception_safe, capture_message_safe,
-    group_error
-)
-
-from .alerting import (
-    AlertManager, get_alert_manager, init_alert_manager,
-    Alert, AlertSeverity, AlertStatus,
-    create_error_alert, create_performance_alert, create_integration_alert,
-    EmailChannel, SlackChannel, TelegramChannel
-)
-
+from .alerting import (Alert, AlertManager, AlertSeverity, AlertStatus,
+                       EmailChannel, SlackChannel, TelegramChannel,
+                       create_error_alert, create_integration_alert,
+                       create_performance_alert, get_alert_manager,
+                       init_alert_manager)
+from .config import (AlertConfig, MonitoringConfig, MonitoringThresholds,
+                     OpenTelemetryConfig, PrometheusConfig, SentryConfig,
+                     get_config, init_config)
+from .prometheus_metrics import (PrometheusMetrics, get_metrics, init_metrics,
+                                 monitor_http_request, monitor_mcp_operation,
+                                 record_circuit_breaker_state, record_error)
+from .sentry_integration import (SentryIntegration, capture_exception_safe,
+                                 capture_message_safe, get_sentry, group_error,
+                                 init_sentry, sentry_span, sentry_transaction)
 
 # Настройка логирования
 logger = logging.getLogger(__name__)
@@ -185,7 +173,7 @@ class MonitoringSystem:
             from opentelemetry.exporter.zipkin.json import ZipkinExporter
             from opentelemetry.sdk.trace import TracerProvider
             from opentelemetry.sdk.trace.export import BatchSpanProcessor
-            
+
             # Создание провайдера трассировки
             trace.set_tracer_provider(TracerProvider())
             tracer_provider = trace.get_tracer_provider()
@@ -390,5 +378,6 @@ def _auto_init():
 
 
 import os
+
 if __name__ != '__main__':
     _auto_init()

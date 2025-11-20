@@ -14,9 +14,10 @@ Target for 10/10:
 """
 
 import asyncio
-import time
 import statistics
+import time
 from typing import List
+
 import httpx
 
 API_URL = "http://localhost:8000"

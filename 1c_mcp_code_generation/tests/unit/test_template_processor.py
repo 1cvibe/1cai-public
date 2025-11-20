@@ -4,13 +4,13 @@
 Тесты для процессора шаблонов.
 """
 
-import pytest
 import re
 from unittest.mock import Mock, patch
 
+import pytest
+
 from src.py_server.code_generation.templates.processor import (
-    TemplateProcessor, TemplateVariable, GeneratedCode
-)
+    GeneratedCode, TemplateProcessor, TemplateVariable)
 
 
 class TestTemplateVariable:
@@ -122,7 +122,8 @@ class TestTemplateProcessor:
     @pytest.fixture
     def mock_template_library_with_template(self, mock_template_library):
         """Фикстура библиотеки шаблонов с тестовым шаблоном."""
-        from src.py_server.code_generation.templates.library import TemplateMetadata
+        from src.py_server.code_generation.templates.library import \
+            TemplateMetadata
         
         metadata = TemplateMetadata(
             name="test_template",
@@ -151,7 +152,8 @@ class TestTemplateProcessor:
             """.strip()
         }
         
-        from src.py_server.code_generation.templates.library import CodeTemplate
+        from src.py_server.code_generation.templates.library import \
+            CodeTemplate
         template = CodeTemplate(
             metadata=metadata,
             template_content=template_content,

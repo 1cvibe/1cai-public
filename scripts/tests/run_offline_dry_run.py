@@ -17,7 +17,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-from scripts.diagnostics.mock_healthcheck import build_report as build_health_report
+from scripts.diagnostics.mock_healthcheck import \
+    build_report as build_health_report
 from scripts.knowledge.mock_embedding_builder import build_vector
 from src.services.llm_gateway import load_llm_gateway
 

@@ -5,14 +5,16 @@ Basic Health Check Endpoint
 Проверка основного состояния сервиса
 """
 
-import time
-import psutil
-import os
 import json
+import os
+import time
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Dict, Any, Optional
-from dataclasses import dataclass, asdict
 from enum import Enum
+from typing import Any, Dict, Optional
+
+import psutil
+
 
 class HealthStatus(Enum):
     HEALTHY = "healthy"

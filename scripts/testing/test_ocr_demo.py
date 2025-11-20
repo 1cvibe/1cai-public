@@ -18,13 +18,9 @@ async def test_ocr_service_structure():
     # Тест 1: Import
     print("1. ✅ Testing imports...")
     try:
-        from src.services.ocr_service import (
-            OCRService,
-            OCRProvider,
-            DocumentType,
-            OCRResult,
-            get_ocr_service
-        )
+        from src.services.ocr_service import (DocumentType, OCRProvider,
+                                              OCRResult, OCRService,
+                                              get_ocr_service)
         print("   ✅ All imports successful")
     except Exception as e:
         print(f"   ❌ Import error: {e}")

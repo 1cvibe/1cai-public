@@ -5,15 +5,20 @@ Health Check Endpoints Index
 Объединяет все типы health checks
 """
 
-from .basic_health import BasicHealthChecker, create_basic_health_endpoint, create_basic_health_blueprint
-from .dependencies_health import DependenciesHealthChecker, DEFAULT_DEPENDENCIES_CONFIG
-from .business_health import BusinessHealthChecker, DEFAULT_BUSINESS_CONFIG
-from .performance_health import PerformanceHealthChecker, DEFAULT_PERFORMANCE_CONFIG
-from .custom_metrics_health import CustomMetricsHealthChecker, DEFAULT_CUSTOM_METRICS_CONFIG
-
-import os
-from typing import Dict, Any, List
 import asyncio
+import os
+from typing import Any, Dict, List
+
+from .basic_health import (BasicHealthChecker, create_basic_health_blueprint,
+                           create_basic_health_endpoint)
+from .business_health import DEFAULT_BUSINESS_CONFIG, BusinessHealthChecker
+from .custom_metrics_health import (DEFAULT_CUSTOM_METRICS_CONFIG,
+                                    CustomMetricsHealthChecker)
+from .dependencies_health import (DEFAULT_DEPENDENCIES_CONFIG,
+                                  DependenciesHealthChecker)
+from .performance_health import (DEFAULT_PERFORMANCE_CONFIG,
+                                 PerformanceHealthChecker)
+
 
 class ComprehensiveHealthChecker:
     """Комплексный проверяльщик здоровья системы"""
@@ -213,7 +218,8 @@ def create_fastapi_health_endpoints(app, config: Dict[str, Any] = None):
     @app.get("/health/dependencies")
     async def health_dependencies():
         """Проверка зависимостей"""
-        from .dependencies_health import DependenciesHealthChecker, DEFAULT_DEPENDENCIES_CONFIG
+        from .dependencies_health import (DEFAULT_DEPENDENCIES_CONFIG,
+                                          DependenciesHealthChecker)
         checker = DependenciesHealthChecker(
             config.get('dependencies', DEFAULT_DEPENDENCIES_CONFIG) if config else DEFAULT_DEPENDENCIES_CONFIG
         )
@@ -222,7 +228,8 @@ def create_fastapi_health_endpoints(app, config: Dict[str, Any] = None):
     @app.get("/health/business")
     async def health_business():
         """Проверка бизнес-логики"""
-        from .business_health import BusinessHealthChecker, DEFAULT_BUSINESS_CONFIG
+        from .business_health import (DEFAULT_BUSINESS_CONFIG,
+                                      BusinessHealthChecker)
         checker = BusinessHealthChecker(
             config.get('business', DEFAULT_BUSINESS_CONFIG) if config else DEFAULT_BUSINESS_CONFIG
         )
@@ -231,7 +238,8 @@ def create_fastapi_health_endpoints(app, config: Dict[str, Any] = None):
     @app.get("/health/performance")
     async def health_performance():
         """Проверка производительности"""
-        from .performance_health import PerformanceHealthChecker, DEFAULT_PERFORMANCE_CONFIG
+        from .performance_health import (DEFAULT_PERFORMANCE_CONFIG,
+                                         PerformanceHealthChecker)
         checker = PerformanceHealthChecker(
             config.get('performance', DEFAULT_PERFORMANCE_CONFIG) if config else DEFAULT_PERFORMANCE_CONFIG
         )
@@ -240,7 +248,8 @@ def create_fastapi_health_endpoints(app, config: Dict[str, Any] = None):
     @app.get("/health/custom-metrics")
     async def health_custom_metrics():
         """Проверка кастомных метрик"""
-        from .custom_metrics_health import CustomMetricsHealthChecker, DEFAULT_CUSTOM_METRICS_CONFIG
+        from .custom_metrics_health import (DEFAULT_CUSTOM_METRICS_CONFIG,
+                                            CustomMetricsHealthChecker)
         checker = CustomMetricsHealthChecker(
             config.get('custom_metrics', DEFAULT_CUSTOM_METRICS_CONFIG) if config else DEFAULT_CUSTOM_METRICS_CONFIG
         )
@@ -249,7 +258,7 @@ def create_fastapi_health_endpoints(app, config: Dict[str, Any] = None):
 def create_flask_health_blueprints(config: Dict[str, Any] = None):
     """Создать все Flask blueprints для health checks"""
     from flask import Blueprint, jsonify
-    
+
     # Комплексный health check
     @Blueprint('health', __name__)
     class HealthBlueprint:
@@ -282,7 +291,8 @@ def create_flask_health_blueprints(config: Dict[str, Any] = None):
         @Blueprint.route('/health/dependencies')
         def health_dependencies():
             """Проверка зависимостей"""
-            from .dependencies_health import DependenciesHealthChecker, DEFAULT_DEPENDENCIES_CONFIG
+            from .dependencies_health import (DEFAULT_DEPENDENCIES_CONFIG,
+                                              DependenciesHealthChecker)
             checker = DependenciesHealthChecker(
                 config.get('dependencies', DEFAULT_DEPENDENCIES_CONFIG) if config else DEFAULT_DEPENDENCIES_CONFIG
             )
@@ -297,7 +307,8 @@ def create_flask_health_blueprints(config: Dict[str, Any] = None):
         @Blueprint.route('/health/business')
         def health_business():
             """Проверка бизнес-логики"""
-            from .business_health import BusinessHealthChecker, DEFAULT_BUSINESS_CONFIG
+            from .business_health import (DEFAULT_BUSINESS_CONFIG,
+                                          BusinessHealthChecker)
             checker = BusinessHealthChecker(
                 config.get('business', DEFAULT_BUSINESS_CONFIG) if config else DEFAULT_BUSINESS_CONFIG
             )
@@ -312,7 +323,8 @@ def create_flask_health_blueprints(config: Dict[str, Any] = None):
         @Blueprint.route('/health/performance')
         def health_performance():
             """Проверка производительности"""
-            from .performance_health import PerformanceHealthChecker, DEFAULT_PERFORMANCE_CONFIG
+            from .performance_health import (DEFAULT_PERFORMANCE_CONFIG,
+                                             PerformanceHealthChecker)
             checker = PerformanceHealthChecker(
                 config.get('performance', DEFAULT_PERFORMANCE_CONFIG) if config else DEFAULT_PERFORMANCE_CONFIG
             )
@@ -327,7 +339,8 @@ def create_flask_health_blueprints(config: Dict[str, Any] = None):
         @Blueprint.route('/health/custom-metrics')
         def health_custom_metrics():
             """Проверка кастомных метрик"""
-            from .custom_metrics_health import CustomMetricsHealthChecker, DEFAULT_CUSTOM_METRICS_CONFIG
+            from .custom_metrics_health import (DEFAULT_CUSTOM_METRICS_CONFIG,
+                                                CustomMetricsHealthChecker)
             checker = CustomMetricsHealthChecker(
                 config.get('custom_metrics', DEFAULT_CUSTOM_METRICS_CONFIG) if config else DEFAULT_CUSTOM_METRICS_CONFIG
             )

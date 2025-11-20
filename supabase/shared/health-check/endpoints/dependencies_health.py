@@ -6,16 +6,17 @@ Dependencies Health Check Endpoint
 """
 
 import asyncio
+import json
+import logging
+import time
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
 import aiohttp
 import asyncpg
 import redis.asyncio as redis
-import time
-import json
-from datetime import datetime
-from typing import Dict, Any, List, Optional, Union
-from dataclasses import dataclass, asdict
-from enum import Enum
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -420,7 +421,7 @@ DEFAULT_DEPENDENCIES_CONFIG = {
 
 if __name__ == "__main__":
     import os
-    
+
     # Пример использования
     async def main():
         config = DEFAULT_DEPENDENCIES_CONFIG

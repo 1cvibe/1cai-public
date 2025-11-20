@@ -15,7 +15,6 @@ from typing import Any, Dict, List
 
 from jsonschema import Draft202012Validator
 
-
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "docs" / "architecture" / "CODE_GRAPH_SCHEMA.json"
 EXAMPLE_PATH = ROOT / "docs" / "architecture" / "examples" / "code_graph_minimal.json"

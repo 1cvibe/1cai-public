@@ -6,24 +6,20 @@ Fine-tune Qwen-Coder on SmolTalk Dataset
 Улучшение качества русского языка и диалогов
 """
 
+import json
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
 from typing import Optional
-import json
 
+import bitsandbytes as bnb
 import torch
 from datasets import load_dataset
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    TrainingArguments,
-    Trainer,
-    DataCollatorForLanguageModeling,
-)
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-import bitsandbytes as bnb
+from transformers import (AutoModelForCausalLM, AutoTokenizer,
+                          DataCollatorForLanguageModeling, Trainer,
+                          TrainingArguments)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

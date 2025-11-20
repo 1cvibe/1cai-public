@@ -3,10 +3,10 @@
 """
 Конфигурация системы устойчивости и circuit breaker
 """
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
-from enum import Enum
 import time
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class ServiceType(Enum):

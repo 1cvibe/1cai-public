@@ -7,11 +7,12 @@ Creates realistic demo data for development and demos
 """
 
 import asyncio
-import asyncpg
+import os
 import random
 from datetime import datetime, timedelta
 from uuid import uuid4
-import os
+
+import asyncpg
 
 DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/enterprise_1c_ai')
 

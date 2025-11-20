@@ -11,19 +11,16 @@
 - Real-time мониторинг
 """
 
-import time
 import random
-from typing import Dict, Any
+import time
 from datetime import timedelta
+from typing import Any, Dict
 
 # Импорт системы мониторинга
 try:
-    from ratelimit.metrics import (
-        RateLimitMonitoringSystem,
-        AlertRule,
-        AlertSeverity,
-        rate_limit_monitoring
-    )
+    from ratelimit.metrics import (AlertRule, AlertSeverity,
+                                   RateLimitMonitoringSystem,
+                                   rate_limit_monitoring)
 except ImportError as e:
     print(f"Ошибка импорта: {e}")
     print("Убедитесь что модуль metrics.py находится в папке ratelimit")

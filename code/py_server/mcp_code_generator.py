@@ -7,11 +7,11 @@ MCP Code Generator
 для использования в Code Execution Environment
 """
 
-import os
 import json
-from typing import List, Dict, Any
-from pathlib import Path
 import logging
+import os
+from pathlib import Path
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 

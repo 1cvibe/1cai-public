@@ -10,7 +10,9 @@ Validation Package для 1C AI MCP Code Generation
 Дата: 30.10.2025
 """
 
-from .validator import CodeValidator, ValidationResult, SyntaxValidationResult, StandardComplianceResult, SecurityAnalysisResult
+from .validator import (CodeValidator, SecurityAnalysisResult,
+                        StandardComplianceResult, SyntaxValidationResult,
+                        ValidationResult)
 
 __version__ = "1.0.0"
 __all__ = [

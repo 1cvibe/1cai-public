@@ -14,13 +14,14 @@
 - Технический долг
 """
 
-import os
-import sys
-import re
 import json
+import os
+import re
+import sys
+from collections import Counter, defaultdict
 from pathlib import Path
-from collections import defaultdict, Counter
 from typing import Dict, List
+
 
 class ComprehensiveProjectAuditor:
     """Комплексный аудитор проекта"""

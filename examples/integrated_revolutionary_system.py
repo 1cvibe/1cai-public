@@ -17,20 +17,16 @@ import asyncio
 import logging
 from datetime import datetime
 
-from src.infrastructure.event_bus import EventBus, EventPublisher, EventType
-from src.infrastructure.event_store import InMemoryEventStore
+from src.ai.code_dna import CodeDNAEngine
+from src.ai.distributed_agent_network import (Agent, AgentNode, AgentRole,
+                                              DistributedAgentNetwork, Task)
+from src.ai.llm_provider_abstraction import LLMProviderAbstraction
+from src.ai.predictive_code_generation import (PredictiveCodeGenerator,
+                                               Requirement)
 from src.ai.self_evolving_ai import SelfEvolvingAI
 from src.ai.self_healing_code import SelfHealingCode
-from src.ai.distributed_agent_network import (
-    DistributedAgentNetwork,
-    Agent,
-    AgentNode,
-    AgentRole,
-    Task
-)
-from src.ai.code_dna import CodeDNAEngine
-from src.ai.predictive_code_generation import PredictiveCodeGenerator, Requirement
-from src.ai.llm_provider_abstraction import LLMProviderAbstraction
+from src.infrastructure.event_bus import EventBus, EventPublisher, EventType
+from src.infrastructure.event_store import InMemoryEventStore
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

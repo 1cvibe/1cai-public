@@ -9,7 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from scripts.ba_pipeline.base import BaseCollector, CollectorResult, ensure_output_dir
+from scripts.ba_pipeline.base import (BaseCollector, CollectorResult,
+                                      ensure_output_dir)
 
 logger = logging.getLogger(__name__)
 

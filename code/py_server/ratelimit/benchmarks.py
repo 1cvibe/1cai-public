@@ -12,20 +12,20 @@
 - Поведение под нагрузкой (stress testing)
 """
 
-import time
-import threading
+import concurrent.futures
+import gc
 import multiprocessing
 import statistics
-import psutil
-import gc
-from typing import Dict, List, Tuple, Any
-import concurrent.futures
+import threading
+import time
+from typing import Any, Dict, List, Tuple
+
 import matplotlib.pyplot as plt
 import pandas as pd
-from sliding_window import (
-    RateLimitManager, SlidingWindowAlgorithm, TokenBucket, 
-    FixedWindowCounter, LeakyBucket, MultiWindowTracker
-)
+import psutil
+from sliding_window import (FixedWindowCounter, LeakyBucket,
+                            MultiWindowTracker, RateLimitManager,
+                            SlidingWindowAlgorithm, TokenBucket)
 
 
 class BenchmarkSuite:

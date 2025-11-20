@@ -7,16 +7,17 @@
 инструменты, обработку запросов, ответы.
 """
 
-import pytest
 import asyncio
 import json
+from typing import Any, Dict, List
 from unittest.mock import AsyncMock, patch
-from typing import Dict, Any, List
 
-from src.mcp.server import MCP1CServer
+import pytest
+
 from src.mcp.client import MCP1CClient
-from src.mcp.tools import CodeGenerationTool, ValidationTool, SecurityTool
 from src.mcp.handlers import RequestHandler, ResponseHandler
+from src.mcp.server import MCP1CServer
+from src.mcp.tools import CodeGenerationTool, SecurityTool, ValidationTool
 
 
 @pytest.mark.integration

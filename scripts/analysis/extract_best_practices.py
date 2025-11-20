@@ -14,11 +14,12 @@
 """
 
 import json
-import sys
 import re
+import sys
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Dict, List
-from collections import Counter, defaultdict
+
 
 def load_parse_results():
     """Загрузка результатов парсинга"""

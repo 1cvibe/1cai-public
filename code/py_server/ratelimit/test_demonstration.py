@@ -6,19 +6,19 @@
 Запускает базовые тесты, примеры и бенчмарки.
 """
 
-import sys
 import os
-import time
 import subprocess
+import sys
+import time
 
 # Добавляем текущую директорию в путь
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from sliding_window import (
-    RateLimitManager, SlidingWindowAlgorithm, TokenBucket, 
-    FixedWindowCounter, LeakyBucket, MultiWindowTracker,
-    create_sliding_window_config, create_token_bucket_config
-)
+from sliding_window import (FixedWindowCounter, LeakyBucket,
+                            MultiWindowTracker, RateLimitManager,
+                            SlidingWindowAlgorithm, TokenBucket,
+                            create_sliding_window_config,
+                            create_token_bucket_config)
 
 
 def test_basic_functionality():

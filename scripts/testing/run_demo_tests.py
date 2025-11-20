@@ -9,6 +9,7 @@ import sys
 import time
 from pathlib import Path
 
+
 # Colors for Windows
 class Colors:
     GREEN = '\033[92m'

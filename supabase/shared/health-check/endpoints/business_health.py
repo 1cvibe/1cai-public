@@ -5,15 +5,17 @@ Business Logic Health Check Endpoint
 Проверка критических бизнес-функций
 """
 
-import time
-import json
 import asyncio
-import aiohttp
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Callable
-from dataclasses import dataclass, asdict
-from enum import Enum
+import json
+import time
 from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
+import aiohttp
+
 
 class BusinessHealthStatus(Enum):
     HEALTHY = "healthy"
@@ -533,7 +535,7 @@ DEFAULT_BUSINESS_CONFIG = {
 
 if __name__ == "__main__":
     import os
-    
+
     # Пример использования
     async def main():
         config = DEFAULT_BUSINESS_CONFIG

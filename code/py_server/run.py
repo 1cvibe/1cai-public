@@ -9,12 +9,13 @@
 
 import argparse
 import asyncio
+import logging
 import signal
 import sys
-import uvicorn
 from pathlib import Path
-import logging
 from typing import Optional
+
+import uvicorn
 
 # Настройка логирования
 logging.basicConfig(
@@ -25,7 +26,8 @@ logger = logging.getLogger(__name__)
 
 try:
     # Импорт конфигурации и приложения
-    from config import config, apply_environment_config, Environment, validate_config
+    from config import (Environment, apply_environment_config, config,
+                        validate_config)
     from main import app
 except ImportError as e:
     logger.error(f"Ошибка импорта модулей: {e}")
@@ -304,8 +306,9 @@ def main():
                 sys.exit(1)
         elif args.command == "info":
             # Информация о конфигурации
-            from config import config, get_config_for_environment
             import json
+
+            from config import config, get_config_for_environment
             
             logger.info("=== Информация о конфигурации ===")
             logger.info(f"Текущее окружение: {config.environment}")

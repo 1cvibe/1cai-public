@@ -7,14 +7,14 @@
 Версия: 1.0.0
 """
 
-import os
-import sys
+import gzip
 import json
+import os
+import re
+import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import gzip
-import re
+from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 

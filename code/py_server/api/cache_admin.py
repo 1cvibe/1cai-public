@@ -14,30 +14,21 @@ API администрирования кэша для 1С сервера
 """
 
 import asyncio
-import time
-import psutil
-import json
 import hashlib
-from typing import Dict, List, Optional, Any, Union
-from datetime import datetime, timedelta
-from collections import defaultdict, deque
-from dataclasses import dataclass, asdict
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    Depends,
-    Security,
-    status,
-    Request,
-    Response
-)
-from fastapi.security import (
-    HTTPBearer,
-    HTTPAuthorizationCredentials
-)
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+import json
 import logging
+import time
+from collections import defaultdict, deque
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
+
+import psutil
+from fastapi import (APIRouter, Depends, HTTPException, Request, Response,
+                     Security, status)
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel, Field
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)

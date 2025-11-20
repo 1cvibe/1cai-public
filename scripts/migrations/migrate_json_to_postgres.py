@@ -7,12 +7,12 @@ Enterprise 1C AI Development Stack
 """
 
 import json
+import logging
 import os
 import sys
-from pathlib import Path
-from typing import Dict, List, Any
-import logging
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
 
 # Setup logging
 logging.basicConfig(

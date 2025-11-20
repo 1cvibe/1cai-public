@@ -11,13 +11,13 @@
 """
 
 import asyncio
-import uuid
 import logging
-from typing import Optional, Dict, Any
+import uuid
+from typing import Any, Dict, Optional
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
-
 
 logger = logging.getLogger(__name__)
 

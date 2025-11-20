@@ -10,21 +10,18 @@
 - Интеграцию с кэшами
 """
 
-import pytest
 import asyncio
-from fastapi.testclient import TestClient
-from fastapi import FastAPI
-from unittest.mock import patch, MagicMock
 import json
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 # Импорт API администрирования кэша
-from api.cache_admin import (
-    cache_admin_router,
-    cache_middleware,
-    MemoryCache,
-    cache_metrics
-)
+from api.cache_admin import (MemoryCache, cache_admin_router, cache_metrics,
+                             cache_middleware)
 
 # Создание тестового приложения
 app = FastAPI(title="Test Cache Admin API")
@@ -284,8 +281,9 @@ class TestCacheMiddleware:
     
     def test_cache_middleware_ignores_internal_paths(self):
         """Тест игнорирования внутренних путей в middleware"""
-        from fastapi import Request
         from unittest.mock import AsyncMock
+
+        from fastapi import Request
         
         async def mock_call_next(request):
             response = MagicMock()

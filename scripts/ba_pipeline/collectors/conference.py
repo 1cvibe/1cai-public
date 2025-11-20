@@ -7,7 +7,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
-from scripts.ba_pipeline.base import BaseCollector, CollectorResult, ensure_output_dir
+from scripts.ba_pipeline.base import (BaseCollector, CollectorResult,
+                                      ensure_output_dir)
 from scripts.ba_pipeline.utils import load_json_env
 
 logger = logging.getLogger(__name__)

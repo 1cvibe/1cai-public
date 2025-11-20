@@ -8,7 +8,6 @@ import shutil
 from pathlib import Path
 from typing import Iterable
 
-
 PRESETS_DIR = Path(__file__).resolve().parent
 
 

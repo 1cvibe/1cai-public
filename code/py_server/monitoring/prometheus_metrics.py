@@ -5,14 +5,12 @@ Prometheus метрики для системы мониторинга MCP се�
 Включает метрики ошибок, производительности и состояния системы.
 """
 
-import time
 import functools
-from typing import Optional, Dict, Any, Callable
-from prometheus_client import (
-    Counter, Histogram, Gauge, Info, 
-    CollectorRegistry, generate_latest,
-    CONTENT_TYPE_LATEST
-)
+import time
+from typing import Any, Callable, Dict, Optional
+
+from prometheus_client import (CONTENT_TYPE_LATEST, CollectorRegistry, Counter,
+                               Gauge, Histogram, Info, generate_latest)
 from prometheus_client.core import REGISTRY
 
 

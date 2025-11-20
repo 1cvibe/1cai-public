@@ -7,10 +7,10 @@ Tool Indexer
 Позволяет агентам находить нужные tools по смыслу запроса
 """
 
-import logging
-from typing import List, Dict, Any, Optional
 import hashlib
 import json
+import logging
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ class ToolIndexer:
             tools: Список tool definitions
         """
         from qdrant_client.models import PointStruct
-        
+
         # Ensure collection exists
         self._ensure_collection()
         
@@ -175,7 +175,7 @@ class ToolIndexer:
         # Построить filter
         query_filter = None
         if server:
-            from qdrant_client.models import Filter, FieldCondition, MatchValue
+            from qdrant_client.models import FieldCondition, Filter, MatchValue
             
             query_filter = Filter(
                 must=[

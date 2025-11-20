@@ -20,12 +20,9 @@ from typing import Any, Dict, List
 
 from jsonschema import Draft202012Validator
 
-from src.ai.scenario_examples import (
-    example_ba_dev_qa_scenario,
-    example_dr_rehearsal_scenario,
-)
+from src.ai.scenario_examples import (example_ba_dev_qa_scenario,
+                                      example_dr_rehearsal_scenario)
 from src.ai.scenario_policy import DEFAULT_POLICIES
-
 
 ROOT = Path(__file__).resolve().parents[2]
 

@@ -5,15 +5,17 @@ Custom Business Metrics Health Check
 Проверка кастомных бизнес-метрик
 """
 
-import time
-import json
 import asyncio
-import aiohttp
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Callable, Union
-from dataclasses import dataclass, asdict
-from enum import Enum
+import json
+import time
 from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Union
+
+import aiohttp
+
 
 class MetricStatus(Enum):
     OPTIMAL = "optimal"
@@ -673,7 +675,7 @@ DEFAULT_CUSTOM_METRICS_CONFIG = {
 
 if __name__ == "__main__":
     import os
-    
+
     # Пример использования
     async def main():
         config = DEFAULT_CUSTOM_METRICS_CONFIG

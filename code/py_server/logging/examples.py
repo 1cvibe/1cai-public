@@ -11,23 +11,24 @@
 - Интеграция с мониторингом
 """
 
-import time
 import asyncio
 import os
-from typing import Dict, Any
+import time
+from typing import Any, Dict
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 # Импорт компонентов системы логирования
-from .config import setup_logging, LoggingConfig
-from .middleware import LoggingMiddleware, with_correlation_id, with_user_id, log_execution_time
-from .handlers import create_application_logger, create_http_logger, create_business_logger
-from .sanitizers import sanitize_user_data, sanitize_request_data, sanitize_response_data
-from .formatter import (
-    LogLevel, create_log_structure, HTTPRequestFormatter, 
-    PerformanceFormatter, BusinessEventFormatter
-)
-
+from .config import LoggingConfig, setup_logging
+from .formatter import (BusinessEventFormatter, HTTPRequestFormatter, LogLevel,
+                        PerformanceFormatter, create_log_structure)
+from .handlers import (create_application_logger, create_business_logger,
+                       create_http_logger)
+from .middleware import (LoggingMiddleware, log_execution_time,
+                         with_correlation_id, with_user_id)
+from .sanitizers import (sanitize_request_data, sanitize_response_data,
+                         sanitize_user_data)
 
 # Инициализация системы логирования
 setup_logging()

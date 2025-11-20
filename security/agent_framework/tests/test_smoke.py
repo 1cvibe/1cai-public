@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-import json
 import importlib
+import json
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,7 +13,8 @@ from types import SimpleNamespace
 import httpx
 
 from security.agent_framework.cli.main import handle_local_run
-from security.agent_framework.runtime import AgentResult, Finding, SecurityAgent
+from security.agent_framework.runtime import (AgentResult, Finding,
+                                              SecurityAgent)
 
 
 def make_client(response: httpx.Response) -> httpx.Client:

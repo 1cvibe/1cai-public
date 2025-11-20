@@ -16,19 +16,20 @@ EDT Configuration Parser with Enhanced Metadata Extraction
 - Enriched dataset
 """
 
-import os
-import sys
 import json
-import xml.etree.ElementTree as ET
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from collections import defaultdict
-import time
+import os
 import re
+import sys
+import time
+import xml.etree.ElementTree as ET
+from collections import defaultdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 # Импорт базового парсера
 sys.path.insert(0, str(Path(__file__).parent))
 from edt_parser import EDTConfigurationParser
+
 
 class EDTParserWithMetadata(EDTConfigurationParser):
     """

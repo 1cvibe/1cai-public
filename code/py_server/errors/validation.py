@@ -16,10 +16,11 @@
 """
 
 from typing import Any, Dict, List, Optional, Union
+
 try:
-    from .base import McpError, NonRecoverableError, ErrorSeverity
+    from .base import ErrorSeverity, McpError, NonRecoverableError
 except ImportError:
-    from base import McpError, NonRecoverableError, ErrorSeverity
+    from base import ErrorSeverity, McpError, NonRecoverableError
 
 
 class ValidationError(NonRecoverableError):

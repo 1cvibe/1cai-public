@@ -11,27 +11,20 @@
 import asyncio
 import json
 import time
-from typing import Dict, Any
+from typing import Any, Dict
+
+import uvicorn
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
-import uvicorn
 
 # Импортируем наш модуль кэширования
 try:
-    from .http_cache import (
-        setup_cache_middleware,
-        CacheHeaders,
-        ETagManager,
-        metrics_collector
-    )
+    from .http_cache import (CacheHeaders, ETagManager, metrics_collector,
+                             setup_cache_middleware)
 except ImportError:
     # Для запуска как отдельного скрипта
-    from http_cache import (
-        setup_cache_middleware,
-        CacheHeaders,
-        ETagManager,
-        metrics_collector
-    )
+    from http_cache import (CacheHeaders, ETagManager, metrics_collector,
+                            setup_cache_middleware)
 
 
 def create_demo_app() -> FastAPI:
@@ -291,8 +284,8 @@ Endpoints для тестирования:
 
 def test_cache_endpoints():
     """Тестирование endpoints кэша с помощью curl."""
-    import subprocess
     import json
+    import subprocess
     
     base_url = "http://localhost:8000"
     

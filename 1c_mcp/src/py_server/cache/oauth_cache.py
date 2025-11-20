@@ -12,26 +12,27 @@ OAuth2 Cache Manager - Модуль кэширования OAuth2 токенов
 """
 
 import asyncio
+import base64
 import json
 import logging
+import pickle
 import secrets
+import threading
 import time
 from abc import ABC, abstractmethod
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from contextlib import asynccontextmanager
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
+from enum import Enum
 from hashlib import sha256
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-import base64
-import pickle
-import threading
-from dataclasses import dataclass, asdict
-from enum import Enum
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 logger = logging.getLogger(__name__)
 

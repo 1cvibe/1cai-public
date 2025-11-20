@@ -8,14 +8,15 @@
 Цель: Evidence-based улучшения парсера
 """
 
+import json
 import os
 import sys
-import json
-import xml.etree.ElementTree as ET
-from pathlib import Path
-from typing import Dict, List, Any, Tuple
-from collections import defaultdict
 import time
+import xml.etree.ElementTree as ET
+from collections import defaultdict
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
 
 class EDTStructureAnalyzer:
     """Анализатор структуры EDT выгрузки"""

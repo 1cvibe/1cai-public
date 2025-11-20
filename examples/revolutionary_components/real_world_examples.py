@@ -12,13 +12,15 @@ import asyncio
 import logging
 from datetime import datetime
 
-from src.ai.orchestrator_revolutionary import RevolutionaryAIOrchestrator
-from src.infrastructure.event_bus import EventBus, EventType
-from src.ai.self_healing_code import SelfHealingCode
-from src.ai.self_evolving_ai import SelfEvolvingAI
-from src.ai.distributed_agent_network import DistributedAgentNetwork, Task, AgentRole
 from src.ai.code_dna import CodeDNAEngine
-from src.ai.predictive_code_generation import PredictiveCodeGenerator, Requirement
+from src.ai.distributed_agent_network import (AgentRole,
+                                              DistributedAgentNetwork, Task)
+from src.ai.orchestrator_revolutionary import RevolutionaryAIOrchestrator
+from src.ai.predictive_code_generation import (PredictiveCodeGenerator,
+                                               Requirement)
+from src.ai.self_evolving_ai import SelfEvolvingAI
+from src.ai.self_healing_code import SelfHealingCode
+from src.infrastructure.event_bus import EventBus, EventType
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -214,7 +216,8 @@ async def example_6_event_driven_ml_training():
     """
     logger.info("=== Example 6: Event-Driven ML Training ===")
     
-    from src.infrastructure.event_bus import EventBus, EventPublisher, EventType
+    from src.infrastructure.event_bus import (EventBus, EventPublisher,
+                                              EventType)
     
     event_bus = EventBus()
     await event_bus.start()

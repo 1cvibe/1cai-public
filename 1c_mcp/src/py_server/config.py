@@ -3,7 +3,8 @@
 """Конфигурация MCP-прокси сервера."""
 
 import os
-from typing import Optional, Literal
+from typing import Literal, Optional
+
 from pydantic import Field
 from pydantic_settings import BaseSettings
 

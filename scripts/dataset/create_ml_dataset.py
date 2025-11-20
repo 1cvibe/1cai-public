@@ -14,11 +14,11 @@
 
 import argparse
 import json
-import sys
 import re
-from pathlib import Path
-from typing import Dict, List, Any
+import sys
 from collections import defaultdict
+from pathlib import Path
+from typing import Any, Dict, List
 
 
 def load_parse_results(results_file: Path) -> Dict[str, Any]:

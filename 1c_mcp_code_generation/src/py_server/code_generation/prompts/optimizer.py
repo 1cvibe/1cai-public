@@ -7,13 +7,13 @@
 оптимизированные версии для повышения качества.
 """
 
-import re
 import json
 import logging
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass, asdict
-from collections import Counter, defaultdict
+import re
 import statistics
+from collections import Counter, defaultdict
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass

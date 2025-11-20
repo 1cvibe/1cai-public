@@ -10,15 +10,15 @@ Usage:
     python scripts/index_github_repo.py --repo DmitrL-dev/1cai-public --skip-clone
 """
 
-import os
-import sys
 import argparse
 import logging
+import os
 import shutil
 import subprocess
-from pathlib import Path
-from typing import List, Dict, Any, Optional
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
