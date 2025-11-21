@@ -180,14 +180,62 @@ async def health_check(
     qdrant: Optional[QdrantClient] = Depends(get_qdrant_client),
     pg: Optional[PostgreSQLSaver] = Depends(get_postgres_client),
 ):
-    """Health check endpoint"""
+    """Health check endpoint with real connection verification"""
+    services_status = {}
+    overall_healthy = True
+
+    # Check Neo4j
+    if neo4j:
+        try:
+            neo4j_healthy = neo4j.driver is not None
+            # Try a simple query
+            if neo4j_healthy:
+                try:
+                    with neo4j.driver.session() as session:
+                        session.run("RETURN 1")
+                    services_status["neo4j"] = "healthy"
+                except Exception:
+                    services_status["neo4j"] = "unhealthy"
+                    overall_healthy = False
+            else:
+                services_status["neo4j"] = "unhealthy"
+                overall_healthy = False
+        except Exception:
+            services_status["neo4j"] = "unhealthy"
+            overall_healthy = False
+    else:
+        services_status["neo4j"] = "not_configured"
+
+    # Check Qdrant
+    if qdrant:
+        try:
+            qdrant_healthy = _is_qdrant_ready(qdrant)
+            services_status["qdrant"] = "healthy" if qdrant_healthy else "unhealthy"
+            if not qdrant_healthy:
+                overall_healthy = False
+        except Exception:
+            services_status["qdrant"] = "unhealthy"
+            overall_healthy = False
+    else:
+        services_status["qdrant"] = "not_configured"
+
+    # Check PostgreSQL
+    if pg:
+        try:
+            pg_healthy = pg.is_connected()
+            services_status["postgres"] = "healthy" if pg_healthy else "unhealthy"
+            if not pg_healthy:
+                overall_healthy = False
+        except Exception as e:
+            logger.warning(f"PostgreSQL health check error: {e}")
+            services_status["postgres"] = "unhealthy"
+            overall_healthy = False
+    else:
+        services_status["postgres"] = "not_configured"
+
     return {
-        "status": "healthy",
-        "services": {
-            "neo4j": neo4j is not None,
-            "qdrant": qdrant is not None,
-            "postgres": pg is not None,
-        },
+        "status": "healthy" if overall_healthy else "degraded",
+        "services": services_status,
     }
 
 

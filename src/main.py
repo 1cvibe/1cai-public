@@ -44,6 +44,9 @@ from src.api.dashboard_api import router as dashboard_router
 
 # NEW: Marketplace router
 from src.api.marketplace import router as marketplace_router
+
+# NEW: DevOps & AI Evolution API
+from src.api.devops_api import router as devops_router
 from src.api.monitoring import router as monitoring_router
 from src.api.orchestrator_api import router as orchestrator_router
 from src.api.security_monitoring import router as security_monitoring_router
@@ -554,6 +557,7 @@ routers = [
     ("security_monitoring", security_monitoring_router),
     ("orchestrator", orchestrator_router),
     ("wiki", wiki_router),  # Wiki Router
+    ("devops", devops_router),  # DevOps & AI Evolution API
 ]
 
 for name, router in routers:

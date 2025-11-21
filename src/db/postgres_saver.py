@@ -32,15 +32,45 @@ class PostgreSQLSaver:
 
     def __init__(
         self,
-        host: str = "localhost",
-        port: int = 5432,
-        database: str = "knowledge_base",
-        user: str = "admin",
+        host: str = None,
+        port: int = None,
+        database: str = None,
+        user: str = None,
         password: str = None,
         minconn: int = 1,
         maxconn: int = 10,
     ):
-        """Initialize PostgreSQL connection pool"""
+        """Initialize PostgreSQL connection pool
+        
+        Supports both DATABASE_URL and individual parameters.
+        Priority: DATABASE_URL > individual parameters > environment variables > defaults
+        """
+
+        # Try to parse DATABASE_URL first
+        database_url = os.getenv("DATABASE_URL")
+        if database_url:
+            try:
+                from urllib.parse import urlparse
+                parsed = urlparse(database_url)
+                host = host or parsed.hostname or "localhost"
+                port = port or parsed.port or 5432
+                database = database or parsed.path.lstrip("/") or "knowledge_base"
+                user = user or parsed.username or "admin"
+                password = password or parsed.password or os.getenv("POSTGRES_PASSWORD")
+            except Exception as e:
+                logger.warning(f"Failed to parse DATABASE_URL: {e}, using defaults")
+
+        # Fallback to individual env variables or defaults
+        if not host:
+            host = os.getenv("POSTGRES_HOST", "localhost")
+        if not port:
+            port = int(os.getenv("POSTGRES_PORT", "5432"))
+        if not database:
+            database = os.getenv("POSTGRES_DB", "knowledge_base")
+        if not user:
+            user = os.getenv("POSTGRES_USER", "admin")
+        if not password:
+            password = os.getenv("POSTGRES_PASSWORD")
 
         # Input validation
         if not isinstance(host, str) or not host:
@@ -52,12 +82,8 @@ class PostgreSQLSaver:
         if not isinstance(user, str) or not user:
             user = "admin"
 
-        # Get password from env if not provided
         if not password:
-            password = os.getenv("POSTGRES_PASSWORD")
-
-        if not password:
-            raise ValueError("PostgreSQL password not provided")
+            raise ValueError("PostgreSQL password not provided (set POSTGRES_PASSWORD or DATABASE_URL)")
 
         self.conn_params = {
             "host": host,
@@ -106,6 +132,23 @@ class PostgreSQLSaver:
             self._pool.closeall()
             self._pool = None
             logger.info("Disconnected from PostgreSQL pool")
+
+    def is_connected(self) -> bool:
+        """Check if connection pool is active and can execute queries"""
+        if not self._pool:
+            return False
+        try:
+            conn = self._pool.getconn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1")
+                    cur.fetchone()
+                return True
+            finally:
+                self._pool.putconn(conn)
+        except Exception as e:
+            logger.debug(f"PostgreSQL health check failed: {e}")
+            return False
 
     @contextmanager
     def get_cursor(self):

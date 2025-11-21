@@ -125,23 +125,90 @@ class HealthChecker:
 
             import asyncpg
 
-            db_url = os.getenv(
-                "DATABASE_URL",
-                "postgresql://postgres:postgres@localhost:5432/enterprise_1c_ai",
-            )
-            parsed = urlparse(db_url)
+            # Try to use existing PostgreSQLSaver from ServiceContainer first
+            try:
+                from src.api.dependencies import ServiceContainer
+                pg_saver = ServiceContainer.get_postgres()
+                if pg_saver:
+                    if pg_saver.is_connected():
+                        return {
+                            "status": "healthy",
+                            "message": "Connected via ServiceContainer PostgreSQLSaver",
+                        }
+                    else:
+                        logger.debug("ServiceContainer PostgreSQLSaver exists but not connected, trying to connect...")
+                        if pg_saver.connect() and pg_saver.is_connected():
+                            return {
+                                "status": "healthy",
+                                "message": "Connected via ServiceContainer PostgreSQLSaver (reconnected)",
+                            }
+            except Exception as e:
+                logger.debug(f"ServiceContainer PostgreSQLSaver check failed: {e}")
+
+            # Try to create and connect new PostgreSQLSaver
+            try:
+                from src.db.postgres_saver import PostgreSQLSaver
+                pg_saver = PostgreSQLSaver()
+                if pg_saver.connect():
+                    if pg_saver.is_connected():
+                        return {
+                            "status": "healthy",
+                            "message": "Connected via new PostgreSQLSaver",
+                        }
+                    else:
+                        logger.debug("PostgreSQLSaver.connect() returned True but is_connected() returns False")
+                else:
+                    logger.debug("PostgreSQLSaver.connect() returned False")
+            except ValueError as e:
+                # Password not provided - this is expected, continue to direct connection
+                logger.debug(f"PostgreSQLSaver initialization failed (likely missing password): {e}")
+            except Exception as e:
+                logger.debug(f"PostgreSQLSaver check failed, using direct connection: {e}")
+
+            # Fallback to direct connection
+            db_url = os.getenv("DATABASE_URL")
+            if not db_url:
+                # Try individual env variables
+                host = os.getenv("POSTGRES_HOST", "localhost")
+                port = int(os.getenv("POSTGRES_PORT", "5432"))
+                database = os.getenv("POSTGRES_DB", "knowledge_base")
+                user = os.getenv("POSTGRES_USER", "admin")
+                password = os.getenv("POSTGRES_PASSWORD")
+                
+                if not password:
+                    logger.warning("PostgreSQL password not provided in environment variables")
+                    return {
+                        "status": "unhealthy",
+                        "error": "PostgreSQL password not provided",
+                    }
+            else:
+                parsed = urlparse(db_url)
+                host = parsed.hostname or "localhost"
+                port = parsed.port or 5432
+                database = parsed.path.lstrip("/") or "knowledge_base"
+                user = parsed.username or "admin"
+                password = parsed.password or os.getenv("POSTGRES_PASSWORD")
+                
+                if not password:
+                    logger.warning("PostgreSQL password not provided in DATABASE_URL")
+                    return {
+                        "status": "unhealthy",
+                        "error": "PostgreSQL password not provided",
+                    }
 
             # Use context manager for proper connection cleanup (best practice)
             async with asyncpg.connect(
-                host=parsed.hostname or "localhost",
-                port=parsed.port or 5432,
-                user=parsed.username or "postgres",
-                password=parsed.password or "postgres",
-                database=parsed.path.lstrip("/") or "enterprise_1c_ai",
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                database=database,
                 timeout=5.0,
             ) as conn:
                 # Test query
                 result = await conn.fetchval("SELECT 1")
+                if result != 1:
+                    raise ValueError("Test query returned unexpected result")
 
                 # Check table count
                 table_count = await conn.fetchval(
@@ -152,12 +219,32 @@ class HealthChecker:
                 "status": "healthy",
                 "response_time_ms": 50,  # TODO: measure actual
                 "tables": table_count,
+                "connection_method": "direct_asyncpg",
             }
 
+        except asyncpg.exceptions.InvalidPasswordError as e:
+            logger.error(
+                "PostgreSQL authentication failed",
+                extra={"error": str(e), "host": host, "database": database, "user": user},
+            )
+            return {"status": "unhealthy", "error": "Authentication failed - check password"}
+        except asyncpg.exceptions.ConnectionDoesNotExistError as e:
+            logger.error(
+                "PostgreSQL connection error",
+                extra={"error": str(e), "host": host, "port": port, "database": database},
+            )
+            return {"status": "unhealthy", "error": f"Connection failed: {str(e)}"}
         except Exception as e:
             logger.error(
                 "PostgreSQL health check failed",
-                extra={"error": str(e), "error_type": type(e).__name__},
+                extra={
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                    "host": host,
+                    "port": port,
+                    "database": database,
+                    "user": user,
+                },
                 exc_info=True,
             )
             return {"status": "unhealthy", "error": str(e)}
