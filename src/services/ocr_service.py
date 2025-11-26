@@ -422,3 +422,39 @@ def get_ocr_service(
             provider = OCRProvider(provider_str)
         _ocr_service = OCRService(provider, enable_ai_parsing, enable_fallback)
     return _ocr_service
+
+
+# Utility functions
+async def quick_ocr(image_path: str) -> str:
+    """
+    Быстрое OCR - только текст без парсинга
+    
+    Args:
+        image_path: Путь к изображению
+    
+    Returns:
+        Распознанный текст
+    """
+    service = get_ocr_service(enable_ai_parsing=False)
+    result = await service.process_image(image_path)
+    return result.text
+
+
+async def ocr_with_structure(
+    image_path: str,
+    document_type: DocumentType = DocumentType.AUTO
+) -> Dict[str, Any]:
+    """
+    OCR с извлечением структуры
+    
+    Args:
+        image_path: Путь к изображению
+        document_type: Тип документа
+    
+    Returns:
+        Dict с текстом и структурированными данными
+    """
+    service = get_ocr_service(enable_ai_parsing=True)
+    result = await service.process_image(image_path, document_type=document_type)
+    return result.to_dict()
+

@@ -70,6 +70,16 @@ class AIOrchestrator:
         except Exception:
             pass
 
+        # Council Orchestrator
+        self.council = None
+        try:
+            from src.ai.council import CouncilOrchestrator
+
+            self.council = CouncilOrchestrator(self)
+            logger.info("Council orchestrator initialized")
+        except Exception as e:
+            logger.warning(f"Council orchestrator not available: {e}")
+
     def _get_strategy(self, service: AIService, context: Dict) -> Any:
         """Get strategy for service"""
         if service == AIService.EXTERNAL_AI:
@@ -83,14 +93,48 @@ class AIOrchestrator:
 
         return self.strategies.get(service)
 
-    async def process_query(
-        self, query: str, context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+    async def process_query(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Process query and return response"""
         if not query:
             raise ValueError("Query must be a non-empty string")
 
         context = context or {}
+
+        # Security validation (poetic jailbreak detection)
+        if context.get("enable_security_validation", True):
+            try:
+                from src.security.poetic_detection import MultiStageValidator
+
+                validator = MultiStageValidator(self)
+                validation_result = await validator.validate(query, context)
+
+                if not validation_result.allowed:
+                    logger.warning(
+                        f"Query blocked by security validation: {validation_result.reason}",
+                        extra={"query_length": len(query)},
+                    )
+                    return {
+                        "error": "Query blocked by security filters",
+                        "reason": validation_result.reason,
+                        "details": {
+                            "poetic_detected": validation_result.poetic_analysis is not None,
+                            "stage": validation_result.stage_completed,
+                        },
+                    }
+
+                # If poetic form detected, force council mode for extra safety
+                if validation_result.poetic_analysis and validation_result.poetic_analysis.is_poetic:
+                    context["use_council"] = True
+                    logger.info("Poetic form detected, forcing council mode for safety")
+
+            except Exception as e:
+                logger.error(f"Security validation error: {e}")
+                # Continue without security validation on error
+
+        # Check if council mode requested
+        if context.get("use_council", False) and self.council:
+            logger.info("Using council mode for query")
+            return await self.process_query_with_council(query, context)
 
         # Check cache
         cached_value = None
@@ -141,9 +185,61 @@ class AIOrchestrator:
 
         return response
 
-    async def _execute_strategies(
-        self, query: str, intent: QueryIntent, context: Dict
-    ) -> Dict:
+    async def process_query_with_council(
+        self, query: str, context: Optional[Dict[str, Any]] = None, council_config: Optional[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Process query with LLM Council consensus.
+
+        Args:
+            query: User query
+            context: Optional context
+            council_config: Optional council configuration
+
+        Returns:
+            Council response with all stages
+        """
+        if not self.council:
+            raise ValueError("Council orchestrator not available")
+
+        from src.ai.council import CouncilConfig
+
+        # Create council config
+        if council_config:
+            config = CouncilConfig(**council_config)
+        else:
+            config = None
+
+        # Process with council
+        council_response = await self.council.process_query(query=query, context=context, config=config)
+
+        return council_response.to_dict()
+
+    def _get_provider(self, model_name: str):
+        """
+        Get provider for model name.
+
+        Args:
+            model_name: Model name (kimi, qwen, gigachat, yandexgpt)
+
+        Returns:
+            Provider strategy
+        """
+        # Map model names to strategies
+        model_map = {
+            "kimi": AIService.KIMI_K2,
+            "qwen": AIService.QWEN_CODER,
+            "gigachat": AIService.GIGACHAT,
+            "yandexgpt": AIService.OPENAI,  # Mapped to YandexGPT
+        }
+
+        service = model_map.get(model_name)
+        if not service:
+            raise ValueError(f"Unknown model: {model_name}")
+
+        return self.strategies.get(service)
+
+    async def _execute_strategies(self, query: str, intent: QueryIntent, context: Dict) -> Dict:
         """Execute strategies based on intent"""
 
         # Single service optimization
@@ -202,3 +298,8 @@ orchestrator = AIOrchestrator()
 # DEPRECATED: app is moved to src/api/orchestrator_api.py
 # We keep a dummy app here if needed for imports, but ideally imports should be fixed.
 # For now, we do NOT export app to force fixing imports or to signal the change.
+
+# Re-export for backward compatibility with tests
+from src.ai.query_classifier import QueryType
+
+__all__ = ["AIOrchestrator", "AIService", "QueryType", "orchestrator"]

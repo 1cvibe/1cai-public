@@ -12,13 +12,25 @@ AI Response Caching with Semantic Similarity
 
 import hashlib
 import json
-from typing import Any, Dict, Optional
+import pickle
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
 from src.utils.structured_logging import StructuredLogger
 
 logger = StructuredLogger(__name__).logger
+
+# Lazy import для sentence-transformers (тяжёлая библиотека)
+try:
+    from sentence_transformers import SentenceTransformer
+
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    logger.warning("sentence-transformers not available, using fallback")
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
+    SentenceTransformer = None
 
 
 class AIResponseCache:
@@ -37,26 +49,186 @@ class AIResponseCache:
     - 5-10x faster response time
     """
 
-    def __init__(self, similarity_threshold: float = 0.95):
+    def __init__(
+        self,
+        similarity_threshold: float = 0.95,
+        model_name: str = "paraphrase-multilingual-MiniLM-L12-v2",
+        cache_dir: Optional[str] = None,
+    ):
+        """
+        Initialize AI Response Cache with real embedding model
+
+        Args:
+            similarity_threshold: Minimum similarity for cache hit (0.0-1.0)
+            model_name: sentence-transformers model name
+            cache_dir: Directory for caching embeddings on disk
+        """
         self.similarity_threshold = similarity_threshold
         self.cache: Dict[str, Any] = {}  # embedding_hash → response
         self.embeddings: Dict[str, np.ndarray] = {}  # embedding_hash → embedding vector
 
+        # Embedding model configuration
+        self.model_name = model_name
+        self.model = None
+        self.model_loaded = False
+
+        # Disk cache for embeddings
+        self.cache_dir = Path(cache_dir) if cache_dir else Path("./cache")
+        self.embedding_cache_path = self.cache_dir / "embeddings.pkl"
+
+        # Load cached embeddings from disk
+        self._load_embedding_cache()
+
+        # Lazy load model (only when needed)
+        # Model will be loaded on first _get_embedding() call
+
+    def _load_model(self):
+        """Lazy loading of embedding model"""
+        if self.model_loaded:
+            return
+
+        if not SENTENCE_TRANSFORMERS_AVAILABLE:
+            logger.warning("sentence-transformers not available, using fallback hash-based embeddings")
+            self.model_loaded = True
+            return
+
+        try:
+            logger.info(f"Loading embedding model: {self.model_name}")
+
+            # Check for GPU
+            try:
+                import torch
+
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+                logger.info(f"Using device: {device}")
+                self.model = SentenceTransformer(self.model_name, device=device)
+            except ImportError:
+                # Fallback to CPU if torch not available
+                self.model = SentenceTransformer(self.model_name)
+
+            self.model_loaded = True
+            logger.info("Embedding model loaded successfully")
+
+        except Exception as e:
+            logger.error(
+                f"Failed to load embedding model: {e}",
+                extra={"model_name": self.model_name, "error_type": type(e).__name__},
+                exc_info=True,
+            )
+            self.model = None
+            self.model_loaded = True  # Mark as loaded to avoid retry
+
     def _get_embedding(self, text: str) -> np.ndarray:
         """
-        Get embedding for text
+        Get embedding for text using sentence-transformers
 
-        TODO: Use actual embedding model (OpenAI embeddings or local)
-        For now: Simple hash-based (demo)
+        Falls back to hash-based if model unavailable
+
+        Args:
+            text: Input text
+
+        Returns:
+            Embedding vector (384 dimensions for multilingual model)
+        """
+        # Lazy load model on first call
+        if not self.model_loaded:
+            self._load_model()
+
+        # Use real embedding model if available
+        if self.model is not None:
+            try:
+                # Limit text length (prevent memory issues)
+                max_length = 10000
+                if len(text) > max_length:
+                    logger.warning(f"Text too long ({len(text)} chars), truncating to {max_length}")
+                    text = text[:max_length]
+
+                # Get real embedding
+                embedding = self.model.encode(text, convert_to_numpy=True)
+                return embedding
+
+            except Exception as e:
+                logger.error(
+                    f"Error getting embedding: {e}", extra={"text_length": len(text), "error_type": type(e).__name__}
+                )
+                # Fallback to hash-based
+                return self._get_hash_embedding(text)
+
+        # Fallback to hash-based if model not available
+        return self._get_hash_embedding(text)
+
+    def _get_hash_embedding(self, text: str) -> np.ndarray:
+        """
+        Fallback hash-based embedding (for when model unavailable)
+
+        Args:
+            text: Input text
+
+        Returns:
+            Pseudo-embedding (384 dimensions to match model)
         """
         # Simple demo: use hash as embedding
         hash_val = int(hashlib.md5(text.encode()).hexdigest(), 16)
 
-        # Convert to pseudo-embedding (256 dimensions)
+        # Convert to pseudo-embedding (384 dimensions to match model)
         np.random.seed(hash_val % (2**32))
-        embedding = np.random.rand(256)
+        embedding = np.random.rand(384)
 
         return embedding
+
+    def _get_embeddings_batch(self, texts: List[str]) -> List[np.ndarray]:
+        """
+        Get embeddings for multiple texts (faster than individual calls)
+
+        Args:
+            texts: List of input texts
+
+        Returns:
+            List of embedding vectors
+        """
+        if not self.model_loaded:
+            self._load_model()
+
+        if self.model is not None:
+            try:
+                # Batch encode (much faster)
+                embeddings = self.model.encode(texts, convert_to_numpy=True, batch_size=32, show_progress_bar=False)
+                return list(embeddings)
+            except Exception as e:
+                logger.error(f"Batch embedding error: {e}")
+                # Fallback to individual
+                return [self._get_hash_embedding(t) for t in texts]
+
+        # Fallback
+        return [self._get_hash_embedding(t) for t in texts]
+
+    def _load_embedding_cache(self):
+        """Load cached embeddings from disk"""
+        if self.embedding_cache_path.exists():
+            try:
+                with open(self.embedding_cache_path, "rb") as f:
+                    self.embeddings = pickle.load(f)
+                logger.info(
+                    f"Loaded {len(self.embeddings)} cached embeddings from disk",
+                    extra={"cache_path": str(self.embedding_cache_path)},
+                )
+            except Exception as e:
+                logger.error(
+                    f"Failed to load embedding cache: {e}", extra={"error_type": type(e).__name__}, exc_info=True
+                )
+                self.embeddings = {}
+
+    def _save_embedding_cache(self):
+        """Save embeddings to disk"""
+        try:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+            with open(self.embedding_cache_path, "wb") as f:
+                pickle.dump(self.embeddings, f)
+            logger.debug(
+                f"Saved {len(self.embeddings)} embeddings to disk", extra={"cache_path": str(self.embedding_cache_path)}
+            )
+        except Exception as e:
+            logger.error(f"Failed to save embedding cache: {e}", extra={"error_type": type(e).__name__})
 
     def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
         """Calculate cosine similarity between two vectors"""
@@ -247,6 +419,9 @@ class AIResponseCache:
 
             self.embeddings[cache_key] = embedding
 
+            # Save embeddings to disk (async would be better, but keeping simple)
+            self._save_embedding_cache()
+
             logger.info(
                 "Cached AI response",
                 extra={
@@ -266,18 +441,46 @@ class AIResponseCache:
             )
             # Don't raise - graceful degradation
 
-    def clear(self):
-        """Clear all cached responses"""
+    def clear(self, clear_disk_cache: bool = False):
+        """
+        Clear all cached responses
+
+        Args:
+            clear_disk_cache: Also clear disk cache of embeddings
+        """
         self.cache.clear()
         self.embeddings.clear()
+
+        if clear_disk_cache and self.embedding_cache_path.exists():
+            try:
+                self.embedding_cache_path.unlink()
+                logger.info("Cleared disk cache")
+            except Exception as e:
+                logger.error(f"Failed to clear disk cache: {e}")
+
         logger.info("AI response cache cleared")
 
     def get_stats(self) -> Dict:
         """Get cache statistics"""
+        # Calculate approximate memory usage
+        memory_mb = 0
+        try:
+            import sys
+
+            cache_size = sys.getsizeof(self.cache)
+            embeddings_size = sum(emb.nbytes for emb in self.embeddings.values())
+            memory_mb = (cache_size + embeddings_size) / (1024 * 1024)
+        except Exception:
+            pass
+
         return {
             "cached_queries": len(self.cache),
-            "memory_usage_mb": 0,  # TODO: calculate
+            "cached_embeddings": len(self.embeddings),
+            "memory_usage_mb": round(memory_mb, 2),
             "similarity_threshold": self.similarity_threshold,
+            "model_name": self.model_name,
+            "model_loaded": self.model_loaded,
+            "using_real_embeddings": self.model is not None,
         }
 
 

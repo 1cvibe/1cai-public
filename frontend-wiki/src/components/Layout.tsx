@@ -1,9 +1,18 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { BookOpen, Search, Menu, X, Home, Code, FileText, Settings } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import clsx from 'clsx';
+import { NamespaceTree } from './NamespaceTree';
 
-const SidebarItem = ({ to, icon: Icon, label, active }) => (
+interface SidebarItemProps {
+    to: string;
+    icon: LucideIcon;
+    label: string;
+    active: boolean;
+}
+
+const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon: Icon, label, active }) => (
   <Link
     to={to}
     className={clsx(
@@ -17,12 +26,6 @@ const SidebarItem = ({ to, icon: Icon, label, active }) => (
     <span>{label}</span>
   </Link>
 );
-
-import { NamespaceTree } from './NamespaceTree';
-
-// ... imports ...
-
-// ... SidebarItem ...
 
 export const Layout = () => {
   const location = useLocation();
@@ -95,4 +98,3 @@ export const Layout = () => {
     </div>
   );
 };
-

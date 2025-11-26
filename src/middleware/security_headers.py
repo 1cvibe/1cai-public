@@ -56,14 +56,15 @@ async def security_headers_middleware(
 
         # Content Security Policy (CSP)
         # Best practice: Strict CSP, allow only necessary sources
+        # Added cdn.jsdelivr.net for Swagger UI
         csp_policy = os.getenv(
             "CSP_POLICY",
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "  # TODO: Remove unsafe-inline/eval in production
-            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "  # Allow Swagger UI scripts
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " # Allow Swagger UI styles
             "img-src 'self' data: https:; "
             "font-src 'self' data:; "
-            "connect-src 'self' https://api.openai.com https://api.deepseek.com; "
+            "connect-src 'self' https://api.openai.com https://api.deepseek.com ws: wss:; " # Allow WebSocket (for local dev and Kasperski)
             "frame-ancestors 'none'; "
             "base-uri 'self'; "
             "form-action 'self';",

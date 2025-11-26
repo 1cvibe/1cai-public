@@ -82,7 +82,7 @@ class Neo4jClient:
 
     def connect(self, max_retries: int = 3, retry_delay: float = 1.0) -> bool:
         """
-        Establish connection to Neo4j with retry logic
+        Establish connection to Neo4j with retry logic and connection pooling
         """
         if not NEO4J_AVAILABLE:
             return False
@@ -92,7 +92,12 @@ class Neo4jClient:
         for attempt in range(max_retries):
             try:
                 self.driver = GraphDatabase.driver(
-                    self.uri, auth=(self.user, self.password)
+                    self.uri,
+                    auth=(self.user, self.password),
+                    max_connection_pool_size=50,  # ✅ ADD connection pool management
+                    connection_timeout=30.0,  # ✅ ADD timeout
+                    max_transaction_retry_time=15.0,  # ✅ ADD retry time
+                    connection_acquisition_timeout=60.0  # ✅ ADD acquisition timeout
                 )
                 self.driver.verify_connectivity()
                 logger.info(f"Connected to Neo4j at {self.uri}")

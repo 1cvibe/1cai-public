@@ -1,320 +1,281 @@
-# [NEXUS IDENTITY] ID: 3758169107297083705 | DATE: 2025-11-19
+# [NEXUS IDENTITY] ID: 1548699014200172116 | DATE: 2025-11-19
 
 """
-Advanced Security Features
-OAuth2, 2FA, Audit Logging, Compliance
+Advanced Security Layer - Security for all components
+================================================================
+
+Security system for:
+- Authentication and authorization
+- Data encryption
+- Action audit
+- Attack protection
+- Compliance checks
+
+Scientific basis:
+- "Zero Trust Architecture" (2024): No trust by default
+- "Security by Design" (2024): Security from the start
 """
 
-import hashlib
-import os
+import base64
+import logging
 import secrets
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from enum import Enum
+from typing import Any, Dict, List, Optional, Set
+from uuid import uuid4
 
-import pyotp
-from fastapi import HTTPException
-from jose import jwt
+from cryptography.fernet import Fernet
 
-from src.utils.structured_logging import StructuredLogger
-
-logger = StructuredLogger(__name__).logger
+logger = logging.getLogger(__name__)
 
 
-class AdvancedSecurity:
-    """Advanced security features"""
+class SecurityLevel(str, Enum):
+    """Уровни безопасности"""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class ThreatType(str, Enum):
+    """Типы угроз"""
+
+    UNAUTHORIZED_ACCESS = "unauthorized_access"
+    DATA_BREACH = "data_breach"
+    CODE_INJECTION = "code_injection"
+    DOS_ATTACK = "dos_attack"
+    MAN_IN_THE_MIDDLE = "man_in_the_middle"
+
+
+@dataclass
+class SecurityEvent:
+    """Событие безопасности"""
+
+    id: str = field(default_factory=lambda: str(uuid4()))
+    threat_type: ThreatType = ThreatType.UNAUTHORIZED_ACCESS
+    severity: SecurityLevel = SecurityLevel.MEDIUM
+    source: str = ""
+    target: str = ""
+    action: str = ""
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    blocked: bool = False
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Сериализация события"""
+        return {
+            "id": self.id,
+            "threat_type": self.threat_type.value,
+            "severity": self.severity.value,
+            "source": self.source,
+            "target": self.target,
+            "action": self.action,
+            "timestamp": self.timestamp.isoformat(),
+            "blocked": self.blocked,
+            "metadata": self.metadata,
+        }
+
+
+@dataclass
+class AccessToken:
+    """Токен доступа"""
+
+    token: str
+    user_id: str
+    permissions: Set[str] = field(default_factory=set)
+    expires_at: datetime = field(
+        default_factory=lambda: datetime.utcnow() + timedelta(hours=1)
+    )
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    def is_valid(self) -> bool:
+        """Проверка валидности токена"""
+        return datetime.utcnow() < self.expires_at
+
+
+class EncryptionService:
+    """Сервис шифрования"""
+
+    def __init__(self, key: Optional[bytes] = None):
+        if key is None:
+            key = Fernet.generate_key()
+        self.cipher = Fernet(key)
+
+    def encrypt(self, data: str) -> str:
+        """Шифрование данных"""
+        encrypted = self.cipher.encrypt(data.encode())
+        return base64.b64encode(encrypted).decode()
+
+    def decrypt(self, encrypted_data: str) -> str:
+        """Расшифровка данных"""
+        encrypted_bytes = base64.b64decode(encrypted_data.encode())
+        decrypted = self.cipher.decrypt(encrypted_bytes)
+        return decrypted.decode()
+
+
+class SecurityManager:
+    """
+    Security manager for all advanced components
+
+    Provides:
+    - Authentication and authorization
+    - Data encryption
+    - Action audit
+    - Attack protection
+    """
 
     def __init__(self):
-        self.jwt_secret = secrets.token_urlsafe(32)
-        self.jwt_algorithm = "HS256"
+        self.encryption = EncryptionService()
+        self._tokens: Dict[str, AccessToken] = {}
+        self._security_events: List[SecurityEvent] = []
+        self._blocked_sources: Set[str] = set()
+        self._rate_limits: Dict[str, List[datetime]] = {}
 
-    # ===== 2FA (Two-Factor Authentication) =====
+        logger.info("SecurityManager initialized")
 
-    def generate_2fa_secret(self, user_email: str) -> Dict[str, str]:
-        """
-        Generate 2FA secret for user
-
-        Returns:
-            Dict with secret and QR code URL
-        """
-        secret = pyotp.random_base32()
-
-        totp = pyotp.TOTP(secret)
-        provisioning_uri = totp.provisioning_uri(
-            name=user_email, issuer_name="1C AI Stack"
+    def generate_token(
+        self, user_id: str, permissions: Set[str], expires_hours: int = 1
+    ) -> AccessToken:
+        """Генерация токена доступа"""
+        token = secrets.token_urlsafe(32)
+        access_token = AccessToken(
+            token=token,
+            user_id=user_id,
+            permissions=permissions,
+            expires_at=datetime.utcnow() + timedelta(hours=expires_hours),
         )
 
-        return {"secret": secret, "qr_uri": provisioning_uri, "manual_entry": secret}
+        self._tokens[token] = access_token
 
-    def verify_2fa_token(self, secret: str, token: str) -> bool:
-        """
-        Verify 2FA token
+        logger.info(f"Token generated for user: {user_id}")
 
-        Args:
-            secret: User's 2FA secret
-            token: 6-digit code from authenticator app
+        return access_token
 
-        Returns:
-            bool: True if valid
-        """
-        totp = pyotp.TOTP(secret)
-        return totp.verify(token, valid_window=1)
+    def validate_token(self, token: str) -> Optional[AccessToken]:
+        """Валидация токена"""
+        access_token = self._tokens.get(token)
 
-    # ===== OAuth2 Integration =====
+        if access_token and access_token.is_valid():
+            return access_token
 
-    async def initiate_oauth2_flow(
-        self, provider: str, redirect_uri: str
-    ) -> Dict[str, str]:
-        """
-        Initiate OAuth2 authorization flow
-
-        Args:
-            provider: github, google, microsoft
-            redirect_uri: Where to redirect after auth
-
-        Returns:
-            Dict with authorization URL
-        """
-
-        # Generate state for CSRF protection
-        state = secrets.token_urlsafe(32)
-
-        oauth_configs = {
-            "github": {
-                "auth_url": "https://github.com/login/oauth/authorize",
-                "client_id": "YOUR_GITHUB_CLIENT_ID",
-                "scope": "read:user user:email",
-            },
-            "google": {
-                "auth_url": "https://accounts.google.com/o/oauth2/v2/auth",
-                "client_id": "YOUR_GOOGLE_CLIENT_ID",
-                "scope": "openid email profile",
-            },
-        }
-
-        if provider not in oauth_configs:
-            raise HTTPException(status_code=400, detail=f"Unknown provider: {provider}")
-
-        config = oauth_configs[provider]
-
-        auth_url = (
-            f"{config['auth_url']}"
-            f"?client_id={config['client_id']}"
-            f"&redirect_uri={redirect_uri}"
-            f"&scope={config['scope']}"
-            f"&state={state}"
-            f"&response_type=code"
+        # Невалидный токен - событие безопасности
+        self._record_security_event(
+            ThreatType.UNAUTHORIZED_ACCESS,
+            SecurityLevel.MEDIUM,
+            source="unknown",
+            action="invalid_token_attempt",
         )
 
-        return {"authorization_url": auth_url, "state": state}
+        return None
 
-    # ===== Audit Logging =====
+    def check_permission(self, token: str, permission: str) -> bool:
+        """Проверка разрешения"""
+        access_token = self.validate_token(token)
 
-    async def log_audit_event(
-        self,
-        user_id: str,
-        action: str,
-        entity_type: str,
-        entity_id: str,
-        changes: Dict[str, Any],
-        ip_address: str,
-        user_agent: str,
-    ):
-        """
-        Log security audit event
+        if not access_token:
+            return False
 
-        For compliance and security tracking
-        """
-        try:
-            from src.database import get_pool
+        return (
+            permission in access_token.permissions
+            or "admin" in access_token.permissions
+        )
 
-            pool = get_pool()
+    def encrypt_data(self, data: str) -> str:
+        """Шифрование данных"""
+        return self.encryption.encrypt(data)
 
-            async with pool.acquire() as conn:
-                await conn.execute(
-                    """
-                    INSERT INTO audit_log
-                    (user_id, action, entity_type, entity_id, changes, ip_address, user_agent)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7)
-                    """,
-                    user_id,
-                    action,
-                    entity_type,
-                    entity_id,
-                    changes,
-                    ip_address,
-                    user_agent,
-                )
-
-            logger.info(
-                "Audit log",
-                extra={
-                    "action": action,
-                    "entity_type": entity_type,
-                    "entity_id": entity_id,
-                    "user_id": user_id,
-                },
-            )
-
-        except Exception as e:
-            logger.error(
-                "Failed to log audit event",
-                extra={
-                    "error": str(e),
-                    "error_type": type(e).__name__,
-                    "action": action if "action" in locals() else None,
-                },
-                exc_info=True,
-            )
-
-    # ===== Rate Limiting Advanced =====
+    def decrypt_data(self, encrypted_data: str) -> str:
+        """Расшифровка данных"""
+        return self.encryption.decrypt(encrypted_data)
 
     def check_rate_limit(
-        self, identifier: str, limit: int = 100, window_seconds: int = 60
-    ) -> tuple[bool, Dict[str, Any]]:
-        """
-        Advanced rate limiting with sliding window
+        self, source: str, max_requests: int = 100, window_seconds: int = 60
+    ) -> bool:
+        """Проверка rate limit"""
+        now = datetime.utcnow()
+        window_start = now - timedelta(seconds=window_seconds)
 
-        Args:
-            identifier: User ID, IP, or API key
-            limit: Max requests per window
-            window_seconds: Time window in seconds
+        if source not in self._rate_limits:
+            self._rate_limits[source] = []
 
-        Returns:
-            (allowed, info) tuple
-        """
-        # TODO: Implement with Redis sorted sets for accuracy
-        # For now, simple in-memory (would reset on restart)
+        # Очистка старых запросов
+        self._rate_limits[source] = [
+            req_time
+            for req_time in self._rate_limits[source]
+            if req_time > window_start
+        ]
 
-        return True, {
-            "allowed": True,
-            "limit": limit,
-            "remaining": limit - 1,
-            "reset_at": (
-                datetime.now() + timedelta(seconds=window_seconds)
-            ).isoformat(),
-        }
+        # Проверка лимита
+        if len(self._rate_limits[source]) >= max_requests:
+            # Превышен лимит - событие безопасности
+            self._record_security_event(
+                ThreatType.DOS_ATTACK,
+                SecurityLevel.HIGH,
+                source=source,
+                action="rate_limit_exceeded",
+            )
+            return False
 
-    # ===== API Key Management =====
+        # Добавление текущего запроса
+        self._rate_limits[source].append(now)
+        return True
 
-    def generate_api_key(self, user_id: str, name: str) -> str:
-        """
-        Generate secure API key
-
-        Format: sk_live_xxxxxxxxxxxxx
-        """
-        prefix = "sk_live_" if os.getenv("ENVIRONMENT") == "production" else "sk_test_"
-        key = secrets.token_urlsafe(32)
-
-        return f"{prefix}{key}"
-
-    def hash_api_key(self, api_key: str) -> str:
-        """Hash API key for storage"""
-        return hashlib.sha256(api_key.encode()).hexdigest()
-
-    # ===== Session Management =====
-
-    def create_session(
-        self, user_id: str, device_info: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Create secure session
-
-        Returns:
-            Dict with session_id and tokens
-        """
-        session_id = secrets.token_urlsafe(32)
-
-        # Create access token (short-lived)
-        access_token = jwt.encode(
-            {
-                "sub": user_id,
-                "session_id": session_id,
-                "type": "access",
-                "exp": datetime.now() + timedelta(hours=1),
-            },
-            self.jwt_secret,
-            algorithm=self.jwt_algorithm,
+    def _record_security_event(
+        self,
+        threat_type: ThreatType,
+        severity: SecurityLevel,
+        source: str,
+        action: str,
+        blocked: bool = False,
+    ) -> SecurityEvent:
+        """Запись события безопасности"""
+        event = SecurityEvent(
+            threat_type=threat_type,
+            severity=severity,
+            source=source,
+            action=action,
+            blocked=blocked,
         )
 
-        # Create refresh token (long-lived)
-        refresh_token = jwt.encode(
-            {
-                "sub": user_id,
-                "session_id": session_id,
-                "type": "refresh",
-                "exp": datetime.now() + timedelta(days=30),
+        self._security_events.append(event)
+
+        if blocked or severity == SecurityLevel.CRITICAL:
+            self._blocked_sources.add(source)
+
+        logger.warning(
+            f"Security event: {threat_type.value}",
+            extra={
+                "event_id": event.id,
+                "severity": severity.value,
+                "source": source,
+                "blocked": blocked,
             },
-            self.jwt_secret,
-            algorithm=self.jwt_algorithm,
         )
 
+        return event
+
+    def is_blocked(self, source: str) -> bool:
+        """Проверка, заблокирован ли источник"""
+        return source in self._blocked_sources
+
+    def get_security_stats(self) -> Dict[str, Any]:
+        """Получение статистики безопасности"""
         return {
-            "session_id": session_id,
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "expires_in": 3600,  # 1 hour
-            "device_info": device_info,
+            "total_events": len(self._security_events),
+            "blocked_sources": len(self._blocked_sources),
+            "active_tokens": len([t for t in self._tokens.values() if t.is_valid()]),
+            "events_by_type": {
+                threat.value: len(
+                    [e for e in self._security_events if e.threat_type == threat]
+                )
+                for threat in ThreatType
+            },
+            "events_by_severity": {
+                level.value: len(
+                    [e for e in self._security_events if e.severity == level]
+                )
+                for level in SecurityLevel
+            },
         }
-
-    # ===== Password Security =====
-
-    def hash_password(self, password: str) -> str:
-        """Hash password with bcrypt"""
-        import bcrypt
-
-        salt = bcrypt.gensalt(rounds=12)
-        hashed = bcrypt.hashpw(password.encode(), salt)
-
-        return hashed.decode()
-
-    def verify_password(self, password: str, hashed: str) -> bool:
-        """Verify password against hash"""
-        import bcrypt
-
-        return bcrypt.checkpw(password.encode(), hashed.encode())
-
-    def check_password_strength(self, password: str) -> Dict[str, Any]:
-        """
-        Check password strength
-
-        Returns:
-            Dict with score and suggestions
-        """
-        score = 0
-        suggestions = []
-
-        if len(password) >= 8:
-            score += 20
-        else:
-            suggestions.append("Use at least 8 characters")
-
-        if len(password) >= 12:
-            score += 10
-
-        if any(c.isupper() for c in password):
-            score += 20
-        else:
-            suggestions.append("Add uppercase letters")
-
-        if any(c.islower() for c in password):
-            score += 20
-        else:
-            suggestions.append("Add lowercase letters")
-
-        if any(c.isdigit() for c in password):
-            score += 20
-        else:
-            suggestions.append("Add numbers")
-
-        if any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
-            score += 10
-        else:
-            suggestions.append("Add special characters")
-
-        strength = "weak" if score < 50 else "medium" if score < 80 else "strong"
-
-        return {"score": score, "strength": strength, "suggestions": suggestions}
-
-
-# Global instance
-advanced_security = AdvancedSecurity()

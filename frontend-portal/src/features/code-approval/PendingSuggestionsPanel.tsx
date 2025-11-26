@@ -2,10 +2,10 @@
  * Pending Suggestions Panel - показывает все ожидающие approval
  */
 
-import React from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api-client';
-import { CodeApprovalModal } from './CodeApprovalModal';
+import { api } from "@/lib/api-client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import React from "react";
+import { CodeApprovalModal } from "./CodeApprovalModal";
 
 export const PendingSuggestionsPanel: React.FC<{
   userId: string;
@@ -16,37 +16,39 @@ export const PendingSuggestionsPanel: React.FC<{
 
   // Загрузка pending suggestions
   const { data, isLoading } = useQuery({
-    queryKey: ['pending-suggestions', userId],
+    queryKey: ["pending-suggestions", userId],
     queryFn: async () => {
-      const response = await api.get(`/code-approval/pending?user_id=${userId}`);
+      const response = await api.get(
+        `/code-approval/pending?user_id=${userId}`
+      );
       return response.data;
     },
-    refetchInterval: 30000 // Обновление каждые 30 секунд
+    refetchInterval: 30000, // Обновление каждые 30 секунд
   });
 
   // Загрузка полного preview
   const { data: preview } = useQuery({
-    queryKey: ['code-preview', selectedToken],
+    queryKey: ["code-preview", selectedToken],
     queryFn: async () => {
       if (!selectedToken) return null;
       const response = await api.get(`/code-approval/preview/${selectedToken}`);
       return response.data;
     },
-    enabled: !!selectedToken
+    enabled: !!selectedToken,
   });
 
   // Bulk approve mutation
   const bulkApproveMutation = useMutation({
     mutationFn: async (tokens: string[]) => {
-      const response = await api.post('/code-approval/approve-all', {
+      const response = await api.post("/code-approval/approve-all", {
         tokens,
-        approved_by_user: userId
+        approved_by_user: userId,
       });
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['pending-suggestions']);
-    }
+      queryClient.invalidateQueries({ queryKey: ["pending-suggestions"] });
+    },
   });
 
   const handleBulkApprove = () => {
@@ -54,7 +56,7 @@ export const PendingSuggestionsPanel: React.FC<{
     const safeTokens = data.suggestions
       .filter((s: any) => s.can_auto_apply)
       .map((s: any) => s.token);
-    
+
     if (safeTokens.length > 0) {
       bulkApproveMutation.mutate(safeTokens);
     }
@@ -70,7 +72,8 @@ export const PendingSuggestionsPanel: React.FC<{
   }
 
   const pendingCount = data?.pending || 0;
-  const safeCount = data?.suggestions?.filter((s: any) => s.can_auto_apply).length || 0;
+  const safeCount =
+    data?.suggestions?.filter((s: any) => s.can_auto_apply).length || 0;
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -81,14 +84,15 @@ export const PendingSuggestionsPanel: React.FC<{
             Pending AI Suggestions
           </h3>
           <p className="text-sm text-gray-600">
-            {pendingCount} suggestion{pendingCount !== 1 ? 's' : ''} waiting for your review
+            {pendingCount} suggestion{pendingCount !== 1 ? "s" : ""} waiting for
+            your review
           </p>
         </div>
-        
+
         {safeCount > 0 && (
           <button
             onClick={handleBulkApprove}
-            disabled={bulkApproveMutation.isLoading}
+            disabled={bulkApproveMutation.isPending}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-medium flex items-center gap-2"
           >
             ✅ Apply All Safe ({safeCount})
@@ -120,17 +124,21 @@ export const PendingSuggestionsPanel: React.FC<{
                     {new Date(suggestion.created_at).toLocaleString()}
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   {/* Safety Badge */}
-                  <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    suggestion.safety_score >= 0.95 ? 'bg-green-100 text-green-800' :
-                    suggestion.safety_score >= 0.8 ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
+                  <div
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      suggestion.safety_score >= 0.95
+                        ? "bg-green-100 text-green-800"
+                        : suggestion.safety_score >= 0.8
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {(suggestion.safety_score * 100).toFixed(0)}% Safe
                   </div>
-                  
+
                   {suggestion.can_auto_apply && (
                     <div className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
                       ⚡ Auto-approvable
@@ -138,7 +146,7 @@ export const PendingSuggestionsPanel: React.FC<{
                   )}
                 </div>
               </div>
-              
+
               <div className="text-sm text-blue-600 hover:text-blue-800 font-medium">
                 Click to review →
               </div>
@@ -171,5 +179,3 @@ export const PendingSuggestionsPanel: React.FC<{
     </div>
   );
 };
-
-

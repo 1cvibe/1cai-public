@@ -15,7 +15,7 @@ from typing import Any, Dict, Optional
 
 try:
     import psycopg2
-    from psycopg2 import OperationalError
+    from psycopg2 import pool, OperationalError
     from psycopg2.extras import Json
 except ImportError:
     raise ImportError("psycopg2 not installed. Run: pip install psycopg2-binary")

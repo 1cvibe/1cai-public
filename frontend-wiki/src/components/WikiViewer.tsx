@@ -49,22 +49,32 @@ export const WikiViewer: React.FC<WikiViewerProps> = ({ content, className }) =>
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
         components={{
-          code: ({ node, inline, className, children, ...props }) => {
+          code: (props) => {
+            const { children, className, ...rest } = props;
+            // Check for inline code or block code based on children type or missing className
+            // In newer react-markdown, 'inline' is not passed directly.
+            // Usually, block code has a className like 'language-xxx'.
+            
             const match = /language-(\w+)/.exec(className || '');
             const isMermaid = match && match[1] === 'mermaid';
 
-            if (!inline && isMermaid) {
+            // Determine if it is likely inline (no match and simple content) or block
+            // A safer check: if match exists, it's definitely a block with language. 
+            // If no match, it might be inline code or block code without language.
+            const isBlock = !!match; 
+
+            if (isMermaid) {
                return <MermaidDiagram chart={String(children).replace(/\n$/, '')} />;
             }
 
-            return !inline && match ? (
+            return isBlock ? (
               <div className="relative group">
-                <code className={className} {...props}>
+                <code className={className} {...rest}>
                   {children}
                 </code>
               </div>
             ) : (
-              <code className={className} {...props}>
+              <code className={className} {...rest}>
                 {children}
               </code>
             );

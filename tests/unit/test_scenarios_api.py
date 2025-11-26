@@ -7,7 +7,7 @@ Tests for experimental /api/scenarios/examples endpoint.
 import pytest
 from fastapi.testclient import TestClient
 
-from src.ai.orchestrator import app
+from src.main import app
 
 client = TestClient(app)
 

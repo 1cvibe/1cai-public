@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { WikiApi } from '../api';
 import { FileText, Plus, Loader2, AlertCircle } from 'lucide-react';
@@ -95,4 +95,3 @@ export const PagesList = () => {
     </div>
   );
 };
-

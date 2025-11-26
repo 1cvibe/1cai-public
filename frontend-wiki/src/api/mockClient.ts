@@ -1,5 +1,4 @@
 import { WikiApi as RealApi } from './client';
-import { format } from 'date-fns';
 
 // Types mirroring the backend models
 export interface WikiPageSummary {
@@ -49,7 +48,7 @@ const MOCK_PAGES: WikiPageDetail[] = [
 const MockApi = {
   getPages: async () => {
     await new Promise(resolve => setTimeout(resolve, 500)); // Fake delay
-    return MOCK_PAGES.map(({ content, current_revision, ...summary }) => summary);
+    return MOCK_PAGES.map(({ content, current_revision, ...summary }) => ({ content, current_revision, ...summary }));
   },
 
   getPage: async (slug: string) => {
@@ -72,12 +71,12 @@ const MockApi = {
     return newPage;
   },
 
-  updatePage: async (slug: string, data: any) => {
+  updatePage: async (_slug: string, _data: any) => {
       // stub
       return MOCK_PAGES[0];
   },
   
-  search: async (query: string) => {
+  search: async (_query: string) => {
       return [];
   }
 };
@@ -87,4 +86,3 @@ const MockApi = {
 export const useMock = import.meta.env.VITE_USE_MOCK === 'true';
 
 export const WikiApi = useMock ? MockApi : RealApi;
-

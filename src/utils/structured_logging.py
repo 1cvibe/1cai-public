@@ -130,11 +130,7 @@ class StructuredLogger:
             "msecs",
             "relativeCreated",
         }
-        log_data = {
-            k: v
-            for k, v in log_data.items()
-            if v is not None and k not in reserved_keys
-        }
+        log_data = {k: v for k, v in log_data.items() if v is not None and k not in reserved_keys}
 
         log_func = getattr(self.logger, level.lower())
         log_func(message, extra=log_data)
@@ -273,7 +269,7 @@ logger.info(
 {
   "timestamp": "2025-11-03T20:00:00",
   "level": "INFO",
-  "name": "src.api.auth",
+  "name": "src.modules.auth.api.routes",
   "message": "User login successful",
   "request_id": "req-123",
   "user_id": "user-456",

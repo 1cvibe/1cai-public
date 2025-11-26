@@ -25,6 +25,7 @@ from uuid import uuid4
 
 from src.ai.llm_provider_abstraction import LLMProviderAbstraction
 from src.infrastructure.event_bus import EventBus, EventPublisher, EventType
+from src.ai.agents.devops_agent_extended import DevOpsAgentExtended
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +111,7 @@ class SelfEvolvingAI:
         self.event_publisher = EventPublisher(
             event_bus or EventBus(), "self-evolving-ai"
         )
+        self.devops_agent = DevOpsAgentExtended() # Для сбора реальных метрик
 
         self._performance_history: List[PerformanceMetrics] = []
         self._improvements: List[Improvement] = []
@@ -213,23 +215,55 @@ class SelfEvolvingAI:
             self._is_evolving = False
 
     async def _analyze_performance(self) -> PerformanceMetrics:
-        """Анализ текущей производительности"""
-        logger.info("Analyzing performance...")
+        """Анализ текущей производительности (REAL INFRASTRUCTURE DATA)"""
+        logger.info("Analyzing performance via DevOps Agent...")
 
-        # TODO: Реальная реализация анализа метрик
-        # Здесь можно собирать метрики из Prometheus, логи, тесты и т.д.
+        try:
+            # 1. Получаем реальный статус инфраструктуры
+            infra_status = await self.devops_agent.analyze_local_infrastructure("docker-compose.mvp.yml")
+            
+            # 2. Вычисляем метрики на основе статуса контейнеров
+            runtime = infra_status.get("runtime_status", [])
+            static = infra_status.get("static_analysis", {})
+            
+            total_services = static.get("service_count", 1) # Из конфига
+            running_services = len([c for c in runtime if c["state"].lower() == "running"])
+            
+            # Accuracy = отношение запущенных к заявленным (грубая оценка здоровья)
+            accuracy = min(1.0, running_services / max(total_services, 1))
+            
+            # Error rate = 1 - accuracy + issues penalty
+            issues_count = len(static.get("security_issues", [])) + len(static.get("performance_issues", []))
+            error_rate = (1.0 - accuracy) + (issues_count * 0.05)
+            
+            # Throughput = количество контейнеров * 10 (условные попугаи)
+            throughput = float(running_services * 10)
+            
+            # Latency = 100ms (база) + 50ms за каждый отсутствующий сервис
+            latency_ms = max(10.0, 100.0 + ((total_services - running_services) * 50.0))
 
-        # Mock метрики для примера
-        metrics = PerformanceMetrics(
-            accuracy=0.85,
-            latency_ms=500.0,
-            error_rate=0.05,
-            throughput=100.0,
-            user_satisfaction=0.80,
-        )
+            metrics = PerformanceMetrics(
+                accuracy=round(accuracy, 2),
+                latency_ms=latency_ms,
+                error_rate=round(min(1.0, error_rate), 2),
+                throughput=throughput,
+                user_satisfaction=0.9 if accuracy > 0.8 else 0.4,
+            )
+            
+            logger.info(f"Real metrics collected: Running={running_services}/{total_services}, Issues={issues_count}")
+
+        except Exception as e:
+            logger.warning(f"Failed to collect real metrics: {e}. Using fallback.")
+            # Fallback metrics
+            metrics = PerformanceMetrics(
+                accuracy=0.5,
+                latency_ms=1000.0,
+                error_rate=0.5,
+                throughput=0.0,
+                user_satisfaction=0.1,
+            )
 
         logger.info("Performance analyzed", extra=metrics.to_dict())
-
         return metrics
 
     async def _generate_improvements(

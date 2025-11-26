@@ -800,15 +800,124 @@ output "db_endpoint" {
         return outputs
 
 
+class DockerInfrastructureAnalyzer:
+    """Анализатор Docker инфраструктуры"""
+
+    def __init__(self):
+        pass
+
+    async def analyze_compose_file(self, file_path: str) -> Dict[str, Any]:
+        """
+        Анализ docker-compose.yml на предмет best practices и проблем
+        """
+        logger.info(f"Analyzing docker-compose file: {file_path}")
+        
+        try:
+            import yaml
+            with open(file_path, 'r', encoding='utf-8') as f:
+                compose_data = yaml.safe_load(f)
+            
+            services = compose_data.get('services', {})
+            analysis = {
+                "service_count": len(services),
+                "version": compose_data.get('version', 'unknown'),
+                "services_analysis": {},
+                "security_issues": [],
+                "performance_issues": []
+            }
+
+            for name, config in services.items():
+                service_issues = []
+                
+                # 1. Check Image Versions (avoid 'latest')
+                image = config.get('image', '')
+                if ':latest' in image or (':' not in image and image):
+                    issue = f"Service '{name}' uses 'latest' tag in image '{image}'"
+                    service_issues.append(issue)
+                    analysis["security_issues"].append({"severity": "medium", "message": issue})
+
+                # 2. Check Restart Policy
+                restart = config.get('restart', '')
+                if not restart:
+                    issue = f"Service '{name}' has no restart policy"
+                    service_issues.append(issue)
+                    analysis["performance_issues"].append({"severity": "low", "message": issue})
+
+                # 3. Check Healthchecks
+                if 'healthcheck' not in config and name in ['postgres', 'redis', 'neo4j']:
+                    issue = f"Critical service '{name}' missing healthcheck"
+                    service_issues.append(issue)
+                    analysis["performance_issues"].append({"severity": "high", "message": issue})
+
+                # 4. Check Resource Limits (if deploy key exists)
+                deploy = config.get('deploy', {})
+                resources = deploy.get('resources', {})
+                if not resources:
+                    # В compose v2/v3 limits могут быть не обязательны, но рекомендуются
+                    pass 
+
+                analysis["services_analysis"][name] = {
+                    "image": image,
+                    "issues": service_issues,
+                    "status": "ok" if not service_issues else "attention_needed"
+                }
+
+            return analysis
+
+        except Exception as e:
+            logger.error(f"Failed to analyze compose file: {e}", exc_info=True)
+            return {"error": str(e)}
+
+    async def check_runtime_status(self) -> List[Dict[str, Any]]:
+        """
+        Проверка реально запущенных контейнеров через docker CLI
+        """
+        import subprocess
+        import json
+        
+        try:
+            # Используем docker ps с форматированием
+            cmd = ["docker", "ps", "--format", "{{json .}}"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False) # check=False to handle errors gracefully
+            
+            if result.returncode != 0:
+                 logger.warning(f"docker ps failed: {result.stderr}")
+                 return []
+
+            containers = []
+            for line in result.stdout.strip().split('\n'):
+                if line:
+                    try:
+                        c_data = json.loads(line)
+                        containers.append({
+                            "id": c_data.get("ID"),
+                            "name": c_data.get("Names"),
+                            "image": c_data.get("Image"),
+                            "status": c_data.get("Status"),
+                            "state": c_data.get("State", "running")
+                        })
+                    except json.JSONDecodeError:
+                        continue
+            
+            return containers
+        except FileNotFoundError:
+             logger.error("Docker CLI not found")
+             return []
+        except Exception as e:
+            logger.error(f"Failed to check runtime status: {e}", exc_info=True)
+            return []
+
+
 class DevOpsAgentExtended:
     """
     Расширенный DevOps AI ассистент
-
+    
     Возможности:
     - CI/CD Pipeline оптимизация
     - AI анализ логов
     - Cost optimization
     - IaC генерация (Terraform, Ansible)
+    - Docker Infrastructure Analysis (NEW)
     """
 
     def __init__(self):
@@ -816,8 +925,37 @@ class DevOpsAgentExtended:
         self.log_analyzer = LogAnalyzer()
         self.cost_optimizer = CostOptimizer()
         self.iac_generator = IaCGenerator()
+        self.docker_analyzer = DockerInfrastructureAnalyzer()
 
         logger.info("DevOps Agent Extended initialized")
+
+    async def analyze_local_infrastructure(self, compose_file_path: str = "docker-compose.yml") -> Dict[str, Any]:
+        """
+        Анализ локальной Docker инфраструктуры (Static + Runtime)
+        """
+        # 1. Static Analysis
+        static_analysis = await self.docker_analyzer.analyze_compose_file(compose_file_path)
+        
+        # 2. Runtime Analysis
+        runtime_containers = await self.docker_analyzer.check_runtime_status()
+        
+        # 3. Correlation (найти контейнеры, соответствующие сервисам)
+        services_status = {}
+        if "services_analysis" in static_analysis:
+             for svc_name in static_analysis["services_analysis"].keys():
+                 # Простая эвристика: ищем имя сервиса в имени контейнера
+                 found = next((c for c in runtime_containers if svc_name in c["name"]), None)
+                 services_status[svc_name] = {
+                     "runtime_status": found["status"] if found else "not_running",
+                     "container_id": found["id"] if found else None
+                 }
+
+        return {
+            "static_analysis": static_analysis,
+            "runtime_status": runtime_containers,
+            "correlation": services_status,
+            "timestamp": datetime.now().isoformat()
+        }
 
     async def optimize_pipeline(
         self, pipeline_config: Dict, metrics: Optional[Dict] = None

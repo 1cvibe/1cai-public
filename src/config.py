@@ -39,9 +39,7 @@ class Settings(BaseSettings):
     )
 
     # OpenAI API
-    openai_api_key: str = Field(
-        default="", description="API ключ OpenAI", validation_alias="OPENAI_API_KEY"
-    )
+    openai_api_key: str = Field(default="", description="API ключ OpenAI", validation_alias="OPENAI_API_KEY")
 
     # Kimi-K2-Thinking (Moonshot AI) - API или локальный режим
     kimi_mode: str = Field(
@@ -81,12 +79,8 @@ class Settings(BaseSettings):
     )
 
     # Supabase
-    supabase_url: str = Field(
-        default="", description="URL Supabase проекта", validation_alias="SUPABASE_URL"
-    )
-    supabase_key: str = Field(
-        default="", description="API ключ Supabase", validation_alias="SUPABASE_KEY"
-    )
+    supabase_url: str = Field(default="", description="URL Supabase проекта", validation_alias="SUPABASE_URL")
+    supabase_key: str = Field(default="", description="API ключ Supabase", validation_alias="SUPABASE_KEY")
 
     @field_validator("openai_api_key")
     @classmethod
@@ -250,22 +244,16 @@ class Settings(BaseSettings):
     )
 
     # JWT настройки
-    jwt_secret_key: Optional[str] = Field(
-        default=None, description="Секретный ключ для JWT"
-    )
+    jwt_secret_key: Optional[str] = Field(default=None, description="Секретный ключ для JWT")
     jwt_algorithm: str = Field(default="HS256", description="Алгоритм подписи JWT")
-    jwt_access_token_expire_minutes: int = Field(
-        default=30, description="Время жизни access token в минутах"
-    )
+    jwt_access_token_expire_minutes: int = Field(default=30, description="Время жизни access token в минутах")
 
     # Путь к логам
     log_dir: str = Field(default="./logs", description="Директория для логов")
     log_file: str = Field(default="app.log", description="Имя файла лога")
 
     # Режим разработки (для development можно разрешить небезопасные настройки)
-    environment: str = Field(
-        default="production", description="Режим работы: development/production"
-    )
+    environment: str = Field(default="production", description="Режим работы: development/production")
 
     # Внешние MCP-инструменты
     mcp_bsl_context_base_url: Optional[str] = Field(
@@ -293,17 +281,26 @@ class Settings(BaseSettings):
         description="Bearer-токен для аутентификации на MCP сервере тест-раннера (опционально)",
     )
 
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
+    # Nested Learning feature flags
+    use_nested_learning: bool = Field(
+        default=False,
+        description="Enable Nested Learning for continual learning (experimental)",
+        validation_alias="USE_NESTED_LEARNING",
     )
+    use_adaptive_selection: bool = Field(
+        default=False, description="Enable adaptive LLM provider selection", validation_alias="USE_ADAPTIVE_SELECTION"
+    )
+    use_nested_completion: bool = Field(
+        default=False, description="Enable multi-level code completion", validation_alias="USE_NESTED_COMPLETION"
+    )
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore")
 
     def get_cors_origins(self) -> List[str]:
         """Получить список разрешенных доменов для CORS"""
         if self.environment == "development" and not self.cors_origins:
             return ["*"]  # Только для development
-        return [
-            origin.strip() for origin in self.cors_origins.split(",") if origin.strip()
-        ]
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     def get_log_path(self) -> str:
         """Получить полный путь к файлу лога"""
@@ -316,3 +313,20 @@ class Settings(BaseSettings):
 
 # Создаем глобальный экземпляр настроек
 settings = Settings()
+
+# Export feature flags for easy access
+USE_NESTED_LEARNING = settings.use_nested_learning
+USE_ADAPTIVE_SELECTION = settings.use_adaptive_selection
+USE_NESTED_COMPLETION = settings.use_nested_completion
+USE_TEMPORAL_GNN = getattr(settings, "use_temporal_gnn", False)
+USE_NESTED_MEMORY = getattr(settings, "use_nested_memory", False)
+USE_NESTED_SCENARIOS = getattr(settings, "use_nested_scenarios", False)
+USE_DEEP_OPTIMIZER = getattr(settings, "use_deep_optimizer", False)
+
+# Import AdvancedConfigManager for backward compatibility
+try:
+    from src.config.advanced_config import AdvancedConfigManager
+except ImportError:
+    # If config/ directory is removed, AdvancedConfigManager won't be available
+    # This is fine - it's not used anywhere in the codebase
+    AdvancedConfigManager = None

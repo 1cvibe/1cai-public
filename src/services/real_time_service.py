@@ -39,9 +39,7 @@ class RealTimeManager:
         self.connections: Dict[str, Set[WebSocket]] = {}
         self.connection_metadata: Dict[WebSocket, Dict] = {}
 
-    async def connect(
-        self, websocket: WebSocket, topic: str = "general", timeout: float = 10.0
-    ):
+    async def connect(self, websocket: WebSocket, topic: str = "general", timeout: float = 10.0):
         """
         Accept new WebSocket connection
 
@@ -141,9 +139,7 @@ class RealTimeManager:
                 exc_info=True,
             )
 
-    async def send_to_client(
-        self, websocket: WebSocket, message: Dict[str, Any], timeout: float = 5.0
-    ):
+    async def send_to_client(self, websocket: WebSocket, message: Dict[str, Any], timeout: float = 5.0):
         """
         Send message to specific client
 
@@ -167,9 +163,7 @@ class RealTimeManager:
                 self.connection_metadata[websocket]["messages_sent"] += 1
 
         except asyncio.TimeoutError:
-            logger.warning(
-                f"Send message timeout after {timeout}s", extra={"timeout": timeout}
-            )
+            logger.warning(f"Send message timeout after {timeout}s", extra={"timeout": timeout})
             await self.disconnect(websocket)
         except Exception as e:
             logger.error(
@@ -182,9 +176,7 @@ class RealTimeManager:
             )
             await self.disconnect(websocket)
 
-    async def broadcast_to_topic(
-        self, topic: str, message: Dict[str, Any], timeout: float = 5.0
-    ):
+    async def broadcast_to_topic(self, topic: str, message: Dict[str, Any], timeout: float = 5.0):
         """
         Broadcast message to all clients subscribed to topic с input validation
 
@@ -261,9 +253,7 @@ class RealTimeManager:
             },
         )
 
-    async def broadcast_dashboard_update(
-        self, dashboard_type: str, data: Dict[str, Any]
-    ):
+    async def broadcast_dashboard_update(self, dashboard_type: str, data: Dict[str, Any]):
         """
         Broadcast dashboard data update
 
@@ -278,9 +268,7 @@ class RealTimeManager:
 
     async def broadcast_notification(self, user_id: str, notification: Dict[str, Any]):
         """Send notification to specific user"""
-        await self.broadcast_to_topic(
-            f"user_{user_id}", {"type": "notification", "notification": notification}
-        )
+        await self.broadcast_to_topic(f"user_{user_id}", {"type": "notification", "notification": notification})
 
     async def broadcast_system_alert(self, alert: Dict[str, Any]):
         """Broadcast system-wide alert"""
@@ -293,12 +281,8 @@ class RealTimeManager:
         return {
             "total_connections": total_connections,
             "topics": list(self.connections.keys()),
-            "connections_per_topic": {
-                topic: len(clients) for topic, clients in self.connections.items()
-            },
-            "total_messages_sent": sum(
-                meta["messages_sent"] for meta in self.connection_metadata.values()
-            ),
+            "connections_per_topic": {topic: len(clients) for topic, clients in self.connections.items()},
+            "total_messages_sent": sum(meta["messages_sent"] for meta in self.connection_metadata.values()),
         }
 
 
@@ -312,15 +296,21 @@ async def start_dashboard_updater():
     Background task that periodically updates dashboards
     Broadcasts to all connected clients
     """
-    from src.api.dashboard_api import (
-        get_ba_dashboard,
-        get_developer_dashboard,
-        get_executive_dashboard,
-        get_owner_dashboard,
-        get_pm_dashboard,
-        get_team_lead_dashboard,
-    )
+    from src.modules.dashboard.services.executive_service import ExecutiveService
+    from src.modules.dashboard.services.owner_service import OwnerService
+    from src.modules.dashboard.services.pm_service import PMService
+    from src.modules.dashboard.services.developer_service import DeveloperService
+    from src.modules.dashboard.services.team_lead_service import TeamLeadService
+    from src.modules.dashboard.services.ba_service import BAService
     from src.database import get_pool
+
+    # Initialize services
+    owner_service = OwnerService()
+    executive_service = ExecutiveService()
+    pm_service = PMService()
+    developer_service = DeveloperService()
+    team_lead_service = TeamLeadService()
+    ba_service = BAService()
 
     while True:
         try:
@@ -328,33 +318,23 @@ async def start_dashboard_updater():
 
             pool = get_pool()
 
-            # Update each dashboard type
+            # Update each dashboard type using services
             dashboards = {
-                "owner": get_owner_dashboard,
-                "executive": get_executive_dashboard,
-                "pm": get_pm_dashboard,
-                "developer": get_developer_dashboard,
-                "team_lead": get_team_lead_dashboard,
-                "ba": get_ba_dashboard,
+                "owner": owner_service.get_dashboard,
+                "executive": executive_service.get_dashboard,
+                "pm": pm_service.get_dashboard,
+                "developer": developer_service.get_dashboard,
+                "team_lead": team_lead_service.get_dashboard,
+                "ba": ba_service.get_dashboard,
             }
 
-            for dashboard_type, fetch_func in dashboards.items():
+            for dashboard_type, service_method in dashboards.items():
                 try:
-                    if dashboard_type in [
-                        "owner",
-                        "executive",
-                        "pm",
-                        "team_lead",
-                        "ba",
-                    ]:
-                        data = await fetch_func(pool)
-                    else:
-                        data = await fetch_func()
+                    # Call service method with pool
+                    data = await service_method(pool)
 
                     # Broadcast update
-                    await real_time_manager.broadcast_dashboard_update(
-                        dashboard_type, data
-                    )
+                    await real_time_manager.broadcast_dashboard_update(dashboard_type, data)
 
                 except Exception as e:
                     logger.error(

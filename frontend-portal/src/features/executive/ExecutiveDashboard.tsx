@@ -3,40 +3,43 @@
  * For CEO, CTO, Business Owner
  */
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, Users, DollarSign, Activity } from 'lucide-react';
-import MetricCard from '@/shared/components/MetricCard/MetricCard';
-import Card from '@/shared/components/Card/Card';
-import { api } from '@/lib/api-client';
-import type { ExecutiveDashboard as ExecutiveDashboardType } from '@/lib/types';
+import { api } from "@/lib/api-client";
+import type { ExecutiveDashboard as ExecutiveDashboardType } from "@/lib/types";
+import Card from "@/shared/components/Card/Card";
+import MetricCard from "@/shared/components/MetricCard/MetricCard";
+import { useQuery } from "@tanstack/react-query";
+import clsx from "clsx";
+import { Activity, DollarSign, TrendingUp, Users } from "lucide-react";
+import React from "react";
 
 export const ExecutiveDashboard: React.FC = () => {
   const { data, isLoading } = useQuery({
-    queryKey: ['dashboard', 'executive'],
-    queryFn: () => api.dashboard.executive().then(r => r.data as ExecutiveDashboardType),
+    queryKey: ["dashboard", "executive"],
+    queryFn: () =>
+      api.dashboard.executive().then((r) => r.data as ExecutiveDashboardType),
     refetchInterval: 60000, // Refresh every minute
   });
-  
+
   if (isLoading || !data) {
     return <DashboardSkeleton />;
   }
-  
-  const { health, roi, users, growth, revenue_trend, alerts, objectives } = data;
-  
+
+  const { health, roi, users, growth, revenue_trend, alerts, objectives } =
+    data;
+
   // Health status color
   const healthColors = {
-    healthy: 'text-success-500',
-    warning: 'text-warning-500',
-    critical: 'text-error-500',
+    healthy: "text-success-500",
+    warning: "text-warning-500",
+    critical: "text-error-500",
   };
-  
+
   const healthIcons = {
-    healthy: '🟢',
-    warning: '🟡',
-    critical: '🔴',
+    healthy: "🟢",
+    warning: "🟡",
+    critical: "🔴",
   };
-  
+
   return (
     <div className="p-6 space-y-6">
       {/* Page Header */}
@@ -49,12 +52,12 @@ export const ExecutiveDashboard: React.FC = () => {
             High-level overview of project health and business impact
           </p>
         </div>
-        
+
         <button className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600">
           Export Report
         </button>
       </div>
-      
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Health */}
@@ -62,10 +65,16 @@ export const ExecutiveDashboard: React.FC = () => {
           title="Project Health"
           value={healthIcons[health.status]}
           subtitle={health.message}
-          status={health.status === 'healthy' ? 'good' : health.status === 'warning' ? 'warning' : 'critical'}
+          status={
+            health.status === "good"
+              ? "good"
+              : health.status === "warning"
+              ? "warning"
+              : "critical"
+          }
           icon={<Activity />}
         />
-        
+
         {/* ROI */}
         <MetricCard
           title="Monthly ROI"
@@ -76,7 +85,7 @@ export const ExecutiveDashboard: React.FC = () => {
           format="currency"
           icon={<DollarSign />}
         />
-        
+
         {/* Users */}
         <MetricCard
           title="Active Users"
@@ -86,7 +95,7 @@ export const ExecutiveDashboard: React.FC = () => {
           subtitle={`+${Math.abs(users.change || 0)} this month`}
           icon={<Users />}
         />
-        
+
         {/* Growth */}
         <MetricCard
           title="MoM Growth"
@@ -98,7 +107,7 @@ export const ExecutiveDashboard: React.FC = () => {
           icon={<TrendingUp />}
         />
       </div>
-      
+
       {/* Charts & Alerts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Trend */}
@@ -113,7 +122,7 @@ export const ExecutiveDashboard: React.FC = () => {
             </div>
           </Card.Body>
         </Card>
-        
+
         {/* Alerts */}
         <Card>
           <Card.Header>
@@ -129,15 +138,19 @@ export const ExecutiveDashboard: React.FC = () => {
                   <div
                     key={alert.id}
                     className={clsx(
-                      'p-3 rounded-lg border-l-4',
-                      alert.type === 'warning' && 'bg-warning-50 border-warning-500',
-                      alert.type === 'error' && 'bg-error-50 border-error-500',
-                      alert.type === 'success' && 'bg-success-50 border-success-500',
-                      alert.type === 'info' && 'bg-blue-50 border-blue-500'
+                      "p-3 rounded-lg border-l-4",
+                      alert.type === "warning" &&
+                        "bg-warning-50 border-warning-500",
+                      alert.type === "error" && "bg-error-50 border-error-500",
+                      alert.type === "success" &&
+                        "bg-success-50 border-success-500",
+                      alert.type === "info" && "bg-blue-50 border-blue-500"
                     )}
                   >
                     <p className="text-sm font-medium">{alert.title}</p>
-                    <p className="text-xs text-gray-600 mt-1">{alert.message}</p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {alert.message}
+                    </p>
                   </div>
                 ))
               )}
@@ -145,7 +158,7 @@ export const ExecutiveDashboard: React.FC = () => {
           </Card.Body>
         </Card>
       </div>
-      
+
       {/* Objectives */}
       <Card>
         <Card.Header>
@@ -159,27 +172,32 @@ export const ExecutiveDashboard: React.FC = () => {
                   <span className="text-sm font-medium">{objective.title}</span>
                   <span
                     className={clsx(
-                      'text-xs px-2 py-1 rounded-full',
-                      objective.status === 'on_track' && 'bg-success-100 text-success-700',
-                      objective.status === 'behind' && 'bg-warning-100 text-warning-700',
-                      objective.status === 'at_risk' && 'bg-error-100 text-error-700'
+                      "text-xs px-2 py-1 rounded-full",
+                      objective.status === "on_track" &&
+                        "bg-success-100 text-success-700",
+                      objective.status === "behind" &&
+                        "bg-warning-100 text-warning-700",
+                      objective.status === "at_risk" &&
+                        "bg-error-100 text-error-700"
                     )}
                   >
-                    {objective.status.replace('_', ' ')}
+                    {objective.status.replace("_", " ")}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className={clsx(
-                      'h-2 rounded-full transition-all',
-                      objective.status === 'on_track' && 'bg-success-500',
-                      objective.status === 'behind' && 'bg-warning-500',
-                      objective.status === 'at_risk' && 'bg-error-500'
+                      "h-2 rounded-full transition-all",
+                      objective.status === "on_track" && "bg-success-500",
+                      objective.status === "behind" && "bg-warning-500",
+                      objective.status === "at_risk" && "bg-error-500"
                     )}
                     style={{ width: `${objective.progress}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{objective.progress}% complete</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {objective.progress}% complete
+                </p>
               </div>
             ))}
           </div>
@@ -207,5 +225,3 @@ const DashboardSkeleton: React.FC = () => {
 };
 
 export default ExecutiveDashboard;
-
-

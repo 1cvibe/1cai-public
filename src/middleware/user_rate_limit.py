@@ -21,7 +21,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from src.security.auth import AuthService
+from src.modules.auth.application.service import AuthService
 from src.utils.structured_logging import StructuredLogger
 
 logger = StructuredLogger(__name__).logger
@@ -115,11 +115,7 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
 
             if not current_user and self.auth_service:
                 authorization: Optional[str] = request.headers.get("Authorization")
-                if (
-                    authorization
-                    and isinstance(authorization, str)
-                    and authorization.lower().startswith("bearer ")
-                ):
+                if authorization and isinstance(authorization, str) and authorization.lower().startswith("bearer "):
                     token = authorization.split(" ", maxsplit=1)[1].strip()
 
                     # Validate token length (prevent DoS)

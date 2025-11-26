@@ -24,7 +24,7 @@ async def test_e2e_cli_query_command() -> None:
 
     from fastapi.testclient import TestClient
 
-    from src.ai.orchestrator import app
+    from src.main import app
 
     client = TestClient(app)
 
@@ -42,7 +42,7 @@ async def test_e2e_cli_scenarios_command() -> None:
     """
     from fastapi.testclient import TestClient
 
-    from src.ai.orchestrator import app
+    from src.main import app
 
     client = TestClient(app)
 
@@ -63,7 +63,7 @@ async def test_e2e_cli_health_command() -> None:
     """
     from fastapi.testclient import TestClient
 
-    from src.ai.orchestrator import app
+    from src.main import app
 
     client = TestClient(app)
 
@@ -82,7 +82,7 @@ async def test_e2e_cli_cache_metrics_command() -> None:
     """
     from fastapi.testclient import TestClient
 
-    from src.ai.orchestrator import app
+    from src.main import app
 
     client = TestClient(app)
 
@@ -102,7 +102,7 @@ async def test_e2e_cli_llm_providers_command() -> None:
     """
     from fastapi.testclient import TestClient
 
-    from src.ai.orchestrator import app
+    from src.main import app
 
     client = TestClient(app)
 

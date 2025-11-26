@@ -21,7 +21,7 @@
 
 Революционные компоненты интегрированы с существующей системой через:
 
-- **RevolutionaryAIOrchestrator** - расширенный orchestrator с революционными компонентами
+- **AdvancedAIOrchestrator** - расширенный orchestrator с продвинутыми компонентами
 - **Graph API Revolutionary** - новые endpoints для революционных компонентов
 - **Unified Data Layer Integration** - единый интерфейс для всех БД
 - **Event-Driven Architecture** - замена Celery
@@ -33,10 +33,10 @@
 ### Использование
 
 ```python
-from src.ai.orchestrator_revolutionary import RevolutionaryAIOrchestrator
+from src.ai.advanced_orchestrator import AdvancedAIOrchestrator
 
 # Создание orchestrator
-orchestrator = RevolutionaryAIOrchestrator()
+orchestrator = AdvancedAIOrchestrator()
 await orchestrator.start()
 
 # Обработка запроса (с автоматическим self-healing)

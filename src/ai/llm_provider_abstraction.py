@@ -18,6 +18,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 
+from src.config import USE_ADAPTIVE_SELECTION
+
 logger = logging.getLogger(__name__)
 
 
@@ -51,17 +53,13 @@ class ModelProfile:
 
     provider_id: str  # Идентификатор провайдера (kimi, qwen, gigachat, etc.)
     model_name: str  # Название модели
-    capabilities: Set[QueryType] = field(
-        default_factory=set
-    )  # Поддерживаемые типы запросов
+    capabilities: Set[QueryType] = field(default_factory=set)  # Поддерживаемые типы запросов
     risk_level: RiskLevel = RiskLevel.MEDIUM  # Уровень риска
     cost_per_1k_tokens: float = 0.0  # Стоимость за 1K токенов (USD)
     avg_latency_ms: int = 1000  # Средняя latency в миллисекундах
     max_tokens: int = 4096  # Максимальное количество токенов
     supports_streaming: bool = False  # Поддержка streaming
-    compliance: List[str] = field(
-        default_factory=list
-    )  # Соответствие требованиям (152-ФЗ, GDPR, etc.)
+    compliance: List[str] = field(default_factory=list)  # Соответствие требованиям (152-ФЗ, GDPR, etc.)
     description: str = ""  # Описание модели
 
     def to_dict(self) -> Dict[str, Any]:
@@ -102,12 +100,25 @@ class LLMProviderAbstraction:
 
     Управляет профилями моделей и выбором провайдера на основе типа запроса,
     рисков, стоимости и latency.
+
+    With optional Nested Learning for adaptive selection.
     """
 
     def __init__(self) -> None:
         """Инициализация абстракции провайдеров."""
         self.profiles: Dict[str, ModelProfile] = {}
         self._load_default_profiles()
+
+        # Nested Learning integration (optional)
+        self._nested = None
+        if USE_ADAPTIVE_SELECTION:
+            try:
+                from src.ai.nested_provider_selector import NestedProviderSelector
+
+                self._nested = NestedProviderSelector(self)
+                logger.info("Adaptive provider selection enabled")
+            except Exception as e:
+                logger.warning(f"Failed to initialize adaptive selection: {e}", exc_info=True)
 
     def _load_default_profiles(self) -> None:
         """Загрузить профили по умолчанию."""
@@ -414,11 +425,7 @@ class LLMProviderAbstraction:
 
     def get_profiles_by_capability(self, query_type: QueryType) -> List[ModelProfile]:
         """Получить профили, поддерживающие тип запроса."""
-        return [
-            profile
-            for profile in self.profiles.values()
-            if query_type in profile.capabilities
-        ]
+        return [profile for profile in self.profiles.values() if query_type in profile.capabilities]
 
     def to_tool_registry_format(self) -> List[Dict[str, Any]]:
         """
@@ -432,8 +439,7 @@ class LLMProviderAbstraction:
             tool = {
                 "id": f"llm:{profile.provider_id}:{profile.model_name}",
                 "name": f"LLM: {profile.provider_id}/{profile.model_name}",
-                "description": profile.description
-                or f"LLM model {profile.model_name} from {profile.provider_id}",
+                "description": profile.description or f"LLM model {profile.model_name} from {profile.provider_id}",
                 "version": "1.0.0",
                 "schema": {
                     "type": "object",

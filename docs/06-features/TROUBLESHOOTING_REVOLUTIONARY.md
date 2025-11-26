@@ -27,9 +27,9 @@
 **Решение:**
 ```python
 # Проверьте инициализацию
-from src.ai.orchestrator_revolutionary import RevolutionaryAIOrchestrator
+from src.ai.advanced_orchestrator import AdvancedAIOrchestrator
 
-orchestrator = RevolutionaryAIOrchestrator()
+orchestrator = AdvancedAIOrchestrator()
 await orchestrator.start()  # Важно вызвать start()
 ```
 

@@ -1,17 +1,27 @@
-import { api } from './client';
+import axios from 'axios';
 
-// ... existing code ...
+const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
+
+export const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add auth interceptor if needed
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 // Wiki Service Client
 export const WikiApi = {
-  // ... existing methods ...
-  
-  getPages: async () => {
-    // Assuming the backend has a list endpoint. 
-    // If not, we might need to implement it in the backend or use search as a fallback.
-    // Let's assume GET /wiki/pages exists and returns a list.
-    // If it doesn't, I'll need to check the backend code again.
-    const response = await api.get('/wiki/pages'); 
+  listPages: async (limit = 50, offset = 0) => {
+    const response = await api.get('/wiki/pages', { params: { limit, offset } });
     return response.data;
   },
 
@@ -32,6 +42,11 @@ export const WikiApi = {
 
   search: async (query: string) => {
     const response = await api.get('/wiki/search', { params: { q: query } });
+    return response.data;
+  },
+  
+  getPages: async () => {
+    const response = await api.get('/wiki/pages');
     return response.data;
   }
 };

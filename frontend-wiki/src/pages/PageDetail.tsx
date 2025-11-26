@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { WikiApi } from '../api';
 import { WikiViewer } from '../components/WikiViewer';
@@ -19,6 +19,7 @@ export const PageDetail = () => {
         const data = await WikiApi.getPage(slug);
         setPage(data);
       } catch (err) {
+        console.error(err);
         setError('Failed to load page. It might not exist yet.');
       } finally {
         setLoading(false);
@@ -61,4 +62,3 @@ export const PageDetail = () => {
     </div>
   );
 };
-

@@ -17,7 +17,7 @@ import statistics
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import pytest
 

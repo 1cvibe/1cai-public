@@ -7,6 +7,7 @@ Unit tests for Self-Evolving AI - 1000% coverage
 
 from unittest.mock import AsyncMock, MagicMock
 
+import asyncio
 import pytest
 
 from src.ai.llm_provider_abstraction import LLMProviderAbstraction

@@ -15,7 +15,7 @@ from datetime import datetime
 from src.ai.code_dna import CodeDNAEngine
 from src.ai.distributed_agent_network import (AgentRole,
                                               DistributedAgentNetwork, Task)
-from src.ai.orchestrator_revolutionary import RevolutionaryAIOrchestrator
+from src.ai.advanced_orchestrator import AdvancedAIOrchestrator
 from src.ai.predictive_code_generation import (PredictiveCodeGenerator,
                                                Requirement)
 from src.ai.self_evolving_ai import SelfEvolvingAI
@@ -76,7 +76,7 @@ async def example_2_self_improving_ai():
     """
     logger.info("=== Example 2: Self-Improving AI ===")
     
-    orchestrator = RevolutionaryAIOrchestrator()
+    orchestrator = AdvancedAIOrchestrator()
     await orchestrator.start()
     
     # Обработка нескольких запросов для сбора метрик

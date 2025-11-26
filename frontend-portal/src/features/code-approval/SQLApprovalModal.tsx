@@ -2,8 +2,8 @@
  * SQL Approval Modal - для approval SQL execution
  */
 
-import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
 
 interface SQLApprovalModalProps {
   originalSQL: string;
@@ -36,41 +36,41 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
   performance,
   onExecute,
   onReject,
-  onClose
+  onClose,
 }) => {
-  const [confirmationText, setConfirmationText] = useState('');
+  const [confirmationText, setConfirmationText] = useState("");
   const queryClient = useQueryClient();
 
   const executeMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/sql-approval/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/sql-approval/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          approved_by_user: 'current_user',
-          confirmation_text: confirmationText
-        })
+          approved_by_user: "current_user",
+          confirmation_text: confirmationText,
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(await response.text());
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['sql-suggestions']);
+      queryClient.invalidateQueries({ queryKey: ["sql-suggestions"] });
       onExecute();
-    }
+    },
   });
 
   const handleExecute = () => {
-    if (safety.has_dangerous_ops && confirmationText !== 'CONFIRM') {
-      alert('Please type CONFIRM to execute dangerous operation');
+    if (safety.has_dangerous_ops && confirmationText !== "CONFIRM") {
+      alert("Please type CONFIRM to execute dangerous operation");
       return;
     }
-    
+
     executeMutation.mutate();
   };
 
@@ -80,21 +80,22 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className={`px-6 py-4 ${
-          safety.has_dangerous_ops
-            ? 'bg-gradient-to-r from-red-600 to-orange-600'
-            : 'bg-gradient-to-r from-blue-600 to-green-600'
-        }`}>
+        <div
+          className={`px-6 py-4 ${
+            safety.has_dangerous_ops
+              ? "bg-gradient-to-r from-red-600 to-orange-600"
+              : "bg-gradient-to-r from-blue-600 to-green-600"
+          }`}
+        >
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-white">
-                {safety.has_dangerous_ops ? '⚠️' : '⚡'} SQL Optimization Review
+                {safety.has_dangerous_ops ? "⚠️" : "⚡"} SQL Optimization Review
               </h2>
               <p className="text-blue-100 text-sm mt-1">
-                {safety.has_dangerous_ops 
-                  ? 'DANGEROUS OPERATION - Requires confirmation'
-                  : 'Review optimized query before execution'
-                }
+                {safety.has_dangerous_ops
+                  ? "DANGEROUS OPERATION - Requires confirmation"
+                  : "Review optimized query before execution"}
               </p>
             </div>
             <button
@@ -117,11 +118,9 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
                   <h4 className="text-lg font-bold text-red-900 mb-2">
                     CRITICAL WARNING
                   </h4>
-                  <p className="text-red-800 mb-2">
-                    {safety.warning}
-                  </p>
+                  <p className="text-red-800 mb-2">{safety.warning}</p>
                   <div className="bg-white rounded p-2 text-sm font-mono text-red-900">
-                    Operations: {safety.operations.join(', ')}
+                    Operations: {safety.operations.join(", ")}
                   </div>
                   {safety.requires_dba_approval && (
                     <p className="text-red-900 font-semibold mt-2">
@@ -175,7 +174,7 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
                 {originalSQL}
               </pre>
             </div>
-            
+
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-2">
                 Optimized Query (Fast):
@@ -193,8 +192,8 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
                 ⚠️ Confirmation Required
               </h4>
               <p className="text-yellow-800 mb-3">
-                This operation is DANGEROUS and can cause data loss.
-                Type <strong>CONFIRM</strong> to proceed:
+                This operation is DANGEROUS and can cause data loss. Type{" "}
+                <strong>CONFIRM</strong> to proceed:
               </p>
               <input
                 type="text"
@@ -203,7 +202,7 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
                 placeholder="Type CONFIRM"
                 className="w-full px-4 py-2 border-2 border-yellow-500 rounded focus:ring-2 focus:ring-yellow-500 font-mono uppercase"
               />
-              {confirmationText && confirmationText !== 'CONFIRM' && (
+              {confirmationText && confirmationText !== "CONFIRM" && (
                 <p className="text-red-600 text-sm mt-2">
                   ❌ Must type exactly "CONFIRM" (all caps)
                 </p>
@@ -225,7 +224,7 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
               </span>
             )}
           </div>
-          
+
           <div className="flex gap-3">
             <button
               onClick={onReject}
@@ -233,30 +232,30 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
             >
               ❌ Cancel
             </button>
-            
+
             <button
               onClick={() => {
                 navigator.clipboard.writeText(optimizedSQL);
-                alert('Copied to clipboard!');
+                alert("Copied to clipboard!");
               }}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 font-medium"
             >
               📋 Copy
             </button>
-            
+
             <button
               onClick={handleExecute}
               disabled={
-                executeMutation.isLoading ||
-                (needsConfirmation && confirmationText !== 'CONFIRM')
+                executeMutation.isPending ||
+                (needsConfirmation && confirmationText !== "CONFIRM")
               }
               className={`px-6 py-2 rounded font-medium text-white ${
                 safety.has_dangerous_ops
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-green-600 hover:bg-green-700'
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-green-600 hover:bg-green-700"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {executeMutation.isLoading ? '⏳ Executing...' : '▶️ Execute'}
+              {executeMutation.isPending ? "⏳ Executing..." : "▶️ Execute"}
             </button>
           </div>
         </div>
@@ -264,5 +263,3 @@ export const SQLApprovalModal: React.FC<SQLApprovalModalProps> = ({
     </div>
   );
 };
-
-
