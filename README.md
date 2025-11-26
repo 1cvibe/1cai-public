@@ -37,8 +37,11 @@
 - ✅ **BSL-First AI Platform** — 100% уникальность для 1С:Предприятие
 - ✅ **Nested Learning Integration** — Google Nested Learning для continual learning без catastrophic forgetting
 - ✅ **Desktop-First Experience** — нативный клиент с context awareness
-- ✅ **Clean Architecture** — 35+ модулей, ~26K строк кода
+- ✅ **Clean Architecture** — 35+ модулей, ~28K строк кода
 - ✅ **8 AI Agents** — специализированные агенты для разных ролей
+- ✅ **Revolutionary AI Components** ⭐ — Self-Evolving AI, Self-Healing Code, Distributed Agents, Code DNA
+- ✅ **API Versioning** ⭐ — v1 (stable) + v2 (enhanced with batch operations)
+- ✅ **Tiered Rate Limiting** ⭐ — Free/Pro/Enterprise tiers с Prometheus metrics
 - ✅ **Unified Change Graph** — автоматическое построение графа из BSL кода с Temporal GNN
 - ✅ **Enterprise Wiki** — headless CMS с версионированием
 - ✅ **gRPC Integration** — связь Desktop ↔ Backend
@@ -69,12 +72,21 @@
 
 **Communication:**
 - gRPC ≥1.60.0 — Desktop ↔ Backend
-- NATS 2.10 — event-driven architecture
+- NATS 2.10 — event-driven architecture ⭐
 - Socket.IO — real-time WebSocket
+
+**Revolutionary AI Components:** ⭐
+- Self-Evolving AI — автоматическое улучшение системы
+- Self-Healing Code — автоматическое исправление багов
+- Distributed Agent Network — P2P сеть AI агентов
+- Code DNA — генетическое представление кода
+- Predictive Code Generation — предиктивная генерация
+- Event-Driven Architecture — замена Celery на NATS
 
 **Monitoring:**
 - Prometheus + Grafana — метрики и визуализация
 - OpenTelemetry — distributed tracing
+- Tiered Rate Limiting — Free/Pro/Enterprise (60/300/1000 req/min) ⭐
 
 ### Frontend (React + TypeScript)
 
@@ -385,6 +397,145 @@ USE_DEEP_OPTIMIZER=true            # Training
 - [User Guide](docs/nested_learning/user_guide.md)
 - [Monitoring Dashboards](docs/nested_learning/monitoring_dashboards.md)
 - [Performance Benchmarks](docs/nested_learning/performance_benchmarks.md)
+
+---
+
+#### Revolutionary AI Components ⭐
+
+**8 революционных компонентов** для автоматизации разработки и поддержки кода.
+
+**Компоненты:**
+
+1. **Event-Driven Architecture** — замена Celery на NATS для асинхронных задач
+2. **Self-Evolving AI** — автоматическое улучшение системы на основе метрик
+3. **Self-Healing Code** — автоматическое обнаружение и исправление багов
+4. **Distributed Agent Network** — P2P сеть AI агентов с consensus
+5. **Code DNA** — генетическое представление кода для эволюции
+6. **Predictive Code Generation** — предиктивная генерация на основе паттернов
+7. **Unified Data Layer** — единый слой доступа к данным
+8. **Serverless Functions** — бессерверные функции для расширений
+
+**Feature Flags:**
+```bash
+USE_REVOLUTIONARY_ORCHESTRATOR=true  # Главный оркестратор
+USE_EVENT_DRIVEN=true                # Event Bus (NATS)
+USE_SELF_EVOLVING=true               # Self-Evolving AI
+USE_SELF_HEALING=true                # Self-Healing Code
+USE_DISTRIBUTED_AGENTS=true          # Distributed Agents
+USE_CODE_DNA=true                    # Code DNA
+USE_PREDICTIVE_GENERATION=true       # Predictive Generation
+```
+
+**Запуск:**
+```bash
+# Запустить все компоненты с мониторингом
+make revolutionary-up
+
+# Проверить статус
+make revolutionary-status
+
+# Остановить
+make revolutionary-down
+```
+
+**Мониторинг:**
+- Grafana Dashboard: http://localhost:3001 (admin/admin)
+- Prometheus: http://localhost:9090
+- 22 панели мониторинга для всех компонентов
+
+**Документация:**
+- [Revolutionary Components README](src/modules/revolutionary/README.md)
+- [Grafana Dashboard](monitoring/grafana/dashboards/revolutionary_components.json)
+
+---
+
+#### API Versioning ⭐
+
+**Две версии API** для обратной совместимости и новых функций.
+
+**API v1** (stable) — `/api/v1/revolutionary/`
+- `GET /health` — проверка здоровья компонентов
+- `GET /state` — детальное состояние всех компонентов
+- `POST /evolve` — запуск цикла эволюции
+- `POST /heal` — исправление кода
+- `GET /metrics` — Prometheus метрики
+
+**API v2** (enhanced) — `/api/v2/revolutionary/` ⭐
+- `GET /health` — расширенная проверка с uptime
+- `GET /state` — то же что v1
+- `POST /batch-evolve` — **пакетная эволюция** (1-10 итераций, sync/async)
+- `POST /batch-heal` — **пакетное исправление** (до 10 фрагментов кода)
+- `GET /metrics/detailed` — **детальные метрики** с labels
+
+**Примеры использования:**
+
+```bash
+# V1 API - базовая эволюция
+curl -X POST http://localhost:8000/api/v1/revolutionary/evolve
+
+# V2 API - пакетная эволюция (синхронно)
+curl -X POST http://localhost:8000/api/v2/revolutionary/batch-evolve \
+  -H "Content-Type: application/json" \
+  -d '{"iterations": 3, "async_mode": false}'
+
+# V2 API - пакетная эволюция (асинхронно)
+curl -X POST http://localhost:8000/api/v2/revolutionary/batch-evolve \
+  -H "Content-Type: application/json" \
+  -d '{"iterations": 5, "async_mode": true}'
+
+# V2 API - пакетное исправление
+curl -X POST http://localhost:8000/api/v2/revolutionary/batch-heal \
+  -H "Content-Type: application/json" \
+  -d '{"code_snippets": ["def foo(): pass", "def bar(): return 1"]}'
+```
+
+**OpenAPI документация:**
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+---
+
+#### Tiered Rate Limiting ⭐
+
+**Многоуровневое ограничение запросов** с Prometheus метриками.
+
+**Тарифы:**
+- **Free**: 60 запросов/мин
+- **Pro**: 300 запросов/мин
+- **Enterprise**: 1000 запросов/мин
+- **Revolutionary endpoints**: 100 запросов/мин (отдельный лимит)
+
+**Заголовки ответа:**
+```http
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 59
+X-RateLimit-Reset: 1732612800
+```
+
+**Ошибка при превышении лимита:**
+```json
+{
+  "error": "Rate limit exceeded",
+  "tier": "free",
+  "limit": 60,
+  "window": 60,
+  "retry_after": 60
+}
+```
+
+**Prometheus метрики:**
+- `rate_limit_exceeded_total{tier, path}` — превышения лимита
+- `rate_limit_requests_total{tier, path, status}` — все запросы
+
+**Проверка лимитов:**
+```bash
+# Проверить заголовки rate limit
+curl -I http://localhost:8000/api/v1/health
+
+# Проверить метрики
+curl http://localhost:8000/metrics | grep rate_limit
+```
+
 
 #### Unified Change Graph
 

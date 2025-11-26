@@ -558,6 +558,16 @@ routers = [
     ("assistants", assistants_router),
 ]
 
+# Try to import and add revolutionary router
+try:
+    from src.modules.revolutionary.api.routes import router as revolutionary_router
+    routers.append(("revolutionary", revolutionary_router))
+    logger.info("Revolutionary Components router loaded successfully")
+except ImportError as e:
+    logger.warning(f"Revolutionary Components not available: {e}")
+except Exception as e:
+    logger.error(f"Failed to load Revolutionary Components: {e}")
+
 # Try to import and add archi_api
 try:
     from src.api.archi_api import router as archi_router
@@ -578,6 +588,23 @@ for name, router in routers:
 # CRITICAL: Mount api_v1_router to app (was missing!)
 app.include_router(api_v1_router)
 logger.info(f"Registered {len(routers)} routers under /api/v1")
+
+# API v2 Router
+try:
+    from src.api.v2.router import router as api_v2_router_impl
+    
+    api_v2_router = APIRouter(
+        prefix="/api/v2",
+        tags=["API v2"],
+        default_response_class=JSONResponse,
+    )
+    api_v2_router.include_router(api_v2_router_impl)
+    app.include_router(api_v2_router)
+    logger.info("API v2 router registered successfully")
+except ImportError as e:
+    logger.warning(f"API v2 not available: {e}")
+except Exception as e:
+    logger.error(f"Failed to load API v2: {e}")
 
 # Mount MCP server (для Cursor/VSCode) - only if available
 if MCP_AVAILABLE and mcp_app:

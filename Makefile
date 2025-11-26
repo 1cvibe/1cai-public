@@ -51,27 +51,6 @@ help:
 	@echo "  make bsl-ls-check     - Run health/parse check against bsl-language-server"
 	@echo ""
 	@echo "Migration:"
-	@echo "  make migrate          - Run all migrations (JSON→PG→Neo4j→Qdrant)"
-	@echo "  make migrate-pg       - Migrate JSON to PostgreSQL"
-	@echo "  make migrate-neo4j    - Migrate PostgreSQL to Neo4j"
-	@echo "  make migrate-qdrant   - Migrate to Qdrant (vectorization)"
-	@echo ""
-	@echo "Testing:"
-	@echo "  make test             - Run all tests"
-	@echo "  make test-unit        - Run unit tests only"
-	@echo "  make test-integration - Run integration tests"
-	@echo "  make coverage         - Run tests with coverage report"
-	@echo ""
-	@echo "Code Quality:"
-	@echo "  make format           - Format code (black + isort)"
-	@echo "  make lint             - Run linters (flake8 + mypy)"
-	@echo "  make quality          - Run all quality checks"
-	@echo ""
-	@echo "API:"
-	@echo "  make api              - Start Graph API server"
-	@echo "  make mcp              - Start MCP server"
-	@echo "  make servers          - Start both API servers"
-	@echo ""
 	@echo "EDT Plugin:"
 	@echo "  make plugin-build     - Build EDT plugin"
 	@echo "  make plugin-install   - Build and install to EDT"
@@ -103,19 +82,6 @@ help:
 	@echo "  make feature-init FEATURE=slug - Create spec-driven feature scaffold"
 	@echo "  make feature-validate [FEATURE=slug] - Validate filled spec-driven documents"
 	@echo "  make release-notes VERSION=vX.Y.Z - Generate release notes"
-	@echo "  make release-tag VERSION=vX.Y.Z   - Generate notes and create tag"
-	@echo "  make release-push VERSION=vX.Y.Z  - Generate notes, tag and push"
-	@echo "  make smoke-tests         - Run smoke checks (compile, spec validation, health)"
-	@echo "  make smoke-up            - Run smoke FastAPI service (docker-compose.yml)"
-	@echo "  make smoke-down          - Stop smoke service"
-	@echo "  make observability-up     - Start Prometheus/Grafana stack (observability/docker-compose.observability.yml)"
-	@echo "  make observability-down   - Stop Prometheus/Grafana stack"
-	@echo "  make test-bsl         - Run BSL/YAxUnit test suites (see tests/bsl/testplan.json)"
-feature-init:
-ifndef FEATURE
-	$(error FEATURE is required, e.g. make feature-init FEATURE=my-new-feature)
-endif
-	python scripts/research/init_feature.py --slug $(FEATURE)
 
 feature-validate:
 ifdef FEATURE
@@ -447,6 +413,201 @@ train-ml:
 
 eval-ml:
 	python scripts/eval/eval_model.py --config-name $(CONFIG) --limit $(LIMIT)
+python scripts/validation/validate_scenarios_against_schema.py
+python scripts/validation/check_conformance_report.py
+python scripts/validation/validate_code_graph_against_schema.py
+
+# CLI Tools
+CLI_BASE_URL ?= http://localhost:8000
+
+cli-query:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) query "$(TEXT)"
+
+cli-scenarios:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) scenarios
+
+cli-recommend:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) recommend "$(QUERY)" --max $(MAX)
+
+cli-impact:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) impact $(NODE_IDS) --max-depth $(MAX_DEPTH)
+
+cli-health:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) health
+
+cli-cache-metrics:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) cache metrics
+
+cli-cache-invalidate:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) cache invalidate --clear-all
+
+cli-llm-providers:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) llm-providers list
+
+cli-llm-select:
+	@python scripts/cli/1cai_cli.py --base-url $(CLI_BASE_URL) llm-providers select $(QUERY_TYPE) --max-cost $(MAX_COST) --max-latency $(MAX_LATENCY) --compliance $(COMPLIANCE) --risk-level $(RISK_LEVEL)
+
+# Docker
+docker-up:
+	docker-compose -f docker-compose.yml -f docker-compose.stage1.yml up -d
+	@echo "Waiting for services to start..."
+	@sleep 10
+	docker-compose ps
+
+docker-down:
+	docker-compose -f docker-compose.yml -f docker-compose.stage1.yml down
+
+docker-logs:
+	docker-compose -f docker-compose.yml -f docker-compose.stage1.yml logs -f
+
+docker-clean:
+	docker-compose -f docker-compose.yml -f docker-compose.stage1.yml down -v
+	@echo "⚠️  All data deleted!"
+
+# bsl-language-server helpers
+bsl-ls-up:
+	docker-compose -f docker-compose.dev.yml up -d bsl-language-server
+
+bsl-ls-down:
+	docker-compose -f docker-compose.dev.yml stop bsl-language-server
+
+bsl-ls-logs:
+	docker-compose -f docker-compose.dev.yml logs -f bsl-language-server
+
+bsl-ls-check:
+	python scripts/parsers/check_bsl_language_server.py
+
+# Migration
+migrate: migrate-pg migrate-neo4j migrate-qdrant
+
+migrate-pg:
+	python migrate_json_to_postgres.py
+
+migrate-neo4j:
+	python migrate_postgres_to_neo4j.py
+
+migrate-qdrant:
+	python migrate_to_qdrant.py
+
+# Testing
+test:
+	pytest
+
+test-unit:
+	pytest tests/unit/ -v
+
+test-integration:
+	pytest tests/integration/ -v -m integration
+
+coverage:
+	pytest --cov=src --cov-report=html --cov-report=term
+	@echo "Coverage report: htmlcov/index.html"
+
+# Code Quality
+format:
+	black src/ tests/
+	isort src/ tests/
+
+lint:
+	flake8 src/ tests/ --max-line-length=120
+	mypy src/ --ignore-missing-imports
+
+quality: format lint test
+
+# API Servers
+api:
+	python -m uvicorn src.api.graph_api:app --host 0.0.0.0 --port 8080 --reload
+
+mcp:
+	python -m uvicorn src.ai.mcp_server:app --host 0.0.0.0 --port 6001 --reload
+
+servers:
+	@echo "Starting API servers in background..."
+	python -m uvicorn src.api.graph_api:app --host 0.0.0.0 --port 8080 &
+	python -m uvicorn src.ai.mcp_server:app --host 0.0.0.0 --port 6001 &
+
+# EDT Plugin
+plugin-build:
+	cd edt-plugin && mvn clean package
+
+plugin-install: plugin-build
+	@echo "Install manually: Help → Install New Software → Local → edt-plugin/target/repository"
+
+# AI Models
+ollama-pull:
+	docker-compose exec ollama ollama pull qwen2.5-coder:7b
+
+ollama-pull-large:
+	docker-compose exec ollama ollama pull qwen2.5-coder:32b
+
+ollama-list:
+	docker-compose exec ollama ollama list
+
+# Utilities
+status:
+	@echo "=== Docker Services ==="
+	@docker-compose ps
+	@echo ""
+	@echo "=== PostgreSQL ==="
+	@docker-compose exec postgres pg_isready -U admin || echo "Not running"
+	@echo ""
+	@echo "=== Neo4j ==="
+	@curl -s http://localhost:7474 > /dev/null && echo "✓ Running" || echo "✗ Not running"
+	@echo ""
+	@echo "=== Qdrant ==="
+	@curl -s http://localhost:6333/readyz > /dev/null && echo "✓ Running" || echo "✗ Not running"
+
+clean:
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name .mypy_cache -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.pyo" -delete
+	find . -type f -name "*.log" -delete
+	rm -rf htmlcov/ coverage.xml .coverage
+	@echo "✓ Cleaned temporary files"
+
+scrape-its:
+	python -m integrations.its_scraper scrape $(ITS_START_URL) --output $(ITS_OUTPUT) $(foreach fmt,$(ITS_FORMATS), --format $(fmt)) $(if $(ITS_CONCURRENCY), --concurrency $(ITS_CONCURRENCY),) $(if $(ITS_SLEEP), --sleep $(ITS_SLEEP),) $(if $(ITS_PROXY), --proxy $(ITS_PROXY),) $(if $(ITS_USER_AGENT_FILE), --user-agent-file $(ITS_USER_AGENT_FILE),)
+
+render-uml:
+	python scripts/docs/render_uml.py --fail-on-missing
+
+render-uml-svg:
+	python scripts/docs/render_uml.py --format png --format svg --fail-on-missing
+
+adr-new:
+ifndef SLUG
+	$(error "Usage: make adr-new SLUG=my-decision")
+endif
+	python scripts/docs/create_adr.py $(SLUG)
+
+test-bsl:
+	python scripts/tests/run_bsl_tests.py
+
+export-context:
+	python scripts/context/export_platform_context.py
+
+generate-docs:
+	python scripts/context/generate_docs.py
+
+audit-hidden-dirs:
+	python scripts/audit/check_hidden_dirs.py --fail-new
+
+audit-secrets:
+	@mkdir -p analysis 2>/dev/null || true
+	python scripts/audit/check_secrets.py --json > analysis/secret_scan_report.json
+
+security-audit: audit-hidden-dirs audit-secrets
+	python scripts/audit/check_git_safety.py
+	python scripts/audit/comprehensive_project_audit.py
+
+train-ml:
+	@python scripts/ml/config_utils.py --info $(CONFIG)
+	python scripts/run_neural_training.py $(if $(EPOCHS),--epochs $(EPOCHS),)
+
+eval-ml:
+	python scripts/eval/eval_model.py --config-name $(CONFIG) --limit $(LIMIT)
 
 train-ml-demo:
 	$(MAKE) train-ml CONFIG=DEMO EPOCHS=1
@@ -456,3 +617,27 @@ eval-ml-demo:
 
 check-runtime:
 	python scripts/setup/check_runtime.py
+
+# Revolutionary Components
+revolutionary-up:
+	@echo "🚀 Starting Revolutionary Components..."
+	@bash scripts/start_revolutionary.sh --with-monitoring
+
+revolutionary-down:
+	@echo "🛑 Stopping Revolutionary Components..."
+	@docker-compose --profile revolutionary down
+
+revolutionary-status:
+	@echo "📊 Revolutionary Components Status:"
+	@echo ""
+	@echo "NATS:"
+	@curl -s http://localhost:8222/healthz > /dev/null && echo "  ✅ Running" || echo "  ❌ Not running"
+	@echo ""
+	@echo "Prometheus:"
+	@curl -s http://localhost:9090/-/healthy > /dev/null && echo "  ✅ Running" || echo "  ❌ Not running"
+	@echo ""
+	@echo "Grafana:"
+	@curl -s http://localhost:3001/api/health > /dev/null && echo "  ✅ Running" || echo "  ❌ Not running"
+	@echo ""
+	@echo "Revolutionary API:"
+	@curl -s http://localhost:8000/api/v1/revolutionary/health > /dev/null && echo "  ✅ Running" || echo "  ❌ Not running"

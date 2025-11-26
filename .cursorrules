@@ -52,3 +52,30 @@ Before taking any action (either tool calls *or* responses to the user), you mus
     11.2) Branch Naming: Use prefixes `feature/`, `bugfix/`, `hotfix/`, `refactor/`.
     11.3) Atomic Commits: One logical change per commit.
     11.4) No Direct Push to Main: Always use Pull Requests (if applicable).
+
+12) Clean Architecture (MANDATORY):
+    12.1) **CRITICAL**: При ЛЮБОЙ разработке, доработке, рефакторинге или изменении кода ВСЕГДА использовать принципы Clean Architecture. Это обязательное требование без исключений.
+    12.2) All code, modules, and components MUST follow Clean Architecture principles.
+    12.2) Module Structure: Use the following structure for all new modules:
+        ```
+        src/modules/<module_name>/
+        ├── domain/
+        │   ├── models.py          # Pydantic models, entities
+        │   └── exceptions.py      # Domain-specific exceptions
+        ├── services/
+        │   └── <service>.py       # Business logic, use cases
+        ├── api/
+        │   └── routes.py          # FastAPI routes, controllers
+        ├── repositories/
+        │   └── <repository>.py    # Data access layer (optional)
+        └── README.md              # Module documentation
+        ```
+    12.3) Dependency Rule: Dependencies must point inward (API → Services → Domain). Domain layer must NOT depend on outer layers.
+    12.4) Separation of Concerns: 
+        - Domain: Pure business logic, no framework dependencies
+        - Services: Use cases, orchestration, business rules
+        - API: HTTP handling, request/response transformation
+        - Repositories: Database access, external APIs
+    12.5) No God Objects: Avoid large monolithic files. Split into focused, single-responsibility modules.
+    12.6) Existing Code: When modifying existing code, refactor towards Clean Architecture incrementally.
+    12.7) Documentation: Each module MUST have a README.md explaining its purpose, dependencies, and usage.
