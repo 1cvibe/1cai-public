@@ -13,6 +13,13 @@ import logging
 
 from prometheus_client import Counter, Histogram, Gauge
 
+# Import Adaptive LLM Selector
+try:
+    from src.ai.llm import AdaptiveLLMSelector, TaskType
+    LLM_AVAILABLE = True
+except ImportError:
+    LLM_AVAILABLE = False
+
 
 class AgentCapability(str, Enum):
     """Capabilities that an agent can have"""
@@ -81,6 +88,9 @@ class BaseAgent(ABC):
         self.capabilities = capabilities
         self.status = AgentStatus.IDLE
         self.logger = logging.getLogger(f"agent.{agent_name}")
+        
+        # LLM Integration
+        self.llm_selector = AdaptiveLLMSelector() if LLM_AVAILABLE else None
         
         # Revolutionary Components integration
         self.use_self_evolving = False

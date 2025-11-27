@@ -20,6 +20,7 @@ from src.ai.agents.technology_selector import TechnologySelector
 # New agents
 from src.ai.agents.security_agent import SecurityAgent
 from src.ai.agents.project_manager_agent import ProjectManagerAgent
+from src.ai.agents.developer_agent_enhanced import DeveloperAgentEnhanced
 try:
     from src.ai.agents.technical_writer_agent_extended import TechnicalWriterAgentExtended
 except ImportError:
@@ -37,4 +38,7 @@ __all__ = [
     "TechLogAnalyzer",
     "RASMonitor",
     "AIIssueClassifier",
+    "SecurityAgent",
+    "ProjectManagerAgent",
+    "DeveloperAgentEnhanced",
 ]
