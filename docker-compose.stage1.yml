@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Stage 1: Foundation - Neo4j, Qdrant, Elasticsearch, Ollama
@@ -52,8 +52,8 @@ services:
       NEO4J_apoc_import_file_enabled: "true"
       NEO4J_apoc_import_file_use__neo4j__config: "true"
     ports:
-      - "7474:7474"  # HTTP
-      - "7687:7687"  # Bolt
+      - "7474:7474" # HTTP
+      - "7687:7687" # Bolt
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
@@ -63,7 +63,11 @@ services:
       - 1c-ai-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "cypher-shell -u neo4j -p ${NEO4J_PASSWORD:-password} 'RETURN 1'"]
+      test:
+        [
+          "CMD-SHELL",
+          "cypher-shell -u neo4j -p ${NEO4J_PASSWORD:-password} 'RETURN 1'",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -76,8 +80,8 @@ services:
     image: qdrant/qdrant:v1.7.4
     container_name: 1c-ai-qdrant
     ports:
-      - "6333:6333"  # REST API
-      - "6334:6334"  # gRPC
+      - "6333:6333" # REST API
+      - "6334:6334" # gRPC
     volumes:
       - qdrant_storage:/qdrant/storage
     environment:
@@ -86,66 +90,14 @@ services:
       - 1c-ai-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:6333/readyz || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6333/readyz || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # Elasticsearch - Полнотекстовый поиск ❌ НЕ РЕКОМЕНДУЕТСЯ для MVP
-  # 💡 Альтернатива: PostgreSQL Full-Text Search достаточно для старта
-  # 💾 Требует: ~2-3 GB RAM
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  elasticsearch:
-    image: elasticsearch:8.11.3
-    container_name: 1c-ai-elasticsearch
-    environment:
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
-      - cluster.name=1c-ai-cluster
-      - node.name=1c-ai-node
-    ports:
-      - "9200:9200"  # REST API
-      - "9300:9300"  # Transport
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - 1c-ai-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # Kibana - UI для Elasticsearch ❌ НЕ РЕКОМЕНДУЕТСЯ для MVP
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  kibana:
-    image: kibana:8.11.3
-    container_name: 1c-ai-kibana
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: elastic
-      SERVER_NAME: kibana.1c-ai.local
-    ports:
-      - "5601:5601"
-    networks:
-      - 1c-ai-network
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    profiles:
-      - dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   # Ollama - Локальные LLM модели 🟡 ОПЦИОНАЛЬНО (для Qwen3-Coder)
@@ -265,8 +217,6 @@ volumes:
     name: 1c-ai-neo4j-plugins
   qdrant_storage:
     name: 1c-ai-qdrant-storage
-  elasticsearch_data:
-    name: 1c-ai-elasticsearch-data
   ollama_models:
     name: 1c-ai-ollama-models
   minio_data:
@@ -275,7 +225,3 @@ volumes:
 networks:
   1c-ai-network:
     external: true
-
-
-
-

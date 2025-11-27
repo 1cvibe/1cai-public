@@ -47,8 +47,6 @@ sentence-transformers==3.2.1
 # Vector DB
 qdrant-client==1.12.1
 
-# Search
-elasticsearch>=8.0.0
 
 # Graph Database
 neo4j==5.15.0  # ✅ CRITICAL: Updated for async support
