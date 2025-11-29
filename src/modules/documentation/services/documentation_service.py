@@ -9,7 +9,7 @@ logger = StructuredLogger(__name__).logger
 
 
 class DocumentationService:
-    """Service for generating documentation from code."""
+    """Сервис для генерации документации из кода."""
 
     def __init__(self) -> None:
         self.generator = get_documentation_generator()
@@ -22,7 +22,7 @@ class DocumentationService:
         format: str = "markdown",
         timeout: float = 60.0,
     ) -> Dict[str, Any]:
-        """Generate documentation with timeout handling."""
+        """Генерация документации с обработкой таймаута."""
         # Validate timeout
         if not isinstance(timeout, (int, float)) or timeout <= 0:
             logger.warning(
