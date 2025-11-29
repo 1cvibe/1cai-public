@@ -172,9 +172,9 @@ graph TD
 | 4 | Architect | `/api/v1/graph` | ✅ 90% | AI Агенты |
 | 5 | Security Officer | `/api/v1/security` | ✅ Beta | AI Агенты |
 | 6 | Technical Writer | `/api/v1/technical_writer` | ✅ Beta | AI Агенты |
-| 7 | Tech Log Analyzer | planned | ⚠️ 85% | AI Агенты |
-| 8 | RAS Monitor | planned | ⚠️ 85% | AI Агенты |
-| 9 | SQL Optimizer | planned | ⚠️ 75% | AI Агенты |
+| 7 | Tech Log Analyzer | `/api/v1/tech_log` | ✅ Beta | AI Агенты |
+| 8 | RAS Monitor | `/api/v1/ras_monitor` | ✅ Beta | AI Агенты |
+| 9 | SQL Optimizer | `/api/v1/sql_optimizer` | ✅ Beta | AI Агенты |
 | 10 | DevOps API | `/api/v1/devops` | ✅ Ready | API Endpoints |
 | 11 | BPMN API | `/api/v1/bpmn` | ✅ Ready | API Endpoints |
 | 12 | Graph API | `/api/v1/graph` | ✅ Ready | API Endpoints |
@@ -184,7 +184,7 @@ graph TD
 | 16 | Gateway API | `/api/v1/gateway` | ✅ Ready | API Endpoints |
 | 17 | Metrics API | `/api/v1/metrics` | ✅ Ready | API Endpoints |
 | 18 | Tenant Management | `/api/v1/tenants` | ✅ Ready | API Endpoints |
-| 19 | Billing Webhooks | planned | ⚠️ Dev | API Endpoints |
+| 19 | Billing Webhooks | `/api/v1/billing/webhooks` | ⚠️ Dev | API Endpoints |
 | 20 | Dashboard | `/api/v1/dashboard` | ✅ Ready | Core Features |
 | 21 | Admin Dashboard | `/api/v1/admin_dashboard` | ✅ Ready | Core Features |
 | 22 | Analytics | `/api/v1/analytics` | ✅ Ready | Core Features |
@@ -193,10 +193,10 @@ graph TD
 | 25 | Knowledge Base | `/api/v1/knowledge_base` | ✅ Ready | Core Features |
 | 26 | Marketplace | `/api/v1/marketplace` | ✅ Ready | Core Features |
 | 27 | Enterprise Wiki | `/api/v1/wiki` | ✅ Ready | Core Features |
-| 28 | Code Analyzers | planned | ⚠️ Dev | Code Analysis |
+| 28 | Code Analyzers | internal | ✅ Beta | Code Analysis |
 | 29 | Code Review | `/api/v1/code_review` | ✅ Ready | Code Analysis |
 | 30 | Test Generation | `/api/v1/test_generation` | ✅ Ready | Code Analysis |
-| 31 | Doc Generator | planned | ⚠️ Dev | Code Analysis |
+| 31 | Doc Generator | internal | ⚠️ Dev | Code Analysis |
 | 32 | Auth | `/api/v1/auth` | ✅ Ready | Infrastructure |
 | 33 | Risk Management | `/api/v1/risk` | ✅ Ready | Infrastructure |
 | 34 | Revolutionary | `/api/v1/revolutionary` | ✅ Ready | Infrastructure |
