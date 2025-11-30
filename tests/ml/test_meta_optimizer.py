@@ -1,12 +1,13 @@
 import pytest
 import numpy as np
-from src.ml.continual_learning.meta_optimizer import SelfReferencialOptimizer
+from src.modules.nested_learning.services.meta_optimizer import MetaOptimizer
+from src.modules.nested_learning.domain.models import OptimizationCriteria, SuccessPattern
 
-class TestSelfReferencialOptimizer:
+class TestMetaOptimizer:
     
     def test_adaptive_learning_rate_decrease(self):
         """Test that high variance in performance decreases learning rate"""
-        optimizer = SelfReferencialOptimizer(learning_rate=0.1)
+        optimizer = MetaOptimizer(learning_rate=0.1)
         initial_lr = optimizer.learning_rate
         
         # Simulate volatile performance
@@ -20,7 +21,7 @@ class TestSelfReferencialOptimizer:
         
     def test_adaptive_learning_rate_increase(self):
         """Test that stable performance increases learning rate"""
-        optimizer = SelfReferencialOptimizer(learning_rate=0.1)
+        optimizer = MetaOptimizer(learning_rate=0.1)
         initial_lr = optimizer.learning_rate
         
         # Simulate stable performance
@@ -33,25 +34,30 @@ class TestSelfReferencialOptimizer:
 
     def test_rollback_mechanism(self):
         """Test that significant regression triggers rollback"""
-        optimizer = SelfReferencialOptimizer()
-        base_criteria = {"max_cost": 0.01}
+        optimizer = MetaOptimizer()
+        base_criteria = OptimizationCriteria(max_cost=0.01)
         
         # 1. Establish baseline best performance
-        optimizer.optimize_criteria(base_criteria, [{"success": True}] * 10) # 100% success
+        patterns = [SuccessPattern(level="test", similarity=1.0, success=True) for _ in range(10)]
+        optimizer.optimize_criteria(base_criteria, patterns)
         assert optimizer.best_performance == 1.0
         assert optimizer.best_criteria is not None
         
         # 2. Simulate regression
         # 3 consecutive failures with low performance
         for _ in range(3):
-            result = optimizer.optimize_criteria(base_criteria, [{"success": True}] * 2 + [{"success": False}] * 8) # 20% success
+            mixed_patterns = (
+                [SuccessPattern(level="test", similarity=1.0, success=True) for _ in range(2)] + 
+                [SuccessPattern(level="test", similarity=1.0, success=False) for _ in range(8)]
+            )
+            optimizer.optimize_criteria(base_criteria, mixed_patterns)
             
         # Should trigger rollback
         assert optimizer._should_rollback(0.2)
         
     def test_oscillation_dampening(self):
         """Test that variance calculation correctly identifies oscillation"""
-        optimizer = SelfReferencialOptimizer()
+        optimizer = MetaOptimizer()
         
         # Oscillating pattern
         history = [0.2, 0.8, 0.2, 0.8, 0.2]
