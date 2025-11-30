@@ -43,20 +43,35 @@ class ContinuumMemorySystem:
 
     def __init__(self, levels: List[Tuple[str, int, float]], embedding_dim: int = 768):
         """
-        Initialize CMS
+        Initialize CMS with Persistence
 
         Args:
             levels: List of (name, update_freq, learning_rate) tuples
-                   Example: [("fast", 1, 0.001), ("slow", 100, 0.0001)]
             embedding_dim: Dimension of embeddings
         """
         self.embedding_dim = embedding_dim
         self.levels: Dict[str, MemoryLevel] = {}
 
+        # Initialize Persistence Clients
+        try:
+            from src.services.storage.redis_client import RedisClient
+            from src.services.storage.chroma_client import ChromaClient
+
+            self.redis_client = RedisClient()
+            self.chroma_client = ChromaClient()
+
+            # Connect
+            self.redis_connected = self.redis_client.connect()
+            self.chroma_connected = self.chroma_client.connect()
+
+        except ImportError:
+            logger.warning("Persistence clients not found, falling back to in-memory")
+            self.redis_connected = False
+            self.chroma_connected = False
+
         # Create levels
         for name, update_freq, lr in levels:
-            config = MemoryLevelConfig(
-                name=name, update_freq=update_freq, learning_rate=lr)
+            config = MemoryLevelConfig(name=name, update_freq=update_freq, learning_rate=lr)
             self.levels[name] = self._create_level(config)
 
         # Vector index for similarity search
@@ -69,24 +84,62 @@ class ContinuumMemorySystem:
             "Created Continuum Memory System",
             extra={
                 "num_levels": len(self.levels),
-                "level_names": list(self.levels.keys()),
-                "embedding_dim": embedding_dim,
+                "persistence": {"redis": self.redis_connected, "chroma": self.chroma_connected},
             },
         )
 
+        # Reload from persistence if available
+        self._reload_from_persistence()
+
+    def _reload_from_persistence(self):
+        """
+        Reload vectors from persistent storage into in-memory index.
+        Crucial for 'Strike 2' persistence to work across restarts.
+        """
+        from .memory_level import RedisMemoryLevel
+
+        for name, level in self.levels.items():
+            if isinstance(level, RedisMemoryLevel) and self.redis_connected:
+                try:
+                    # Scan for keys in this level
+                    pattern = f"cms:level:{name}:*"
+                    keys = self.redis_client.keys(pattern)
+                    
+                    count = 0
+                    for full_key in keys:
+                        # full_key is like "cms:level:session:abc..."
+                        # we need just "abc..."
+                        key = full_key.split(":")[-1]
+                        
+                        # Get embedding from level
+                        emb = level.get(key)
+                        if emb is not None:
+                            # Add to index
+                            self.index.add(key, emb, metadata={"level": name})
+                            count += 1
+                            
+                    if count > 0:
+                        logger.info(f"Reloaded {count} items from Redis for level '{name}'")
+                        
+                except Exception as e:
+                    logger.error(f"Failed to reload level '{name}' from Redis: {e}")
+
     def _create_level(self, config: MemoryLevelConfig) -> MemoryLevel:
         """
-        Create memory level
-
-        Override in subclasses for custom level types
-
-        Args:
-            config: Level configuration
-
-        Returns:
-            Memory level instance
+        Create memory level with appropriate persistence backend
         """
-        return MemoryLevel(config)
+        from .memory_level import RedisMemoryLevel, ChromaMemoryLevel
+
+        # Determine storage type based on level name
+        if config.name in ["session", "daily"] and self.redis_connected:
+            return RedisMemoryLevel(config, self.redis_client)
+
+        elif config.name in ["historical", "domain"] and self.chroma_connected:
+            return ChromaMemoryLevel(config, self.chroma_client)
+
+        else:
+            # Fallback to in-memory
+            return MemoryLevel(config)
 
     def store(self, level_name: str, key: MemoryKey, data: Any, embedding: Optional[np.ndarray] = None):
         """
@@ -99,7 +152,7 @@ class ContinuumMemorySystem:
             embedding: Pre-computed embedding (optional)
         """
         level = self.levels.get(level_name)
-        if not level:
+        if level is None:
             raise ValueError(f"Unknown level: {level_name}")
 
         # Encode if embedding not provided
@@ -108,29 +161,19 @@ class ContinuumMemorySystem:
 
         # Store in level
         level.memory[key] = embedding
-        level.metadata[key] = {"data": data,
-            "step": self.global_step, "timestamp": time.time()}
+        level.metadata[key] = {"data": data, "step": self.global_step, "timestamp": time.time()}
 
         # Add to vector index
         self.index.add(key, embedding, metadata={"level": level_name})
 
-        logger.debug(f"Stored in level {level_name}", extra={
-                     "key": key, "level": level_name})
+        logger.debug(f"Stored in level {level_name}", extra={"key": key, "level": level_name})
 
     def retrieve(self, query: Any, level_name: str, k: int = 5) -> List[Tuple[MemoryKey, float, Any]]:
         """
         Retrieve similar items from specific level
-
-        Args:
-            query: Query data
-            level_name: Level to search in
-            k: Number of results
-
-        Returns:
-            List of (key, similarity, data) tuples
         """
         level = self.levels.get(level_name)
-        if not level:
+        if level is None:
             raise ValueError(f"Unknown level: {level_name}")
 
         # Encode query
@@ -143,8 +186,10 @@ class ContinuumMemorySystem:
         # Return with data
         output = []
         for key, sim in results:
-            if key in level.metadata:
-                data = level.metadata[key].get("data")
+            # Use get_metadata() method instead of direct dict access
+            meta = level.get_metadata(key)
+            if meta:
+                data = meta.data if hasattr(meta, 'data') else meta.get('data')
                 output.append((key, sim, data))
 
         return output
@@ -154,19 +199,15 @@ class ContinuumMemorySystem:
     ) -> Dict[str, List[Tuple[MemoryKey, float, Any]]]:
         """
         Retrieve from multiple levels
-
-        Args:
-            query: Query data
-            levels: List of level names
-            k: Results per level
-
-        Returns:
-            Dict mapping level_name -> results
         """
         results = {}
         for level_name in levels:
-            if level_name in self.levels:
-                results[level_name] = self.retrieve(query, level_name, k)
+            # DEBUG CHECK
+            if level_name not in self.levels:
+                print(f"WARNING: Requested level '{level_name}' not in CMS levels: {list(self.levels.keys())}")
+                continue
+
+            results[level_name] = self.retrieve(query, level_name, k)
         return results
 
     def update_level(self, level_name: str, key: MemoryKey, data: Any, surprise: SurpriseScore):
@@ -180,7 +221,7 @@ class ContinuumMemorySystem:
             surprise: Surprise score (0-1)
         """
         level = self.levels.get(level_name)
-        if not level:
+        if level is None:
             raise ValueError(f"Unknown level: {level_name}")
 
         # Update level (will check surprise threshold internally)

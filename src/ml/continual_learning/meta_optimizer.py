@@ -45,6 +45,13 @@ class SelfReferencialOptimizer:
 
         logger.info("Created SelfReferencialOptimizer with lr=%s", learning_rate)
 
+        # Stability tracking
+        self.performance_history: List[float] = []
+        self.best_criteria: Optional[Dict[str, Any]] = None
+        self.best_performance: float = 0.0
+        self.consecutive_failures: int = 0
+
+
     def optimize_criteria(
         self, base_criteria: Dict[str, Any], success_patterns: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
@@ -63,10 +70,28 @@ class SelfReferencialOptimizer:
         if not success_patterns:
             return base_criteria
 
-        # Analyze patterns
+        # 1. Analyze patterns
         analysis = self._analyze_patterns(success_patterns)
+        current_success_rate = analysis.get("success_rate", 0.0)
 
-        # Modify criteria based on analysis
+        # 2. Update adaptive learning rate based on stability
+        self._update_learning_rate(current_success_rate)
+
+        # 3. Check for regression and rollback if needed
+        if self._should_rollback(current_success_rate):
+            logger.warning("Detected performance regression, rolling back criteria")
+            return self.best_criteria if self.best_criteria else base_criteria
+
+        # 4. Update best criteria if improved
+        if current_success_rate > self.best_performance:
+            self.best_performance = current_success_rate
+            self.best_criteria = base_criteria.copy()
+            self.consecutive_failures = 0
+        elif current_success_rate < self.best_performance * 0.8:
+            self.consecutive_failures += 1
+
+        # 5. Modify criteria based on analysis
+
         modified = base_criteria.copy()
 
         # Adjust cost threshold
@@ -107,6 +132,41 @@ class SelfReferencialOptimizer:
         )
 
         return modified
+
+    def _update_learning_rate(self, current_performance: float):
+        """
+        Adaptively update learning rate based on performance stability.
+        
+        If performance is volatile, decrease LR.
+        If performance is stable/improving, slightly increase LR.
+        """
+        self.performance_history.append(current_performance)
+        if len(self.performance_history) > 10:
+            self.performance_history.pop(0)
+            
+        if len(self.performance_history) >= 3:
+            # Calculate variance
+            variance = np.var(self.performance_history)
+            
+            if variance > 0.05:
+                # High variance -> reduce LR to stabilize
+                self.learning_rate = max(0.01, self.learning_rate * 0.8)
+            elif variance < 0.01 and self.learning_rate < 0.5:
+                # Low variance -> increase LR to explore
+                self.learning_rate = min(0.5, self.learning_rate * 1.1)
+
+    def _should_rollback(self, current_performance: float) -> bool:
+        """Check if we should rollback to best known criteria"""
+        if not self.best_criteria:
+            return False
+            
+        # Rollback if performance drops significantly below best
+        # and we have had consecutive failures
+        if current_performance < self.best_performance * 0.6:
+            if self.consecutive_failures >= 3:
+                return True
+                
+        return False
 
     def _analyze_patterns(self, patterns: List[Dict]) -> Dict[str, Any]:
         """

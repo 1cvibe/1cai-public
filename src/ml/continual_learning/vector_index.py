@@ -59,7 +59,7 @@ class VectorIndex:
 
         # Metadata storage
         self.keys: List[str] = []
-        self.metadata: Dict[str, Dict] = {}
+        self.metadata_list: List[Optional[Dict]] = []
         self.embeddings: List[np.ndarray] = []  # For fallback
 
         logger.info(
@@ -106,8 +106,7 @@ class VectorIndex:
 
         # Store key and metadata
         self.keys.append(key)
-        if metadata:
-            self.metadata[key] = metadata
+        self.metadata_list.append(metadata)
 
         logger.debug(f"Added embedding to index", extra={
                      "key": key, "total_size": len(self.keys)})
@@ -162,8 +161,9 @@ class VectorIndex:
             key = self.keys[idx]
 
             # Apply filter
-            if filter_fn and key in self.metadata:
-                if not filter_fn(self.metadata[key]):
+            if filter_fn:
+                meta = self.metadata_list[idx]
+                if meta and not filter_fn(meta):
                     continue
 
             # Convert distance to similarity (0-1)
@@ -195,8 +195,9 @@ class VectorIndex:
             key = self.keys[idx]
 
             # Apply filter
-            if filter_fn and key in self.metadata:
-                if not filter_fn(self.metadata[key]):
+            if filter_fn:
+                meta = self.metadata_list[idx]
+                if meta and not filter_fn(meta):
                     continue
 
             # Convert distance to similarity
@@ -224,7 +225,7 @@ class VectorIndex:
             self.embeddings.clear()
 
         self.keys.clear()
-        self.metadata.clear()
+        self.metadata_list.clear()
 
         logger.info("Cleared vector index")
 

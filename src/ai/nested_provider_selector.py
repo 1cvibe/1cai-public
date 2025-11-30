@@ -18,9 +18,8 @@ from src.ai.llm_provider_abstraction import (
 )
 from src.utils.structured_logging import StructuredLogger
 
-if TYPE_CHECKING:
-    from src.ml.continual_learning.cms import ContinuumMemorySystem
-    from src.ml.continual_learning.meta_optimizer import SelfReferencialOptimizer
+
+from src.ml.continual_learning.meta_optimizer import SelfReferencialOptimizer
 
 logger = StructuredLogger(__name__).logger
 
@@ -80,33 +79,6 @@ class NestedProviderSelector:
         """Create CMS for query history"""
         # Lazy import
         from src.ml.continual_learning.cms import ContinuumMemorySystem
-        from src.ml.continual_learning.memory_level import MemoryLevel
-        
-        # Local definition of QueryMemoryLevel to avoid top-level dependency
-        class QueryMemoryLevel(MemoryLevel):
-            """Memory level for query history"""
-        
-            def encode(self, data: Any, context: Dict):
-                """Encode query as simple hash-based embedding"""
-                self.stats.total_encodes += 1
-        
-                # Simple encoding: hash query text to vector
-                if isinstance(data, str):
-                    query_hash = hashlib.sha256(data.encode()).digest()
-                    # Convert to float vector
-                    embedding = [float(b) / 255.0 for b in query_hash[:32]]
-                elif isinstance(data, dict):
-                    # Hash query text from dict
-                    query_text = data.get("query", str(data))
-                    query_hash = hashlib.sha256(query_text.encode()).digest()
-                    embedding = [float(b) / 255.0 for b in query_hash[:32]]
-                else:
-                    # Fallback: random
-                    embedding = [0.5] * 32
-        
-                import numpy as np
-        
-                return np.array(embedding, dtype="float32")
 
         levels = [
             ("immediate", 1, 0.01),  # Last 10 queries
@@ -117,12 +89,36 @@ class NestedProviderSelector:
 
         cms = ContinuumMemorySystem(levels, embedding_dim=32)
 
-        # Override with QueryMemoryLevel
+        # Inject custom encoder into all levels
+        # This preserves the Persistence capabilities (Redis/Chroma)
+        # while using our custom hashing logic.
         for name, level in cms.levels.items():
-            config = level.config
-            cms.levels[name] = QueryMemoryLevel(config)
+            level.encode = self._query_encoder
 
         return cms
+
+    def _query_encoder(self, data: Any, context: Dict) -> Any:
+        """
+        Custom encoder for query history.
+        Hashes query text to 32-dim vector.
+        """
+        import numpy as np
+
+        # Simple encoding: hash query text to vector
+        if isinstance(data, str):
+            query_hash = hashlib.sha256(data.encode()).digest()
+            # Convert to float vector
+            embedding = [float(b) / 255.0 for b in query_hash[:32]]
+        elif isinstance(data, dict):
+            # Hash query text from dict
+            query_text = data.get("query", str(data))
+            query_hash = hashlib.sha256(query_text.encode()).digest()
+            embedding = [float(b) / 255.0 for b in query_hash[:32]]
+        else:
+            # Fallback: random
+            embedding = [0.5] * 32
+
+        return np.array(embedding, dtype="float32")
 
     def select_provider_adaptive(
         self,
@@ -149,18 +145,22 @@ class NestedProviderSelector:
         self.stats["total_selections"] += 1
 
         # 1. Retrieve similar queries from continuum memory
-        similar_queries = self.query_memory.retrieve_similar(
-            query, levels=["immediate", "session", "daily"], k=10)
+        similar_queries = self.query_memory.retrieve_similar(query, levels=["immediate", "session", "daily"], k=10)
 
         # 2. Analyze success patterns
         success_patterns = self._extract_success_patterns(similar_queries)
 
         # 3. Self-modify selection criteria based on patterns
-        base_criteria = {"max_cost": max_cost or 0.01,
-            "max_latency_ms": max_latency_ms or 1000}
+        base_criteria = {"max_cost": max_cost or 0.01, "max_latency_ms": max_latency_ms or 1000}
 
-        modified_criteria = self.meta_optimizer.optimize_criteria(
-            base_criteria, success_patterns)
+        modified_criteria = self.meta_optimizer.optimize_criteria(base_criteria, success_patterns)
+
+        # Log optimizer state
+        if self.stats["total_selections"] % 10 == 0:
+            logger.debug(
+                "Optimizer state",
+                extra={"lr": self.meta_optimizer.learning_rate, "best_perf": self.meta_optimizer.best_performance},
+            )
 
         # 4. Select provider with modified criteria
         provider = self.base.select_provider(
@@ -217,24 +217,20 @@ class NestedProviderSelector:
         surprise = self._compute_feedback_surprise(success, metrics)
 
         # Update appropriate levels based on surprise
-        feedback_data = {"success": success, "metrics": metrics,
-            "surprise": surprise, "timestamp": time.time()}
+        feedback_data = {"success": success, "metrics": metrics, "surprise": surprise, "timestamp": time.time()}
 
         if surprise > 0.7:  # High surprise
             # Update multiple levels
-            self.query_memory.update_level(
-                "immediate", query_id, feedback_data, surprise)
+            self.query_memory.update_level("immediate", query_id, feedback_data, surprise)
             self.query_memory.update_level("session", query_id, feedback_data, surprise)
             self.query_memory.update_level("daily", query_id, feedback_data, surprise)
 
         elif surprise > 0.4:  # Medium surprise
-            self.query_memory.update_level(
-                "immediate", query_id, feedback_data, surprise)
+            self.query_memory.update_level("immediate", query_id, feedback_data, surprise)
             self.query_memory.update_level("session", query_id, feedback_data, surprise)
 
         else:  # Low surprise
-            self.query_memory.update_level(
-                "immediate", query_id, feedback_data, surprise)
+            self.query_memory.update_level("immediate", query_id, feedback_data, surprise)
 
         # Track cost savings
         if success and "cost" in metrics:
@@ -294,8 +290,7 @@ class NestedProviderSelector:
         """
         # Base surprise on success rate
         success_rate = (
-            self.stats["success_count"] / \
-                self.stats["total_feedback"] if self.stats["total_feedback"] > 0 else 0.5
+            self.stats["success_count"] / self.stats["total_feedback"] if self.stats["total_feedback"] > 0 else 0.5
         )
 
         # High surprise if result differs from expected
@@ -331,8 +326,7 @@ class NestedProviderSelector:
         return {
             **self.stats,
             "success_rate": (
-                self.stats["success_count"] / \
-                    self.stats["total_feedback"] if self.stats["total_feedback"] > 0 else 0.0
+                self.stats["success_count"] / self.stats["total_feedback"] if self.stats["total_feedback"] > 0 else 0.0
             ),
             "cms": cms_stats.to_dict(),
             "optimizer": self.meta_optimizer.get_stats(),
@@ -345,7 +339,6 @@ class NestedProviderSelector:
             "query_memory_levels": len(self.query_memory.levels),
             "total_selections": self.stats["total_selections"],
             "success_rate": (
-                self.stats["success_count"] / \
-                    self.stats["total_feedback"] if self.stats["total_feedback"] > 0 else 0.0
+                self.stats["success_count"] / self.stats["total_feedback"] if self.stats["total_feedback"] > 0 else 0.0
             ),
         }

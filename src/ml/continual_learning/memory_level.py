@@ -253,3 +253,159 @@ class MemoryLevel:
             f"step={self.step_count}, "
             f"updates={self.update_count})"
         )
+
+
+class RedisMemoryLevel(MemoryLevel):
+    """
+    Redis-backed Memory Level (Hot/Warm Memory)
+    
+    Persists data to Redis with TTL support.
+    """
+    
+    def __init__(self, config: MemoryLevelConfig, redis_client):
+        """
+        Initialize Redis memory level
+        
+        Args:
+            config: Level configuration
+            redis_client: RedisClient instance
+        """
+        super().__init__(config)
+        self.client = redis_client
+        self.ttl = 86400 if config.name == "session" else 604800  # 1 day or 7 days
+        
+    def _get_redis_key(self, key: str) -> str:
+        return f"cms:level:{self.config.name}:{key}"
+        
+    def update(self, key: MemoryKey, data: Any, surprise: SurpriseScore):
+        """Update with Redis persistence"""
+        if not self.should_update(surprise):
+            return
+            
+        # Encode
+        embedding = self.encode(data, {})
+        
+        # Prepare payload
+        payload = {
+            "data": data,
+            "embedding": embedding.tolist(),
+            "surprise": surprise,
+            "step": self.step_count,
+            "timestamp": time.time()
+        }
+        
+        # Store in Redis
+        redis_key = self._get_redis_key(key)
+        self.client.set(redis_key, payload, ttl=self.ttl)
+        
+        # Update local stats (cache size is approximate)
+        self.update_count += 1
+        self.stats.total_updates += 1
+        self.stats.last_update_step = self.step_count
+        
+        logger.debug(f"Persisted to Redis: {self.config.name}", extra={"key": key})
+
+    def get(self, key: MemoryKey) -> Optional[np.ndarray]:
+        """Get embedding from Redis"""
+        self.stats.total_retrievals += 1
+        redis_key = self._get_redis_key(key)
+        payload = self.client.get(redis_key)
+        
+        if payload and "embedding" in payload:
+            return np.array(payload["embedding"], dtype="float32")
+        return None
+
+    def get_metadata(self, key: MemoryKey) -> Optional[MemoryEntry]:
+        """Get metadata from Redis"""
+        redis_key = self._get_redis_key(key)
+        payload = self.client.get(redis_key)
+        
+        if payload:
+            return MemoryEntry(
+                key=key,
+                data=payload.get("data"),
+                surprise=payload.get("surprise", 0.0),
+                step=payload.get("step", 0),
+                timestamp=payload.get("timestamp", 0.0)
+            )
+        return None
+
+    def clear(self):
+        """Clear Redis keys for this level"""
+        # Note: This is expensive in Redis without scanning. 
+        # For now, we just log. In prod, use SCAN.
+        logger.warning(f"Clear called on Redis level {self.config.name} - Not fully implemented for safety")
+
+    def __len__(self) -> int:
+        return 0  # Cannot easily count without scan
+
+
+class ChromaMemoryLevel(MemoryLevel):
+    """
+    ChromaDB-backed Memory Level (Cold Memory)
+    
+    Persists data to VectorDB for long-term recall.
+    """
+    
+    def __init__(self, config: MemoryLevelConfig, chroma_client):
+        """
+        Initialize Chroma memory level
+        
+        Args:
+            config: Level configuration
+            chroma_client: ChromaClient instance
+        """
+        super().__init__(config)
+        self.client = chroma_client
+        self.collection_name = f"cms_level_{config.name}"
+        self.client.get_or_create_collection(self.collection_name)
+        
+    def update(self, key: MemoryKey, data: Any, surprise: SurpriseScore):
+        """Update with Chroma persistence"""
+        if not self.should_update(surprise):
+            return
+            
+        # Encode
+        embedding = self.encode(data, {})
+        
+        # Prepare metadata
+        metadata = {
+            "surprise": surprise,
+            "step": self.step_count,
+            "timestamp": time.time(),
+            "type": "memory_entry"
+        }
+        
+        # Store in Chroma
+        # Convert data to string if needed
+        doc_text = str(data) if not isinstance(data, str) else data
+        
+        self.client.add_documents(
+            collection_name=self.collection_name,
+            documents=[doc_text],
+            metadatas=[metadata],
+            ids=[key],
+            embeddings=[embedding.tolist()]
+        )
+        
+        self.update_count += 1
+        self.stats.total_updates += 1
+        
+        logger.debug(f"Persisted to Chroma: {self.config.name}", extra={"key": key})
+
+    def get(self, key: MemoryKey) -> Optional[np.ndarray]:
+        """Get embedding from Chroma"""
+        self.stats.total_retrievals += 1
+        results = self.client.query(
+            collection_name=self.collection_name,
+            where={"id": key}, # Chroma doesn't support get by ID directly in query easily without ID filter
+            n_results=1
+        )
+        # Note: This is inefficient for single key retrieval in Chroma. 
+        # Chroma is optimized for similarity search, not KV.
+        # But we implement for compatibility.
+        return None # Placeholder as Chroma query returns nearest neighbors
+
+    def __len__(self) -> int:
+        return self.client.count(self.collection_name)
+

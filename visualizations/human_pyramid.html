@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100-Level Human Pyramid</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        canvas {
+            display: block;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .stats {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <h1>100-Level Pyramid</h1>
+        <p>Scroll to Zoom • Drag to Pan</p>
+        <div class="stats">
+            Levels: 100<br>
+            Humans: 5,050
+        </div>
+    </div>
+    <canvas id="pyramidCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('pyramidCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let scale = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let lastX, lastY;
+
+        // Configuration
+        const LEVELS = 100;
+        const PERSON_RADIUS = 10;
+        const HORIZONTAL_SPACING = 25;
+        const VERTICAL_SPACING = 35;
+        const BASE_COLOR = '#38bdf8'; // Sky 400
+        const TOP_COLOR = '#c084fc'; // Purple 400
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            draw();
+        }
+
+        function init() {
+            window.addEventListener('resize', resize);
+            resize();
+            
+            // Center the pyramid initially
+            const pyramidWidth = (LEVELS - 1) * HORIZONTAL_SPACING;
+            const pyramidHeight = (LEVELS - 1) * VERTICAL_SPACING;
+            
+            // Initial scale to fit screen
+            const scaleX = (width * 0.8) / pyramidWidth;
+            const scaleY = (height * 0.8) / pyramidHeight;
+            scale = Math.min(scaleX, scaleY, 1); // Don't zoom in too much initially
+            
+            // Center position
+            offsetX = width / 2;
+            offsetY = (height - pyramidHeight * scale) / 2 + 50; // Slight top padding
+
+            setupInteractions();
+        }
+
+        function drawPerson(x, y, level) {
+            // Gradient color based on level
+            const ratio = level / LEVELS;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, PERSON_RADIUS, 0, Math.PI * 2);
+            
+            // Simple head
+            ctx.fillStyle = interpolateColor(TOP_COLOR, BASE_COLOR, ratio);
+            ctx.fill();
+            
+            // Glow effect for higher levels (optional, keeping simple for performance)
+            // if (scale > 0.5) { ... }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.save();
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(scale, scale);
+
+            // Draw Pyramid
+            // Level 0 is top, Level 99 is bottom
+            for (let level = 0; level < LEVELS; level++) {
+                const peopleInLevel = level + 1;
+                const levelWidth = (peopleInLevel - 1) * HORIZONTAL_SPACING;
+                const startX = -levelWidth / 2;
+                const y = level * VERTICAL_SPACING;
+
+                for (let i = 0; i < peopleInLevel; i++) {
+                    const x = startX + i * HORIZONTAL_SPACING;
+                    
+                    // Optimization: Only draw if visible
+                    const screenX = offsetX + x * scale;
+                    const screenY = offsetY + y * scale;
+                    const screenRadius = PERSON_RADIUS * scale;
+
+                    if (screenX + screenRadius > 0 && screenX - screenRadius < width &&
+                        screenY + screenRadius > 0 && screenY - screenRadius < height) {
+                        drawPerson(x, y, level);
+                    }
+                }
+            }
+
+            ctx.restore();
+        }
+
+        // Helper: Linear interpolation between hex colors
+        function interpolateColor(color1, color2, factor) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color1);
+            const r1 = parseInt(result[1], 16);
+            const g1 = parseInt(result[2], 16);
+            const b1 = parseInt(result[3], 16);
+
+            const result2 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color2);
+            const r2 = parseInt(result2[1], 16);
+            const g2 = parseInt(result2[2], 16);
+            const b2 = parseInt(result2[3], 16);
+
+            const r = Math.round(r1 + factor * (r2 - r1));
+            const g = Math.round(g1 + factor * (g2 - g1));
+            const b = Math.round(b1 + factor * (b2 - b1));
+
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function setupInteractions() {
+            canvas.addEventListener('mousedown', e => {
+                isDragging = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                canvas.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                canvas.style.cursor = 'grab';
+            });
+
+            window.addEventListener('mousemove', e => {
+                if (isDragging) {
+                    const dx = e.clientX - lastX;
+                    const dy = e.clientY - lastY;
+                    offsetX += dx;
+                    offsetY += dy;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    requestAnimationFrame(draw);
+                }
+            });
+
+            canvas.addEventListener('wheel', e => {
+                e.preventDefault();
+                const zoomIntensity = 0.1;
+                const wheel = e.deltaY < 0 ? 1 : -1;
+                const zoom = Math.exp(wheel * zoomIntensity);
+                
+                // Zoom towards mouse pointer
+                const mouseX = e.clientX - offsetX;
+                const mouseY = e.clientY - offsetY;
+
+                const newScale = scale * zoom;
+                
+                // Limit zoom
+                if (newScale < 0.05 || newScale > 10) return;
+
+                offsetX -= mouseX * (zoom - 1);
+                offsetY -= mouseY * (zoom - 1);
+                scale = newScale;
+                
+                requestAnimationFrame(draw);
+            }, { passive: false });
+        }
+
+        init();
+    </script>
+</body>
+</html>

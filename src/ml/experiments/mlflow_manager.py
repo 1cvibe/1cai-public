@@ -13,7 +13,12 @@ from typing import Any, Dict, List, Optional, Union
 
 import mlflow
 import mlflow.sklearn
-import mlflow.tensorflow
+try:
+    import mlflow.tensorflow
+    HAS_TENSORFLOW = True
+except ImportError:
+    HAS_TENSORFLOW = False
+
 import numpy as np
 import pandas as pd
 from mlflow.exceptions import MlflowException
@@ -210,12 +215,15 @@ class MLFlowManager:
                     registered_model_name=registered_model_name,
                 )
             elif model_flavor == "tensorflow":
-                mlflow.tensorflow.log_model(
-                    model,
-                    model_name,
-                    input_example=input_example,
-                    registered_model_name=registered_model_name,
-                )
+                if HAS_TENSORFLOW:
+                    mlflow.tensorflow.log_model(
+                        model,
+                        model_name,
+                        input_example=input_example,
+                        registered_model_name=registered_model_name,
+                    )
+                else:
+                    logger.warning("Tensorflow not available, skipping log_model for tensorflow flavor")
             else:
                 # Fallback для других типов моделей
                 mlflow.sklearn.log_model(

@@ -12,7 +12,11 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-import optuna
+try:
+    import optuna
+    HAS_OPTUNA = True
+except ImportError:
+    HAS_OPTUNA = False
 import pandas as pd
 
 # Celery dependency removed in favor of NATS (Event-Driven Architecture)
@@ -382,6 +386,9 @@ class ModelTrainer:
         """Оптимизация гиперпараметров с Optuna"""
 
         start_time = datetime.utcnow()
+
+        if not HAS_OPTUNA:
+            raise ImportError("Optuna is required for hyperparameter tuning. Install it with 'pip install optuna'")
 
         try:
             # Предобработка данных

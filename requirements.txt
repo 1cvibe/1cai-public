@@ -45,6 +45,7 @@ openai==1.54.3
 sentence-transformers==3.2.1
 
 # Vector DB
+chromadb==0.4.22
 qdrant-client==1.12.1
 
 
