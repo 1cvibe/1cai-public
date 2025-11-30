@@ -14,6 +14,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real SAST/DAST tools
 - Kubernetes API integration
 
+## [3.2.0] - 2025-11-30
+
+### Changed - Nested Learning Refactoring (Clean Architecture) 🏗️
+Полный рефакторинг модуля `Nested Learning` в соответствии с принципами Clean Architecture.
+
+#### Architecture Changes
+- **New Module Structure**: Все компоненты перенесены в `src/modules/nested_learning/`.
+    - `domain/`: Основные типы (`SurpriseScore`, `MemoryKey`) и модели (`OptimizationCriteria`).
+    - `services/`: Бизнес-логика (`ContinuumMemorySystem`, `MetaOptimizer`, `ProviderSelector`).
+    - `infrastructure/`: Реализация хранения (`VectorIndex`).
+    - `services/specialized/`: Специализированные типы памяти (`CodeMemory`, `ConversationalMemory`, `ScenarioMemory`).
+
+#### Improvements
+- **Dependency Inversion**: Модуль теперь полностью автономен и не зависит от legacy-кода.
+- **Type Safety**: Полный переход на Pydantic V2 (`model_copy`, `model_dump`).
+- **Specialized Memories**:
+    - `CodeMemory`: 5 уровней (char, token, function, project, platform).
+    - `ConversationalMemory`: 5 уровней (immediate, session, daily, project, domain).
+    - `ScenarioMemory`: 4 уровня (immediate, session, project, domain).
+
+#### Cleanup
+- Удалена старая директория `src/ml/continual_learning/`.
+- Удален legacy-файл `src/ai/nested_provider_selector.py`.
+
 ## [3.1.0] - 2025-11-30
 
 ### Added - Strike 3: The Mirror (Reflection) 🪞
