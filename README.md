@@ -42,7 +42,7 @@
 
 ## 📰 Последние обновления
 
-<details open>
+<details>
 <summary><strong>🎉 2025-12-01: Global Polish & Final Release</strong></summary>
 
 **Проект полностью готов к релизу! Завершены работы по документации, безопасности и API.**
@@ -88,7 +88,7 @@
 
 </details>
 
-<details open>
+<details>
 <summary><strong>🎉 2025-11-30: Strike 3 - The Mirror (Meta-Learning)</strong></summary>
 
 **Реализована способность системы к саморефлексии и мета-обучению.**
@@ -105,7 +105,7 @@
 </details>
 
 
-<details open>
+<details>
 <summary><strong>🎉 2025-11-30: Connected Professional (BIA Integration & Online Bridge)</strong></summary>
 
 **Проект трансформирован из "Offline Genius" в "Connected Professional".**
