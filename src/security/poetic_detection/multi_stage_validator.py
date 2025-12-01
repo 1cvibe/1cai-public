@@ -7,7 +7,9 @@ Combines poetic detection and intent extraction for comprehensive validation.
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from loguru import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .intent_extractor import IntentResult, SemanticIntentExtractor
 from .poetic_detector import PoeticAnalysis, PoeticFormDetector
@@ -111,7 +113,16 @@ class MultiStageValidator:
             True if safe, False otherwise
         """
         # Simple keyword-based check
-        # TODO: Integrate with existing safety filters
+        # 1. Use SafetyFilter
+        from src.security.poetic_detection.safety_filter import SafetyFilter
+        safety_filter = SafetyFilter()
+        is_safe, reason = safety_filter.is_safe(query)
+        
+        if not is_safe:
+            logger.warning(f"SafetyFilter blocked request: {reason}")
+            return False
+
+        # 2. Simple keyword-based check (Legacy)
 
         dangerous_keywords = [
             "delete all",

@@ -58,6 +58,7 @@ class NodeKind(str, Enum):
     BSL_REGISTER_INFORMATION = "bsl_register_information"
     BSL_REGISTER_ACCUMULATION = "bsl_register_accumulation"
     BSL_REGISTER_ACCOUNTING = "bsl_register_accounting"
+    BSL_REGISTER_CALCULATION = "bsl_register_calculation"
     BSL_REPORT = "bsl_report"
     BSL_DATA_PROCESSOR = "bsl_data_processor"
     BSL_CHART_OF_ACCOUNTS = "bsl_chart_of_accounts"
@@ -81,6 +82,25 @@ class NodeKind(str, Enum):
     BSL_MANAGER_MODULE = "bsl_manager_module"
     BSL_FORM_MODULE = "bsl_form_module"
     BSL_COMMAND_MODULE = "bsl_command_module"
+
+    # Additional 1C Metadata Types (Universal Parser Support)
+    BSL_SUBSYSTEM = "bsl_subsystem"
+    BSL_ROLE = "bsl_role"
+    BSL_COMMON_TEMPLATE = "bsl_common_template"
+    BSL_COMMON_PICTURE = "bsl_common_picture"
+    BSL_COMMON_COMMAND = "bsl_common_command"
+    BSL_COMMON_FORM = "bsl_common_form"
+    BSL_FILTER_CRITERION = "bsl_filter_criterion"
+    BSL_EVENT_SUBSCRIPTION = "bsl_event_subscription"
+    BSL_SCHEDULED_JOB = "bsl_scheduled_job"
+    BSL_SESSION_PARAMETER = "bsl_session_parameter"
+    BSL_FUNCTIONAL_OPTION = "bsl_functional_option"
+    BSL_SETTINGS_STORAGE = "bsl_settings_storage"
+    BSL_STYLE_ITEM = "bsl_style_item"
+    BSL_LANGUAGE = "bsl_language"
+    BSL_WEB_SERVICE = "bsl_web_service"
+    BSL_XDTO_PACKAGE = "bsl_xdto_package"
+    BSL_METADATA_OBJECT = "bsl_metadata_object"  # Fallback for unknown types
 
 
 class EdgeKind(str, Enum):

@@ -91,6 +91,15 @@ class Neo4jClient:
 
         for attempt in range(max_retries):
             try:
+                # Check if driver exists and is open
+                if self.driver:
+                    try:
+                        self.driver.verify_connectivity()
+                        return True
+                    except Exception:
+                        self.driver.close()
+                        self.driver = None
+
                 self.driver = GraphDatabase.driver(
                     self.uri,
                     auth=(self.user, self.password),

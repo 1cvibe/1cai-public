@@ -7,7 +7,9 @@ Extracts true intent from poetic/obfuscated input.
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from loguru import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -135,9 +137,16 @@ Direct prose translation:"""
         Returns:
             True if safe, False if potentially harmful
         """
-        # Simple keyword-based safety check
-        # TODO: Integrate with more sophisticated safety filter
+        # 1. Use SafetyFilter for Prompt Injection and Jailbreak detection
+        from src.security.poetic_detection.safety_filter import SafetyFilter
+        safety_filter = SafetyFilter()
+        is_safe, reason = safety_filter.is_safe(text)
+        
+        if not is_safe:
+            logger.warning(f"SafetyFilter blocked request: {reason}")
+            return False
 
+        # 2. Simple keyword-based safety check (Legacy/Fallback)
         harmful_keywords = [
             "delete",
             "drop",

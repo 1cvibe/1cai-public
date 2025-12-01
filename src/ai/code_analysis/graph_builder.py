@@ -42,7 +42,7 @@ class OneCCodeGraphBuilder:
     ) -> None:
         """
         Args:
-            backend: Backend для хранения графа (InMemoryCodeGraphBackend, Neo4j и др.)
+            backend: Backend для хранения графа (InMemoryCodeGraphBackend, Neo4jCodeGraphBackend и др.)
             use_ast_parser: Использовать продвинутый AST парсер (если доступен)
         """
         self.backend = backend
@@ -478,6 +478,85 @@ class OneCCodeGraphBuilder:
         )
 
         return total_stats
+
+    async def build_from_xml(
+        self,
+        xml_path: str,
+        *,
+        recursive: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Построить граф из XML выгрузки конфигурации 1С.
+        
+        Args:
+            xml_path: Путь к файлу или директории с XML.
+            recursive: Рекурсивный поиск (для директорий).
+        """
+        logger.info("Building graph from XML: %s", xml_path)
+        
+        from src.ai.code_analysis.parsers.xml_parser import OneCXMLParser
+        parser = OneCXMLParser()
+        
+        nodes = []
+        if Path(xml_path).is_dir():
+            nodes = parser.parse_directory(xml_path)
+        else:
+            nodes = parser.parse_file(xml_path)
+            
+        logger.info("Parsed %d nodes from XML", len(nodes))
+        
+        nodes_created = 0
+        for node in nodes:
+            await self.backend.upsert_node(node)
+            nodes_created += 1
+            
+        # Create relationships (e.g., Subsystem -> Content)
+        edges_created = 0
+        
+        # Index nodes by name for fast lookup (assuming unique names for top-level objects)
+        # In reality, we might need type+name, but XML content usually has "Type.Name" format
+        node_map = {}
+        for node in nodes:
+            # Map "Catalog.Goods" -> Node
+            # Also map "Goods" -> Node (if unique)
+            
+            # Construct full name based on kind
+            type_prefix = ""
+            if node.kind == NodeKind.BSL_CATALOG: type_prefix = "Catalog"
+            elif node.kind == NodeKind.BSL_DOCUMENT: type_prefix = "Document"
+            elif node.kind == NodeKind.BSL_REPORT: type_prefix = "Report"
+            elif node.kind == NodeKind.BSL_DATA_PROCESSOR: type_prefix = "DataProcessor"
+            elif node.kind == NodeKind.BSL_REGISTER_INFORMATION: type_prefix = "InformationRegister"
+            elif node.kind == NodeKind.BSL_REGISTER_ACCUMULATION: type_prefix = "AccumulationRegister"
+            # ... add others as needed
+            
+            if type_prefix:
+                full_name = f"{type_prefix}.{node.display_name}"
+                node_map[full_name] = node
+            
+            node_map[node.display_name] = node
+
+        for node in nodes:
+            if node.kind == NodeKind.BSL_SUBSYSTEM:
+                content = node.props.get("Content", [])
+                for item in content:
+                    # item is usually "Catalog.Goods" or "Document.Order"
+                    target_node = node_map.get(item)
+                    if target_node:
+                        edge = Edge(
+                            source=node.id,
+                            target=target_node.id,
+                            kind=EdgeKind.OWNS, # Subsystem owns/contains the object
+                            props={"relationship": "subsystem_content"}
+                        )
+                        await self.backend.upsert_edge(edge)
+                        edges_created += 1
+        
+        return {
+            "nodes_created": nodes_created,
+            "edges_created": edges_created,
+            "xml_path": xml_path
+        }
 
     async def export_graph(self, output_path: Optional[str] = None) -> Dict[str, Any]:
         """

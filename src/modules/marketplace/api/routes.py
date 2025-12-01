@@ -1,9 +1,14 @@
-"""Модуль routes.
+"""
+Marketplace API Routes
+----------------------
 
-TODO: Добавить подробное описание модуля.
-
-Этот docstring был автоматически сгенерирован.
-Пожалуйста, обновите его с правильным описанием.
+This module defines the API endpoints for the 1C AI Marketplace.
+It handles:
+- Listing available AI plugins/agents.
+- Searching for plugins.
+- Installing and uninstalling plugins.
+- Managing user subscriptions and usage.
+- Publishing new plugins (for developers).
 """
 
 from typing import Any, Dict, Optional, TYPE_CHECKING
@@ -32,13 +37,16 @@ router = APIRouter(prefix="/marketplace", tags=["marketplace"])
 
 
 def get_marketplace_repository(request: Request) -> "MarketplaceRepository":
-    """TODO: Описать функцию get_marketplace_repository.
+    """Получает репозиторий маркетплейса из состояния приложения.
 
     Args:
-        request: TODO: Описать параметр.
+        request: HTTP запрос, содержащий состояние приложения (app.state).
 
     Returns:
-        TODO: Описать возвращаемое значение.
+        MarketplaceRepository: Инициализированный репозиторий маркетплейса.
+
+    Raises:
+        RuntimeError: Если репозиторий не инициализирован в app.state.
     """
     # Lazy import
 
@@ -51,13 +59,13 @@ def get_marketplace_repository(request: Request) -> "MarketplaceRepository":
 def get_marketplace_service(
     repo: "MarketplaceRepository" = Depends(get_marketplace_repository),
 ) -> "MarketplaceService":
-    """TODO: Описать функцию get_marketplace_service.
+    """Получает сервис бизнес-логики маркетплейса.
 
     Args:
-        repo: TODO: Описать параметр.
+        repo: Репозиторий маркетплейса (внедряется через Depends).
 
     Returns:
-        TODO: Описать возвращаемое значение.
+        MarketplaceService: Инициализированный сервис.
     """
     # Lazy import
     from src.modules.marketplace.services.marketplace_service import MarketplaceService
@@ -79,14 +87,22 @@ async def submit_plugin(
     current_user: CurrentUser = Depends(require_roles("developer", "admin")),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> PluginResponse:
-    """TODO: Описать функцию submit_plugin.
+    """Публикует новый плагин в маркетплейсе.
+
+    Требует наличия роли 'developer' или 'admin'.
 
     Args:
-        request: TODO: Описать параметр.
-        response: TODO: Описать параметр.
-        plugin: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        request: HTTP запрос.
+        response: HTTP ответ.
+        plugin: Данные публикуемого плагина.
+        current_user: Текущий аутентифицированный пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        PluginResponse: Созданный плагин с присвоенным ID.
+
+    Raises:
+        HTTPException(400): Если данные некорректны или плагин уже существует.
     """
     try:
         persisted = await service.submit_plugin(plugin.model_dump(), current_user)
@@ -110,17 +126,20 @@ async def search_plugins(
     page_size: int = Query(20, ge=1, le=100, description="Results per page"),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> PluginSearchResponse:
-    """TODO: Описать функцию search_plugins.
+    """Поиск плагинов по критериям.
 
     Args:
-        query: TODO: Описать параметр.
-        category: TODO: Описать параметр.
-        author: TODO: Описать параметр.
-        sort_by: TODO: Описать параметр.
-        order: TODO: Описать параметр.
-        page: TODO: Описать параметр.
-        page_size: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        query: Поисковая строка (название, описание, теги).
+        category: Фильтр по категории плагина.
+        author: Фильтр по имени автора.
+        sort_by: Поле для сортировки ('rating', 'downloads', 'created_at', 'name').
+        order: Порядок сортировки ('asc', 'desc').
+        page: Номер страницы (начиная с 1).
+        page_size: Количество элементов на странице.
+        service: Сервис маркетплейса.
+
+    Returns:
+        PluginSearchResponse: Результаты поиска с пагинацией.
     """
     try:
         plugins, total = await service.search_plugins(
@@ -151,11 +170,17 @@ async def get_plugin(
     plugin_id: str,
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> PluginResponse:
-    """TODO: Описать функцию get_plugin.
+    """Получает детальную информацию о плагине по его ID.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        service: Сервис маркетплейса.
+
+    Returns:
+        PluginResponse: Объект плагина.
+
+    Raises:
+        HTTPException(404): Если плагин не найден.
     """
     plugin = await service.get_plugin(plugin_id)
     if not plugin:
@@ -170,13 +195,22 @@ async def update_plugin(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> PluginResponse:
-    """TODO: Описать функцию update_plugin.
+    """Обновляет информацию о плагине.
+
+    Разрешено только автору плагина или администратору.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        update: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        update: Данные для обновления (частичное обновление).
+        current_user: Текущий пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        PluginResponse: Обновленный объект плагина.
+
+    Raises:
+        HTTPException(404): Если плагин не найден.
+        HTTPException(403): Если у пользователя нет прав на редактирование.
     """
     try:
         updated = await service.update_plugin(plugin_id, update.model_dump(exclude_unset=True), current_user)
@@ -199,15 +233,23 @@ async def upload_plugin_artifact(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> PluginResponse:
-    """TODO: Описать функцию upload_plugin_artifact.
+    """Загружает файл артефакта (дистрибутив) для плагина.
 
     Args:
-        request: TODO: Описать параметр.
-        response: TODO: Описать параметр.
-        plugin_id: TODO: Описать параметр.
-        file: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        request: HTTP запрос.
+        response: HTTP ответ.
+        plugin_id: Уникальный идентификатор плагина.
+        file: Загружаемый файл.
+        current_user: Текущий пользователь (должен быть автором).
+        service: Сервис маркетплейса.
+
+    Returns:
+        PluginResponse: Обновленный плагин с информацией о файле.
+
+    Raises:
+        HTTPException(403): Нет прав.
+        HTTPException(400): Ошибка валидации файла.
+        HTTPException(503): Ошибка хранилища.
     """
     try:
         updated = await service.upload_artifact(plugin_id, file, current_user)
@@ -228,12 +270,19 @@ async def delete_plugin(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию delete_plugin.
+    """Удаляет плагин.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        current_user: Текущий пользователь (автор или админ).
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
+
+    Raises:
+        HTTPException(404): Плагин не найден.
+        HTTPException(403): Нет прав.
     """
     try:
         removed = await service.delete_plugin(plugin_id, current_user)
@@ -250,12 +299,15 @@ async def install_plugin(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию install_plugin.
+    """Регистрирует установку плагина пользователем.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        current_user: Текущий пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус и ссылка на скачивание.
     """
     updated = await service.record_install(plugin_id, current_user.user_id)
     if not updated:
@@ -274,12 +326,15 @@ async def uninstall_plugin(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию uninstall_plugin.
+    """Регистрирует удаление плагина пользователем (отписку).
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        current_user: Текущий пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
     """
     updated = await service.remove_install(plugin_id, current_user.user_id)
     if not updated:
@@ -292,11 +347,14 @@ async def get_plugin_stats(
     plugin_id: str,
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> PluginStatsResponse:
-    """TODO: Описать функцию get_plugin_stats.
+    """Получает статистику по плагину (скачивания, просмотры, рейтинг).
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        service: Сервис маркетплейса.
+
+    Returns:
+        PluginStatsResponse: Объект статистики.
     """
     stats = await service.get_stats(plugin_id)
     if not stats:
@@ -311,13 +369,16 @@ async def submit_review(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> PluginReviewResponse:
-    """TODO: Описать функцию submit_review.
+    """Оставляет отзыв к плагину.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        review: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        review: Данные отзыва (рейтинг, текст).
+        current_user: Текущий пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        PluginReviewResponse: Созданный отзыв.
     """
     try:
         stored = await service.create_review(plugin_id, review.model_dump(), current_user)
@@ -335,16 +396,16 @@ async def get_plugin_reviews(
     page_size: int = 10,
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию get_plugin_reviews.
+    """Получает список отзывов к плагину.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        page: TODO: Описать параметр.
-        page_size: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        page: Номер страницы.
+        page_size: Размер страницы.
+        service: Сервис маркетплейса.
 
     Returns:
-        TODO: Описать возвращаемое значение.
+        Dict[str, Any]: Список отзывов и метаданные пагинации.
     """
     try:
         reviews, total = await service.list_reviews(plugin_id, page, page_size)
@@ -364,11 +425,14 @@ async def download_plugin(
     plugin_id: str,
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию download_plugin.
+    """Получает ссылку на скачивание последней версии плагина.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: URL для скачивания и метаданные файла.
     """
     payload = await service.build_download_payload(plugin_id)
     if not payload:
@@ -380,10 +444,13 @@ async def download_plugin(
 async def get_categories(
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию get_categories.
+    """Получает список всех категорий плагинов и количество плагинов в каждой.
 
     Args:
-        service: TODO: Описать параметр.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Список категорий со счетчиками.
     """
     category_counts = await service.get_category_counts()
     return {
@@ -403,11 +470,14 @@ async def get_featured_plugins(
     limit: int = 6,
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию get_featured_plugins.
+    """Получает список рекомендованных (featured) плагинов.
 
     Args:
-        limit: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        limit: Максимальное количество возвращаемых плагинов.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Список плагинов.
     """
     featured = await service.get_featured(limit)
     return {"plugins": [PluginResponse(**p) for p in featured]}
@@ -419,12 +489,15 @@ async def get_trending_plugins(
     limit: int = 10,
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию get_trending_plugins.
+    """Получает список популярных (trending) плагинов за период.
 
     Args:
-        period: TODO: Описать параметр.
-        limit: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        period: Период ('week', 'month', 'all').
+        limit: Максимальное количество.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Список плагинов.
     """
     plugins = await service.get_trending(limit)
     return {
@@ -439,12 +512,15 @@ async def add_to_favorites(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию add_to_favorites.
+    """Добавляет плагин в избранное текущего пользователя.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        current_user: Текущий пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
     """
     try:
         await service.add_favorite(plugin_id, current_user.user_id)
@@ -459,12 +535,15 @@ async def remove_from_favorites(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию remove_from_favorites.
+    """Удаляет плагин из избранного.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        current_user: Текущий пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
     """
     try:
         await service.remove_favorite(plugin_id, current_user.user_id)
@@ -481,14 +560,17 @@ async def report_plugin(
     current_user: CurrentUser = Depends(get_current_user),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию report_plugin.
+    """Отправляет жалобу на плагин.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        reason: TODO: Описать параметр.
-        details: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        reason: Причина жалобы.
+        details: Дополнительные детали.
+        current_user: Текущий пользователь.
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус приема жалобы.
     """
     try:
         await service.report_plugin(plugin_id, reason, details, current_user)
@@ -510,12 +592,17 @@ async def approve_plugin(
     current_user: CurrentUser = Depends(require_roles("admin", "moderator")),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию approve_plugin.
+    """Одобряет плагин (публикация).
+
+    Доступно только администраторам и модераторам.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        current_user: Текущий пользователь (админ).
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
     """
     try:
         await service.approve_plugin(plugin_id, current_user)
@@ -531,13 +618,18 @@ async def reject_plugin(
     current_user: CurrentUser = Depends(require_roles("admin", "moderator")),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию reject_plugin.
+    """Отклоняет плагин.
+
+    Доступно только администраторам и модераторам.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        reason: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        reason: Причина отклонения.
+        current_user: Текущий пользователь (админ).
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
     """
     try:
         await service.reject_plugin(plugin_id, reason, current_user)
@@ -553,13 +645,18 @@ async def feature_plugin(
     current_user: CurrentUser = Depends(require_roles("admin", "moderator")),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию feature_plugin.
+    """Устанавливает или снимает метку 'Featured' (Рекомендовано).
+
+    Доступно только администраторам и модераторам.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        featured: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        featured: True для добавления в рекомендации, False для удаления.
+        current_user: Текущий пользователь (админ).
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
     """
     try:
         await service.set_featured(plugin_id, featured, current_user)
@@ -575,13 +672,18 @@ async def verify_plugin(
     current_user: CurrentUser = Depends(require_roles("admin", "moderator")),
     service: "MarketplaceService" = Depends(get_marketplace_service),
 ) -> Dict[str, Any]:
-    """TODO: Описать функцию verify_plugin.
+    """Устанавливает или снимает метку 'Verified' (Проверено).
+
+    Доступно только администраторам и модераторам.
 
     Args:
-        plugin_id: TODO: Описать параметр.
-        verified: TODO: Описать параметр.
-        current_user: TODO: Описать параметр.
-        service: TODO: Описать параметр.
+        plugin_id: Уникальный идентификатор плагина.
+        verified: True для подтверждения проверки, False для снятия.
+        current_user: Текущий пользователь (админ).
+        service: Сервис маркетплейса.
+
+    Returns:
+        Dict[str, Any]: Статус операции.
     """
     try:
         await service.set_verified(plugin_id, verified, current_user)

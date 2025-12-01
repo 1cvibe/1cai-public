@@ -57,11 +57,14 @@ class AISecurityMiddleware(BaseHTTPMiddleware):
             user_input = self._extract_input_text(body_text)
             
             if user_input:
+                # Get user_id from request state (populated by Auth middleware)
+                user_id = getattr(request.state, "user_id", "anonymous")
+                
                 security_check = self.security_layer.validate_input(
                     user_input=user_input,
                     agent_id=agent_id,
                     agent_config=agent_config,
-                    context={"user_id": "middleware_user"} # TODO: Extract real user from JWT
+                    context={"user_id": str(user_id)}
                 )
 
                 if not security_check.allowed:
