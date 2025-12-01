@@ -63,6 +63,9 @@
 - 🎨 **Visual Upgrade**:
     - Новая навигационная панель и таблица сравнения "Why 1C AI Stack?".
     - Tech Stack теперь с красивыми бейджами.
+- 🚀 **New Features**:
+    - **CI/CD Integrations**: Полноценная поддержка GitLab CI и GitHub Actions (trigger, status, logs).
+    - **Marketplace Analytics**: Реальный расчет трендов загрузок и статистики за 30 дней.
 
 **Результат:**
 Система получила "память" (Neo4j), "зрение" (XML Parser) и "щит" (SafetyFilter). Технический долг минимизирован.
@@ -2556,6 +2559,6 @@ MIT License. См. [LICENSE](LICENSE) для деталей.
 **Стандарты:** [`docs/DE_FACTO_STANDARD.md`](docs/DE_FACTO_STANDARD.md)
 
 **Status:** ✅ Production Ready (with Nested Learning)  
-**Version:** 7.0.0  
-**Last Updated:** 2025-11-26
+**Version:** 7.1.0  
+**Last Updated:** 2025-12-01
 

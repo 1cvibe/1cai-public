@@ -7,6 +7,7 @@ Supports:
 """
 
 import logging
+import aiohttp
 from enum import Enum
 from typing import Any, Dict, Optional
 
@@ -45,9 +46,6 @@ class CICDClient:
         self.base_url = base_url or self._get_default_url(platform)
         self.logger = logging.getLogger("cicd_client")
 
-        self.client = None
-        self._init_client()
-
     def _get_default_url(self, platform: CIPlatform) -> str:
         """Get default API URL for platform"""
         if platform == CIPlatform.GITLAB:
@@ -55,11 +53,6 @@ class CICDClient:
         elif platform == CIPlatform.GITHUB:
             return "https://api.github.com"
         return ""
-
-    def _init_client(self):
-        """Initialize platform-specific client"""
-        # TODO: Initialize real API clients
-        self.logger.info(f"{self.platform.value} client initialized")
 
     async def trigger_pipeline(
         self,
@@ -71,68 +64,114 @@ class CICDClient:
         Trigger CI/CD pipeline
 
         Args:
-            project_id: Project/repository ID
+            project_id: Project/repository ID (GitLab: ID, GitHub: owner/repo)
             ref: Git ref (branch/tag)
             variables: Pipeline variables
-
-        Returns:
-            Pipeline information
         """
-        # TODO: Implement real API call
-        self.logger.info(
-            f"Triggering pipeline for {project_id} on {ref}"
-        )
+        async with aiohttp.ClientSession() as session:
+            if self.platform == CIPlatform.GITLAB:
+                url = f"{self.base_url}/projects/{project_id}/pipeline"
+                headers = {"PRIVATE-TOKEN": self.api_token}
+                data = {"ref": ref}
+                if variables:
+                    for k, v in variables.items():
+                        data[f"variables[{k}]"] = v
+                
+                async with session.post(url, headers=headers, data=data) as resp:
+                    if resp.status >= 400:
+                        text = await resp.text()
+                        self.logger.error(f"GitLab API Error: {text}")
+                        resp.raise_for_status()
+                    return await resp.json()
 
-        return {
-            "pipeline_id": "pending",
-            "status": "pending_implementation",
-            "web_url": f"{self.base_url}/pipelines/pending"
-        }
+            elif self.platform == CIPlatform.GITHUB:
+                # GitHub requires workflow_id. For now, we assume 'main.yml' or passed in variables
+                workflow_id = variables.get("workflow_id", "main.yml") if variables else "main.yml"
+                url = f"{self.base_url}/repos/{project_id}/actions/workflows/{workflow_id}/dispatches"
+                headers = {
+                    "Authorization": f"Bearer {self.api_token}",
+                    "Accept": "application/vnd.github.v3+json"
+                }
+                data = {"ref": ref}
+                if variables:
+                    # GitHub inputs must be strings
+                    inputs = {k: str(v) for k, v in variables.items() if k != "workflow_id"}
+                    if inputs:
+                        data["inputs"] = inputs
+
+                async with session.post(url, headers=headers, json=data) as resp:
+                    if resp.status >= 400:
+                        text = await resp.text()
+                        self.logger.error(f"GitHub API Error: {text}")
+                        resp.raise_for_status()
+                    
+                    # GitHub returns 204 No Content on success
+                    return {
+                        "status": "triggered", 
+                        "web_url": f"https://github.com/{project_id}/actions"
+                    }
+        return {}
 
     async def get_pipeline_status(
         self,
         project_id: str,
         pipeline_id: str
     ) -> Dict[str, Any]:
-        """
-        Get pipeline status
+        """Get pipeline status"""
+        async with aiohttp.ClientSession() as session:
+            if self.platform == CIPlatform.GITLAB:
+                url = f"{self.base_url}/projects/{project_id}/pipelines/{pipeline_id}"
+                headers = {"PRIVATE-TOKEN": self.api_token}
+                
+                async with session.get(url, headers=headers) as resp:
+                    resp.raise_for_status()
+                    return await resp.json()
 
-        Args:
-            project_id: Project ID
-            pipeline_id: Pipeline ID
-
-        Returns:
-            Pipeline status
-        """
-        # TODO: Implement real API call
-        return {
-            "id": pipeline_id,
-            "status": "pending",
-            "stages": []
-        }
+            elif self.platform == CIPlatform.GITHUB:
+                url = f"{self.base_url}/repos/{project_id}/actions/runs/{pipeline_id}"
+                headers = {
+                    "Authorization": f"Bearer {self.api_token}",
+                    "Accept": "application/vnd.github.v3+json"
+                }
+                
+                async with session.get(url, headers=headers) as resp:
+                    resp.raise_for_status()
+                    data = await resp.json()
+                    return {
+                        "id": str(data.get("id")),
+                        "status": data.get("status"),
+                        "conclusion": data.get("conclusion"),
+                        "web_url": data.get("html_url")
+                    }
+        return {}
 
     async def get_test_results(
         self,
         project_id: str,
         pipeline_id: str
     ) -> Dict[str, Any]:
-        """
-        Get test results from pipeline
+        """Get test results from pipeline"""
+        async with aiohttp.ClientSession() as session:
+            if self.platform == CIPlatform.GITLAB:
+                url = f"{self.base_url}/projects/{project_id}/pipelines/{pipeline_id}/test_report"
+                headers = {"PRIVATE-TOKEN": self.api_token}
+                
+                async with session.get(url, headers=headers) as resp:
+                    if resp.status == 404:
+                        return {"total": 0, "error": "No test report found"}
+                    resp.raise_for_status()
+                    return await resp.json()
 
-        Args:
-            project_id: Project ID
-            pipeline_id: Pipeline ID
-
-        Returns:
-            Test results
-        """
-        # TODO: Implement real API call
-        return {
-            "total": 0,
-            "passed": 0,
-            "failed": 0,
-            "skipped": 0
-        }
+            elif self.platform == CIPlatform.GITHUB:
+                # GitHub doesn't have a direct "test report" API for runs.
+                # We would need to parse logs or artifacts.
+                # Returning stub for now.
+                return {
+                    "total": 0,
+                    "status": "not_supported_for_github",
+                    "note": "GitHub Actions requires artifact parsing for test results"
+                }
+        return {}
 
 
 def get_cicd_client(

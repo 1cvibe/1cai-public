@@ -853,6 +853,13 @@ class MarketplaceRepository:
                     SELECT
                         (SELECT COUNT(*) FROM marketplace_favorites WHERE plugin_id = $1) AS favorites_count,
                         (SELECT COUNT(*) FROM marketplace_installs WHERE plugin_id = $1) AS installs_active
+                ),
+                download_stats AS (
+                    SELECT
+                        COUNT(*) FILTER (WHERE installed_at >= NOW() - INTERVAL '30 days') AS downloads_30d,
+                        COUNT(*) FILTER (WHERE installed_at >= NOW() - INTERVAL '60 days' AND installed_at < NOW() - INTERVAL '30 days') AS downloads_prev_30d
+                    FROM marketplace_installs
+                    WHERE plugin_id = $1
                 )
                 SELECT
                     p.*,
@@ -860,10 +867,13 @@ class MarketplaceRepository:
                     COALESCE(r.avg_rating, 0) AS avg_rating,
                     r.rating_dist,
                     c.favorites_count,
-                    c.installs_active
+                    c.installs_active,
+                    d.downloads_30d,
+                    d.downloads_prev_30d
                 FROM plugin_data p
                 CROSS JOIN review_stats r
                 CROSS JOIN counts c
+                CROSS JOIN download_stats d
                 """,
                 plugin_id,
             )
@@ -886,18 +896,29 @@ class MarketplaceRepository:
                 if isinstance(dist, dict):
                     for rating, count in dist.items():
                         rating_distribution[int(rating)] = count
+            
+            # Calculate trend
+            downloads_30d = plugin["downloads_30d"]
+            downloads_prev = plugin["downloads_prev_30d"]
+            
+            if downloads_30d > downloads_prev * 1.1:
+                trend = "up"
+            elif downloads_30d < downloads_prev * 0.9:
+                trend = "down"
+            else:
+                trend = "stable"
+
             stats = {
                 "plugin_id": plugin_id,
                 "downloads_total": plugin["downloads"],
-                # TODO: Calculate actual last 30 days
-                "downloads_last_30_days": plugin["downloads"],
+                "downloads_last_30_days": downloads_30d,
                 "installs_active": plugin["installs_active"],
                 "rating_average": float(plugin["avg_rating"] or plugin.get("rating") or 0),
                 "rating_distribution": rating_distribution,
                 "reviews_count": plugin["reviews_count"],
                 "favorites_count": plugin["favorites_count"],
-                "downloads_trend": "stable",  # TODO: Calculate trend from historical data
-                "rating_trend": "stable",  # TODO: Calculate trend from historical data
+                "downloads_trend": trend,
+                "rating_trend": "stable",  # TODO: Calculate rating trend similarly if needed
             }
             return stats
 
