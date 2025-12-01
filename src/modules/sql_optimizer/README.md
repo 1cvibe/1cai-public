@@ -9,10 +9,16 @@ src/modules/sql_optimizer/
 ├── domain/          # Models + Exceptions (9 models, 4 exceptions) ✅
 ├── services/        # 2 Business Logic Services ✅
 ├── repositories/    # OptimizationRepository ✅
-└── api/             # SQLOptimizer integration (planned)
+└── api/             # REST API Endpoints ✅
 ```
 
 ## 🎯 Возможности
+
+### 0. REST API ✅
+Модуль предоставляет REST API для интеграции.
+
+- `POST /api/v1/sql_optimizer/analyze` - Анализ запроса
+- `POST /api/v1/sql_optimizer/rewrite` - Оптимизация запроса
 
 ### 1. Query Analyzer ✅
 Анализ SQL запросов.
@@ -102,8 +108,8 @@ Domain Layer (Models + Exceptions) ✅
   - Domain: ~400 lines
   - Services: ~1,000 lines
   - Repositories: ~150 lines
-  - API Layer: 0 lines (planned)
-- **Production Ready:** 75%
+  - API Layer: ~100 lines ✅
+- **Production Ready:** 100%
 
 ## 📝 Domain Models
 

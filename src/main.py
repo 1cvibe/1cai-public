@@ -85,6 +85,8 @@ from src.modules.project_manager.api.routes import router as project_manager_rou
 from src.modules.scenario_hub.api.routes import router as scenario_hub_router
 from src.modules.technical_writer.api.routes import router as technical_writer_router
 from src.modules.security.api.routes import router as security_router
+from src.modules.sql_optimizer.api.routes import router as sql_optimizer_router
+from src.modules.code_analyzers.api.routes import router as code_analyzers_router
 
 # Marketplace & Analytics
 from src.modules.marketplace.api.routes import router as marketplace_router
@@ -588,6 +590,8 @@ routers = [
     ("scenario_hub", scenario_hub_router),
     ("technical_writer", technical_writer_router),
     ("security", security_router),
+    ("sql_optimizer", sql_optimizer_router),
+    ("code_analyzers", code_analyzers_router),
     ("ml", ml_router),
 ]
 

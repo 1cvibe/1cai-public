@@ -25,9 +25,14 @@ Refactored from `src/api/code_analyzers.py` into Clean Architecture:
 
 ## Usage
 
-The module is exposed via `src.modules.code_analyzers.services.analyzer_service`.
-Legacy imports from `src.api.code_analyzers` are supported via a proxy file.
+The module is exposed via `src.modules.code_analyzers.services.analyzer_service` and REST API.
 
+### REST API
+- `POST /api/v1/code_analyzers/analyze/python`
+- `POST /api/v1/code_analyzers/analyze/typescript`
+- `POST /api/v1/code_analyzers/analyze/javascript`
+
+### Python Usage
 ```python
 from src.modules.code_analyzers.services.analyzer_service import CodeAnalyzerService
 

@@ -306,7 +306,7 @@ graph TD
 | 6 | Technical Writer | `/api/v1/technical_writer` | ✅ Ready | AI Агенты |
 | 7 | Tech Log Analyzer | `/api/v1/tech_log` | ✅ Beta | AI Агенты |
 | 8 | RAS Monitor | `/api/v1/ras_monitor` | ✅ Ready | AI Агенты |
-| 9 | SQL Optimizer | `/api/v1/sql_optimizer` | ✅ Beta | AI Агенты |
+| 9 | SQL Optimizer | `/api/v1/sql_optimizer` | ✅ Ready | AI Агенты |
 | 10 | DevOps API | `/api/v1/devops` | ✅ Ready | API Endpoints |
 | 11 | BPMN API | `/api/v1/bpmn` | ✅ Ready | API Endpoints |
 | 12 | Graph API | `/api/v1/graph` | ✅ Ready | API Endpoints |
@@ -325,7 +325,7 @@ graph TD
 | 25 | Knowledge Base | `/api/v1/knowledge_base` | ✅ Ready | Core Features |
 | 26 | Marketplace | `/api/v1/marketplace` | ✅ Ready | Core Features |
 | 27 | Enterprise Wiki | `/api/v1/wiki` | ✅ Ready | Core Features |
-| 28 | Code Analyzers | internal | ✅ Beta | Code Analysis |
+| 28 | Code Analyzers | `/api/v1/code_analyzers` | ✅ Ready | Code Analysis |
 | 29 | Code Review | `/api/v1/code_review` | ✅ Ready | Code Analysis |
 | 30 | Test Generation | `/api/v1/test_generation` | ✅ Ready | Code Analysis |
 | 31 | Doc Generator | internal | ✅ Ready | Code Analysis |
@@ -748,8 +748,8 @@ graph TD
 <details>
 <summary><strong>9. SQL Optimizer — Оптимизация SQL</strong></summary>
 
-**Endpoint:** `/api/v1/sql_optimizer` (planned)  
-**Статус:** ⚠️ Near Production (75%)
+**Endpoint:** `/api/v1/sql_optimizer`  
+**Статус:** ✅ Production Ready
 
 **Описание:**  
 Оптимизация SQL-запросов для 1C:Предприятие. Анализ сложности, поиск anti-patterns, рекомендации индексов, переписывание запросов.
@@ -1212,8 +1212,8 @@ AI Copilot для помощи в разработке. Code completion, code ge
 <details>
 <summary><strong>28. Code Analyzers — Анализаторы кода</strong></summary>
 
-**Endpoint:** `/api/v1/code_analyzers` (planned)  
-**Статус:** ⚠️ In Development
+**Endpoint:** `/api/v1/code_analyzers`  
+**Статус:** ✅ Production Ready
 
 **Описание:**  
 Набор анализаторов кода для различных языков. Static analysis, code quality metrics, complexity analysis.
