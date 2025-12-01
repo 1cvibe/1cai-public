@@ -295,7 +295,8 @@ graph TD
 
 ---
 
-## 📊 Сводная таблица модулей
+<details>
+<summary><strong>📊 Сводная таблица модулей (нажмите, чтобы развернуть)</strong></summary>
 
 | # | Модуль | Endpoint | Статус | Категория |
 |---|--------|----------|--------|-----------|
@@ -345,6 +346,8 @@ graph TD
 - ⚠️ Dev — In Development
 - ⚠️ Stub — Stub implementation (needs completion)
 - planned — API endpoint planned
+
+</details>
 
 ---
 
