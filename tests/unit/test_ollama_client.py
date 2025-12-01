@@ -89,9 +89,9 @@ class TestOllamaClient:
         mock_response.json = AsyncMock(return_value=mock_response_data)
 
         mock_session = AsyncMock()
-        mock_session.get = AsyncMock(
-            return_value=AsyncContextManagerMock(mock_response)
-        )
+        # Fix: get is a sync method returning an async context manager
+        mock_session.get = MagicMock()
+        mock_session.get.return_value = AsyncContextManagerMock(mock_response)
         mock_session.closed = False
 
         client = OllamaClient(OllamaConfig(base_url="http://localhost:11434"))
@@ -118,9 +118,9 @@ class TestOllamaClient:
         mock_response.text = AsyncMock(return_value="Internal Server Error")
 
         mock_session = AsyncMock()
-        mock_session.get = AsyncMock(
-            return_value=AsyncContextManagerMock(mock_response)
-        )
+        # Fix: get is a sync method returning an async context manager
+        mock_session.get = MagicMock()
+        mock_session.get.return_value = AsyncContextManagerMock(mock_response)
         mock_session.closed = False
 
         client = OllamaClient(OllamaConfig(base_url="http://localhost:11434"))
@@ -158,9 +158,9 @@ class TestOllamaClient:
             }
         )
         mock_session = AsyncMock()
-        mock_session.get = AsyncMock(
-            return_value=AsyncContextManagerMock(mock_response)
-        )
+        # Fix: get is a sync method returning an async context manager
+        mock_session.get = MagicMock()
+        mock_session.get.return_value = AsyncContextManagerMock(mock_response)
 
         client = OllamaClient(OllamaConfig(base_url="http://localhost:11434"))
 
@@ -188,9 +188,9 @@ class TestOllamaClient:
             }
         )
         mock_session = AsyncMock()
-        mock_session.post = AsyncMock(
-            return_value=AsyncContextManagerMock(mock_response)
-        )
+        # Fix: post is a sync method returning an async context manager
+        mock_session.post = MagicMock()
+        mock_session.post.return_value = AsyncContextManagerMock(mock_response)
         mock_session.closed = False
 
         client = OllamaClient(OllamaConfig(base_url="http://localhost:11434"))
@@ -223,9 +223,9 @@ class TestOllamaClient:
             }
         )
         mock_session = AsyncMock()
-        mock_session.post = AsyncMock(
-            return_value=AsyncContextManagerMock(mock_response)
-        )
+        # Fix: post is a sync method returning an async context manager
+        mock_session.post = MagicMock()
+        mock_session.post.return_value = AsyncContextManagerMock(mock_response)
         mock_session.closed = False
 
         client = OllamaClient(OllamaConfig(base_url="http://localhost:11434"))
@@ -286,9 +286,9 @@ class TestOllamaClient:
             }
         )
         mock_session = AsyncMock()
-        mock_session.post = AsyncMock(
-            return_value=AsyncContextManagerMock(mock_response)
-        )
+        # Fix: post is a sync method returning an async context manager
+        mock_session.post = MagicMock()
+        mock_session.post.return_value = AsyncContextManagerMock(mock_response)
         mock_session.closed = False
 
         client = OllamaClient(OllamaConfig(base_url="http://localhost:11434"))

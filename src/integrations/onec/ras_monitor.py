@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from src.utils.structured_logging import StructuredLogger
+from src.integrations.onec.ras_client import RasClient
 
 logger = StructuredLogger(__name__).logger
 
@@ -64,8 +65,6 @@ class RASMonitor:
     - Performance recommendations
     """
 
-from src.integrations.onec.ras_client import RasClient
-
     def __init__(self, ras_host: str = "localhost", ras_port: int = 1545):
         self.ras_host = ras_host
         self.ras_port = ras_port
@@ -102,7 +101,7 @@ from src.integrations.onec.ras_client import RasClient
             clusters = self.client.get_clusters()
             if not clusters:
                 raise RuntimeError("No clusters found")
-            
+
             # Use first cluster if name not specified
             target = clusters[0]
             if cluster_name:
@@ -110,23 +109,21 @@ from src.integrations.onec.ras_client import RasClient
                     if c.get("name") == cluster_name:
                         target = c
                         break
-            
+
             return ClusterInfo(
                 cluster_id=target.get("cluster", "unknown"),
                 name=target.get("name", "Unknown Cluster"),
                 main_port=int(target.get("port", 1541)),
-                working_processes=0, # Need separate call to count processes
-                total_memory_mb=0, # RAS doesn't provide total memory directly usually
-                cpu_usage=0.0, # RAS doesn't provide CPU usage directly
+                working_processes=0,  # Need separate call to count processes
+                total_memory_mb=0,  # RAS doesn't provide total memory directly usually
+                cpu_usage=0.0,  # RAS doesn't provide CPU usage directly
             )
         except Exception as e:
             logger.error(f"Error getting cluster info: {e}")
             # Fallback to mock for safety if RAC fails
             return ClusterInfo("mock", "Mock Cluster (Error)", 1541, 0, 0, 0.0)
 
-    async def _get_active_sessions(
-        self, cluster_name: Optional[str]
-    ) -> List[SessionInfo]:
+    async def _get_active_sessions(self, cluster_name: Optional[str]) -> List[SessionInfo]:
         """Получение активных сессий"""
         try:
             # We need cluster ID first
@@ -136,22 +133,24 @@ from src.integrations.onec.ras_client import RasClient
 
             raw_sessions = self.client.get_sessions(cluster.cluster_id)
             sessions = []
-            
+
             for s in raw_sessions:
                 # Parse duration (format depends on locale, simplified here)
                 # Assuming started-at is ISO or similar
-                start_time = datetime.now() # Placeholder
-                
-                sessions.append(SessionInfo(
-                    session_id=s.get("session-id", ""),
-                    user=s.get("user-name", "Unknown"),
-                    application=s.get("app-id", "Unknown"),
-                    started_at=start_time,
-                    duration_minutes=0, # Calc from start_time
-                    memory_mb=0, # Not always available in simple list
-                    cpu_time_seconds=0,
-                    db_connection_mode="Unknown"
-                ))
+                start_time = datetime.now()  # Placeholder
+
+                sessions.append(
+                    SessionInfo(
+                        session_id=s.get("session-id", ""),
+                        user=s.get("user-name", "Unknown"),
+                        application=s.get("app-id", "Unknown"),
+                        started_at=start_time,
+                        duration_minutes=0,  # Calc from start_time
+                        memory_mb=0,  # Not always available in simple list
+                        cpu_time_seconds=0,
+                        db_connection_mode="Unknown",
+                    )
+                )
             return sessions
         except Exception as e:
             logger.error(f"Error getting sessions: {e}")
@@ -186,11 +185,7 @@ from src.integrations.onec.ras_client import RasClient
         issues = []
 
         # 1. Долгие сессии
-        long_sessions = [
-            s
-            for s in sessions
-            if s.duration_minutes > self.thresholds["long_session_minutes"]
-        ]
+        long_sessions = [s for s in sessions if s.duration_minutes > self.thresholds["long_session_minutes"]]
 
         if long_sessions:
             issues.append(
@@ -204,9 +199,7 @@ from src.integrations.onec.ras_client import RasClient
             )
 
         # 2. Высокое потребление памяти
-        high_memory_sessions = [
-            s for s in sessions if s.memory_mb > self.thresholds["high_memory_mb"]
-        ]
+        high_memory_sessions = [s for s in sessions if s.memory_mb > self.thresholds["high_memory_mb"]]
 
         if high_memory_sessions:
             issues.append(
@@ -313,9 +306,7 @@ if __name__ == "__main__":
 
         print(f"\nIssues: {len(health['issues'])}")
         for issue in health["issues"]:
-            print(
-                f"  [{issue['severity'].upper()}] {issue['type']}: {issue['details']}"
-            )
+            print(f"  [{issue['severity'].upper()}] {issue['type']}: {issue['details']}")
 
         print(f"\nRecommendations: {len(health['recommendations'])}")
 

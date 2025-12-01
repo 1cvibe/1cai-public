@@ -6,8 +6,8 @@ Tests for 1C Code Graph Builder (OneCCodeGraphBuilder).
 
 import pytest
 
-from src.ai.code_graph import InMemoryCodeGraphBackend, NodeKind
-from src.ai.code_graph_1c_builder import OneCCodeGraphBuilder
+from src.ai.code_analysis.graph import InMemoryCodeGraphBackend, NodeKind
+from src.ai.code_analysis.graph_builder import OneCCodeGraphBuilder
 
 
 @pytest.mark.asyncio

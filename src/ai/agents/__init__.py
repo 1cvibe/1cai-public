@@ -6,9 +6,7 @@ AI Agents for different roles
 """
 
 from src.ai.agents.ai_issue_classifier import AIIssueClassifier
-from src.ai.agents.architect_agent_extended import ArchitectAgentExtended
 from src.ai.agents.business_analyst_agent import BusinessAnalystAgent
-from src.ai.agents.developer_agent_enhanced import DeveloperAgentEnhanced
 from src.ai.agents.its_knowledge_integrator import ITSKnowledgeIntegrator
 from src.ai.agents.onec_server_optimizer import OneCServerOptimizer
 from src.ai.agents.performance_analyzer import PerformanceAnalyzer
@@ -32,7 +30,6 @@ except ImportError:
 __all__ = [
     "BusinessAnalystAgent",
     "QAEngineerAgent",
-    "ArchitectAgentExtended",
     "TechnologySelector",
     "PerformanceAnalyzer",
     "ITSKnowledgeIntegrator",
@@ -43,5 +40,4 @@ __all__ = [
     "AIIssueClassifier",
     "SecurityAgent",
     "ProjectManagerAgent",
-    "DeveloperAgentEnhanced",
 ]
