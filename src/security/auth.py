@@ -48,12 +48,12 @@ class AuthSettings(BaseSettings):
 
 
 class TokenResponse(BaseModel):
-    """Класс TokenResponse.
-    
-    TODO: Добавить описание класса.
-    
+    """Модель ответа с токеном доступа.
+
     Attributes:
-        TODO: Описать атрибуты класса.
+        access_token: JWT токен доступа.
+        token_type: Тип токена (обычно "bearer").
+        expires_in: Время жизни токена в секундах.
     """
     access_token: str
     token_type: str = "bearer"
@@ -61,12 +61,16 @@ class TokenResponse(BaseModel):
 
 
 class UserCredentials(BaseModel):
-    """Класс UserCredentials.
-    
-    TODO: Добавить описание класса.
-    
+    """Учетные данные пользователя для аутентификации.
+
     Attributes:
-        TODO: Описать атрибуты класса.
+        username: Имя пользователя.
+        password: Хэш пароля.
+        user_id: Уникальный идентификатор пользователя.
+        roles: Список ролей пользователя.
+        permissions: Список прав доступа пользователя.
+        full_name: Полное имя пользователя (опционально).
+        email: Email пользователя (опционально).
     """
     username: str
     password: str
@@ -78,12 +82,15 @@ class UserCredentials(BaseModel):
 
 
 class CurrentUser(BaseModel):
-    """Класс CurrentUser.
-    
-    TODO: Добавить описание класса.
-    
+    """Модель текущего аутентифицированного пользователя.
+
     Attributes:
-        TODO: Описать атрибуты класса.
+        user_id: Уникальный идентификатор пользователя.
+        username: Имя пользователя.
+        roles: Список ролей пользователя.
+        permissions: Список прав доступа пользователя.
+        full_name: Полное имя пользователя.
+        email: Email пользователя.
     """
     user_id: str
     username: str
@@ -93,18 +100,24 @@ class CurrentUser(BaseModel):
     email: Optional[str] = None
 
     def has_role(self, *required_roles: str) -> bool:
-        """TODO: Описать функцию has_role.
-        
+        """Проверить наличие хотя бы одной из указанных ролей.
+
+        Args:
+            required_roles: Роли, наличие которых нужно проверить.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            True, если у пользователя есть хотя бы одна из указанных ролей, иначе False.
         """
         return any(role in self.roles for role in required_roles)
 
     def has_permission(self, *required_permissions: str) -> bool:
-        """TODO: Описать функцию has_permission.
-        
+        """Проверить наличие хотя бы одного из указанных прав.
+
+        Args:
+            required_permissions: Права, наличие которых нужно проверить.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            True, если у пользователя есть хотя бы одно из указанных прав, иначе False.
         """
         return any(
             permission in self.permissions for permission in required_permissions
@@ -137,10 +150,10 @@ class AuthService:
     """Service for authenticating users and issuing JWT tokens."""
 
     def __init__(self, settings: AuthSettings):
-        """TODO: Описать функцию __init__.
-        
+        """Инициализировать сервис аутентификации.
+
         Args:
-            settings: TODO: Описать параметр.
+            settings: Настройки аутентификации.
         """
         self.settings = settings
         self._users: Dict[str, UserCredentials] = self._load_users()
@@ -224,14 +237,14 @@ class AuthService:
         return token_map
 
     def authenticate_user(self, username: str, password: str) -> Optional[UserCredentials]:
-        """TODO: Описать функцию authenticate_user.
-        
+        """Аутентифицировать пользователя по имени и паролю.
+
         Args:
-            username: TODO: Описать параметр.
-            password: TODO: Описать параметр.
-        
+            username: Имя пользователя.
+            password: Пароль пользователя.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            Объект UserCredentials, если аутентификация успешна, иначе None.
         """
         user = self._users.get(username)
         if not user:
@@ -384,13 +397,13 @@ class AuthService:
         )
 
     def authenticate_service_token(self, token: str) -> Optional[CurrentUser]:
-        """TODO: Описать функцию authenticate_service_token.
-        
+        """Аутентифицировать сервисный токен.
+
         Args:
-            token: TODO: Описать параметр.
-        
+            token: Токен сервиса.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            Объект CurrentUser, если токен валиден, иначе None.
         """
         if not token:
             return None
@@ -402,20 +415,20 @@ class AuthService:
 
 @lru_cache()
 def get_auth_settings() -> AuthSettings:
-    """TODO: Описать функцию get_auth_settings.
-    
+    """Получить настройки аутентификации (cached).
+
     Returns:
-        TODO: Описать возвращаемое значение.
+        Экземпляр AuthSettings.
     """
     return AuthSettings()
 
 
 @lru_cache()
 def get_auth_service() -> AuthService:
-    """TODO: Описать функцию get_auth_service.
-    
+    """Получить сервис аутентификации (cached).
+
     Returns:
-        TODO: Описать возвращаемое значение.
+        Экземпляр AuthService.
     """
     return AuthService(get_auth_settings())
 
@@ -423,14 +436,17 @@ def get_auth_service() -> AuthService:
 async def get_current_user(
     request: Request, token: Optional[str] = Depends(oauth2_scheme)
 ) -> CurrentUser:
-    """TODO: Описать функцию get_current_user.
-    
+    """Получить текущего пользователя из запроса.
+
     Args:
-        request: TODO: Описать параметр.
-        token: TODO: Описать параметр.
-    
+        request: HTTP запрос.
+        token: JWT токен (извлекается автоматически).
+
     Returns:
-        TODO: Описать возвращаемое значение.
+        Объект CurrentUser.
+
+    Raises:
+        HTTPException: Если пользователь не аутентифицирован.
     """
     auth_service = get_auth_service()
 
@@ -460,15 +476,18 @@ async def get_current_user(
 
 
 def require_roles(*roles: str):
-    """TODO: Описать функцию require_roles."""
+    """Декоратор для проверки наличия ролей."""
     async def dependency(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
-        """TODO: Описать функцию dependency.
-        
+        """Проверка ролей пользователя.
+
         Args:
-            user: TODO: Описать параметр.
-        
+            user: Текущий пользователь.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            Пользователь, если проверка пройдена.
+
+        Raises:
+            HTTPException: Если у пользователя нет необходимых ролей.
         """
         if roles and not user.has_role(*roles):
             raise HTTPException(
@@ -481,15 +500,18 @@ def require_roles(*roles: str):
 
 
 def require_permissions(*permissions: str):
-    """TODO: Описать функцию require_permissions."""
+    """Декоратор для проверки наличия прав."""
     async def dependency(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
-        """TODO: Описать функцию dependency.
-        
+        """Проверка прав пользователя.
+
         Args:
-            user: TODO: Описать параметр.
-        
+            user: Текущий пользователь.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            Пользователь, если проверка пройдена.
+
+        Raises:
+            HTTPException: Если у пользователя нет необходимых прав.
         """
         if permissions and not user.has_permission(*permissions):
             raise HTTPException(

@@ -209,13 +209,45 @@ class ExtremePerformanceOptimizer:
         self, request_id: str, executor_func, *args, **kwargs
     ) -> Any:
         """
-        Deduplicate identical in-flight requests
+        Deduplicate identical in-flight requests.
 
         If same request is already processing, wait for it
-        instead of executing again
+        instead of executing again.
         """
-        # TODO: Implement with asyncio locks per request_id
-        return await executor_func(*args, **kwargs)
+        import asyncio
+
+        # Initialize inflight requests dict if not exists
+        if not hasattr(self, "_inflight_requests"):
+            self._inflight_requests: Dict[str, asyncio.Future] = {}
+        
+        # Initialize lock if not exists
+        if not hasattr(self, "_dedup_lock"):
+            self._dedup_lock = asyncio.Lock()
+
+        async with self._dedup_lock:
+            if request_id in self._inflight_requests:
+                logger.debug("Waiting for in-flight request", extra={"request_id": request_id})
+                return await self._inflight_requests[request_id]
+            
+            # Create a future for others to wait on
+            loop = asyncio.get_running_loop()
+            future = loop.create_future()
+            self._inflight_requests[request_id] = future
+
+        try:
+            # Execute
+            result = await executor_func(*args, **kwargs)
+            if not future.done():
+                future.set_result(result)
+            return result
+        except Exception as e:
+            if not future.done():
+                future.set_exception(e)
+            raise
+        finally:
+            async with self._dedup_lock:
+                if request_id in self._inflight_requests:
+                    del self._inflight_requests[request_id]
 
 
 # Global instance

@@ -2,6 +2,18 @@
 
 Набор из 8 специализированных AI агентов для разных ролей в разработке.
 
+> [!WARNING]
+> **Legacy Status**: Эти агенты являются устаревшими. Новые реализации находятся в `src/modules/`.
+>
+> **Migration Guide:**
+> - Architect Agent -> `src/modules/architect`
+> - Business Analyst Agent -> `src/modules/business_analyst`
+> - QA Engineer Agent -> `src/modules/qa`
+> - DevOps Agent -> `src/modules/devops`
+> - Security Agent -> `src/modules/security`
+> - Technical Writer Agent -> `src/modules/technical_writer`
+> - Project Manager Agent -> `src/modules/project_manager`
+
 ## Архитектура
 
 Все агенты наследуются от `BaseAgent` и следуют единому интерфейсу:

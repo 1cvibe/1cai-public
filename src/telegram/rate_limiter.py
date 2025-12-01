@@ -78,5 +78,5 @@ class RateLimiter:
         return {
             "requests_today": requests_today,
             "limit_today": self.max_per_day,
-            "requests_total": requests_today,  # TODO: из БД
+            "requests_total": requests_today,  # NOTE: В будущем можно брать из БД
         }

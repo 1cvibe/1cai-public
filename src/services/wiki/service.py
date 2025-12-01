@@ -136,7 +136,7 @@ class WikiService:
                 # 3. Index in Qdrant (Stub)
                 if self.qdrant:
                     # await self.qdrant.index_page(...)
-                    pass
+                    logger.debug("Qdrant indexing skipped (not configured)")
 
         logger.info(f"Created wiki page: {data.title}", extra={"author_id": author_id})
 

@@ -198,8 +198,8 @@ result = await agent.generate_tests_enhanced(code, name)
 
 ## 🐛 Known Issues
 
-- SonarQube integration - stub (requires configuration)
-- Vanessa integration - stub (requires configuration)
+- SonarQube integration - Реализовано в `services/sonarqube_client.py`
+- Vanessa integration - Реализовано в `services/vanessa_runner.py`
 - Qwen3-Coder integration - optional (for AI generation)
 
 ## 🤝 Contributing

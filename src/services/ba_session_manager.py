@@ -1,9 +1,7 @@
 """Модуль ba_session_manager.
 
-TODO: Добавить подробное описание модуля.
-
-Этот docstring был автоматически сгенерирован.
-Пожалуйста, обновите его с правильным описанием.
+Управление сессиями бизнес-аналитиков (BA) через WebSocket.
+Обеспечивает совместную работу, обмен сообщениями и аудит действий.
 """
 
 # [NEXUS IDENTITY] ID: -1999338560375047581 | DATE: 2025-11-19
@@ -32,46 +30,31 @@ try:
 except Exception:  # pragma: no cover - metrics optional
 
     def set_ba_session_counts(*args: Any, **kwargs: Any) -> None:  # type: ignore[unused-ignore]  # noqa: ANN401
-        """TODO: Описать функцию set_ba_session_counts.
-        
-        Returns:
-            TODO: Описать возвращаемое значение.
-        """
+        """Установить метрики количества сессий и участников."""
         return None
 
     def track_ba_session_event(*args: Any, **kwargs: Any) -> None:  # type: ignore[unused-ignore]  # noqa: ANN401
-        """TODO: Описать функцию track_ba_session_event.
-        
-        Returns:
-            TODO: Описать возвращаемое значение.
-        """
+        """Отследить событие сессии BA."""
         return None
 
     def track_ba_session_disconnect(*args: Any, **kwargs: Any) -> None:  # type: ignore[unused-ignore]  # noqa: ANN401
-        """TODO: Описать функцию track_ba_session_disconnect.
-        
-        Returns:
-            TODO: Описать возвращаемое значение.
-        """
+        """Отследить отключение от сессии."""
         return None
 
     def track_ba_session_audit_failure() -> None:  # type: ignore[unused-ignore]
-        """TODO: Описать функцию track_ba_session_audit_failure.
-        
-        Returns:
-            TODO: Описать возвращаемое значение.
-        """
+        """Отследить ошибку записи аудита."""
         return None
 
 
 @dataclass
 class Participant:
-    """Класс Participant.
-    
-    TODO: Добавить описание класса.
-    
+    """Участник сессии.
+
     Attributes:
-        TODO: Описать атрибуты класса.
+        user_id: ID пользователя.
+        role: Роль участника (например, 'analyst').
+        websocket: WebSocket соединение.
+        joined_at: Время присоединения.
     """
     user_id: str
     role: str
@@ -81,12 +64,14 @@ class Participant:
 
 @dataclass
 class SessionState:
-    """Класс SessionState.
-    
-    TODO: Добавить описание класса.
-    
+    """Состояние сессии.
+
     Attributes:
-        TODO: Описать атрибуты класса.
+        session_id: ID сессии.
+        topic: Тема обсуждения.
+        created_at: Время создания.
+        participants: Словарь участников {user_id: Participant}.
+        history: История событий сессии.
     """
     session_id: str
     topic: Optional[str] = None
@@ -106,10 +91,10 @@ class BASessionManager:
     """
 
     def __init__(self, audit_path: Optional[Path] = None) -> None:
-        """TODO: Описать функцию __init__.
-        
+        """Инициализация менеджера сессий.
+
         Args:
-            audit_path: TODO: Описать параметр.
+            audit_path: Путь к файлу лога аудита.
         """
         self._sessions: Dict[str, SessionState] = {}
         self._lock = asyncio.Lock()
@@ -125,17 +110,17 @@ class BASessionManager:
         role: str = "analyst",
         topic: Optional[str] = None,
     ) -> SessionState:
-        """TODO: Описать функцию join_session.
-        
+        """Присоединить пользователя к сессии.
+
         Args:
-            session_id: TODO: Описать параметр.
-            websocket: TODO: Описать параметр.
-            user_id: TODO: Описать параметр.
-            role: TODO: Описать параметр.
-            topic: TODO: Описать параметр.
-        
+            session_id: ID сессии.
+            websocket: WebSocket соединение.
+            user_id: ID пользователя.
+            role: Роль пользователя.
+            topic: Тема сессии (опционально).
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            Объект состояния сессии.
         """
         await websocket.accept()
         async with self._lock:
@@ -153,11 +138,11 @@ class BASessionManager:
             return session
 
     async def leave_session(self, session_id: str, user_id: str) -> None:
-        """TODO: Описать функцию leave_session.
-        
+        """Отключить пользователя от сессии.
+
         Args:
-            session_id: TODO: Описать параметр.
-            user_id: TODO: Описать параметр.
+            session_id: ID сессии.
+            user_id: ID пользователя.
         """
         async with self._lock:
             session = self._sessions.get(session_id)
@@ -180,12 +165,12 @@ class BASessionManager:
         *,
         sender: Optional[str] = None,
     ) -> None:
-        """TODO: Описать функцию broadcast.
-        
+        """Разослать сообщение всем участникам сессии.
+
         Args:
-            session_id: TODO: Описать параметр.
-            message: TODO: Описать параметр.
-            sender: TODO: Описать параметр.
+            session_id: ID сессии.
+            message: Тело сообщения.
+            sender: ID отправителя (опционально).
         """
         session = self._sessions.get(session_id)
         if not session:
@@ -215,12 +200,12 @@ class BASessionManager:
     async def send_private(
         self, session_id: str, user_id: str, message: Dict[str, Any]
     ) -> None:
-        """TODO: Описать функцию send_private.
-        
+        """Отправить личное сообщение участнику.
+
         Args:
-            session_id: TODO: Описать параметр.
-            user_id: TODO: Описать параметр.
-            message: TODO: Описать параметр.
+            session_id: ID сессии.
+            user_id: ID получателя.
+            message: Тело сообщения.
         """
         session = self._sessions.get(session_id)
         if not session:
@@ -241,13 +226,13 @@ class BASessionManager:
         track_ba_session_event("private")
 
     def get_session_state(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """TODO: Описать функцию get_session_state.
-        
+        """Получить текущее состояние сессии.
+
         Args:
-            session_id: TODO: Описать параметр.
-        
+            session_id: ID сессии.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            Словарь с состоянием сессии или None, если сессия не найдена.
         """
         session = self._sessions.get(session_id)
         if not session:
@@ -268,10 +253,10 @@ class BASessionManager:
         }
 
     def list_sessions(self) -> List[Dict[str, Any]]:
-        """TODO: Описать функцию list_sessions.
-        
+        """Получить список всех активных сессий.
+
         Returns:
-            TODO: Описать возвращаемое значение.
+            Список словарей с краткой информацией о сессиях.
         """
         return [
             {

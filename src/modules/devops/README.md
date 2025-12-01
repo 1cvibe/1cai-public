@@ -290,7 +290,7 @@ result = await agent.analyze_docker_infrastructure(
 **Legacy методы (сохранены):**
 - `analyze_logs()` - LLM-based log analysis
 - `optimize_cicd()` - LLM-based CI/CD optimization
-- `deploy_kubernetes()` - K8s deployment stub
+- `deploy_kubernetes()` - Развертывание в Kubernetes через `services/k8s_deployer.py`
 - `detect_log_anomalies()` - ML anomaly detection
 - `detect_metric_anomalies()` - ML metric anomalies
 - `auto_scale()` - LLM-based scaling decisions

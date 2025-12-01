@@ -14,6 +14,22 @@
 
 **Кому полезно:** DevOps-командам 1С, архитекторам платформы и ML/аналитикам, которым нужно быстрее внедрять изменения в продуктивные 1С-ландшафты.
 
+> **Быстрый переход:** [🚀 Быстрый старт](#-quick-start--быстрый-старт) | [📚 Документация](docs/) | [🤖 AI Агенты](#-ai-агенты-9-модулей) | [🗺️ Roadmap](docs/ROADMAP.md) | [💬 Обсуждения](https://t.me/one_c_ai)
+
+---
+
+## ⚡ Почему 1C AI Stack?
+
+| 🐢 Традиционная 1С-разработка | 🚀 С 1C AI Stack |
+|-------------------------------|------------------|
+| Ручной Code Review (часы) | **AI Review за секунды** + авто-фикс |
+| "Где документация?" | **Авто-генерация** Wiki и диаграмм из кода |
+| Тесты пишутся "когда-нибудь" | **Генерация тестов** (Vanessa/YAxUnit) одной кнопкой |
+| Поиск зависимостей в голове | **Граф знаний** (Neo4j) и семантический поиск |
+| Ручной деплой | **GitOps + K8s** пайплайны из коробки |
+
+> 📊 **В цифрах:** 38 модулей | 160 стандартов | 8 AI-агентов | 100% Python/BSL | Clean Architecture
+
 ---
 
 ## 🎥 Видео-презентация
@@ -27,6 +43,30 @@
 ## 📰 Последние обновления
 
 <details open>
+<summary><strong>🎉 2025-12-01: Legacy Cleanup & Performance Module</strong></summary>
+
+**Завершена масштабная очистка legacy-кода и миграция модуля производительности.**
+Кодовая база избавлена от дубликатов, а критические сервисы оптимизации получили собственный модуль.
+
+**Ключевые изменения:**
+- 🗑️ **Legacy Cleanup**:
+    - Удален монолитный `advanced_optimizations.py`.
+    - Удалены устаревшие агенты из `src/ai/agents` и дубликаты (`scenario_hub.py`, `sql_optimizer.py`).
+- 🚀 **Performance Module**:
+    - Создан `src/modules/performance` с чистой архитектурой.
+    - Мигрированы сервисы: `Scheduler`, `SLOTracker`, `Batcher`, `Quantizer`, `Cache`, `Optimizer`.
+- ✅ **Stubs Implemented**:
+    - **DevOps**: Реализован `K8sDeployer` для деплоя в Kubernetes.
+    - **QA**: Реализованы `SonarQubeClient` и `VanessaRunner`.
+- 📚 **Documentation**:
+    - Полная русификация документации в `auth.py` и новых модулях.
+
+**Результат:**
+Уменьшение технического долга, повышение модульности и готовность инфраструктурных компонентов.
+
+</details>
+
+<details>
 <summary><strong>🎉 2025-11-30: Nested Learning Refactoring (Clean Architecture)</strong></summary>
 
 **Завершен полный рефакторинг модуля Nested Learning.**
@@ -297,6 +337,7 @@ graph TD
 | 37 | ML Models | `/api/v1/ml` | ✅ Ready | Integrations |
 | 38 | Project Manager | `/api/v1/project_manager` | ✅ Ready | Integrations |
 | 39 | Shared Memory | internal | ✅ Ready | Infrastructure |
+| 40 | Performance | internal | ✅ Ready | Core Features |
 
 **Легенда:**
 - ✅ Ready — Production Ready
@@ -336,6 +377,87 @@ graph TD
 - ✅ **Enterprise Wiki** — headless CMS с версионированием
 - ✅ **gRPC Integration** — связь Desktop ↔ Backend
 - ✅ **160 формализованных спецификаций** платформы
+
+---
+
+## 🛡️ Безопасность и Приватность
+
+Безопасность заложена в архитектуру платформы (Security by Design). Мы используем многоуровневый подход к защите данных и кода.
+
+<details>
+<summary><strong>🔐 1. Identity & Access Management (IAM)</strong></summary>
+
+Централизованная система управления доступом и идентификацией.
+
+- **JWT Authentication**:
+    - Используются `Access Token` (короткоживущий) и `Refresh Token` (долгоживущий).
+    - Stateless архитектура: токены не хранятся в БД, что обеспечивает масштабируемость.
+    - Поддержка ротации ключей подписи (HS256/RS256).
+- **RBAC (Role-Based Access Control)**:
+    - **Admin**: Полный доступ к системе и настройкам.
+    - **Developer**: Доступ к коду, запуску тестов, просмотру логов.
+    - **Manager**: Просмотр дашбордов, аналитики, управление задачами.
+    - **Auditor**: Только чтение логов аудита и отчетов безопасности.
+- **Audit Logging**:
+    - Логирование событий в формате JSON (структурированные логи).
+    - Запись IP-адреса, User-ID, Timestamp и типа действия.
+    - Защита от удаления: логи пишутся в append-only режиме.
+
+</details>
+
+<details>
+<summary><strong>🤖 2. AI Security (Rule of Two)</strong></summary>
+
+Защита от непредсказуемого поведения AI-агентов через принцип "двух ключей".
+
+- **[AB] (Author + Bot)**:
+    - Сценарий: Генерация кода, написание SQL-запросов.
+    - Механизм: Агент генерирует артефакт, но он помечается как `DRAFT`.
+    - Утверждение: Человек (Author) должен явно нажать "Approve" для применения.
+- **[BC] (Bot + Controller)**:
+    - Сценарий: Автоматические фиксы, оптимизация конфигурации.
+    - Механизм: Основной агент (Bot) предлагает изменение.
+    - Контроль: Второй агент (Controller/Verifier) проверяет изменение на безопасность и соответствие стандартам. Если Controller не одобряет — действие блокируется.
+- **Human-in-the-Loop**:
+    - Критические операции (Deploy to Production, Delete Data) **всегда** требуют подтверждения человеком через UI или CLI.
+
+</details>
+
+<details>
+<summary><strong>🛡️ 3. Active Defense</strong></summary>
+
+Активные меры по обнаружению и предотвращению угроз в реальном времени.
+
+- **Security Agent**:
+    - Непрерывное сканирование новых коммитов (SAST).
+    - Поиск уязвимостей по базе OWASP Top 10.
+    - Интеграция с SonarQube для глубокого анализа.
+- **Dependency Audit**:
+    - Проверка `requirements.txt`, `package.json` на известные CVE.
+    - Автоматическое создание Pull Request для обновления уязвимых библиотек.
+- **Secure SQL Optimizer**:
+    - Анализ AST SQL-запросов перед выполнением.
+    - Блокировка запросов с конкатенацией строк (потенциальные инъекции).
+    - Принудительное использование параметризованных запросов.
+
+</details>
+
+<details>
+<summary><strong>🔒 4. Data Protection</strong></summary>
+
+Защита чувствительных данных на всех уровнях.
+
+- **No Hardcoded Secrets**:
+    - Pre-commit хуки блокируют коммиты с ключами API, паролями, токенами.
+    - Использование `.env` файлов и интеграция с HashiCorp Vault (в Enterprise версии).
+- **PII Masking**:
+    - Автоматическое обнаружение персональных данных (ФИО, Email, Телефон) в логах.
+    - Маскирование: `Ivanov -> I***v`, `user@example.com -> u***@example.com`.
+- **Secure Communication**:
+    - mTLS для взаимодействия между микросервисами.
+    - TLS 1.3 для всех внешних соединений.
+
+</details>
 
 ---
 
@@ -1047,6 +1169,35 @@ AI Copilot для помощи в разработке. Code completion, code ge
 
 </details>
 
+<details>
+<summary><strong>40. Performance — Модуль производительности</strong></summary>
+
+**Endpoint:** internal  
+**Статус:** ✅ Production Ready
+
+**Описание:**  
+Модуль для анализа и оптимизации производительности AI-стека. Управление ресурсами, планирование задач, квантование моделей.
+
+**Ключевые возможности:**
+- ⚡ **Weighted GPU Scheduler** — умное планирование задач на GPU
+- 📊 **SLO Tracker** — отслеживание Service Level Objectives
+- 📦 **Memory Aware Batcher** — динамический батчинг с учетом памяти
+- 📉 **Adaptive Quantizer** — адаптивное квантование моделей
+- 🧠 **Semantic Cache** — семантическое кэширование запросов
+
+**Реализованные сервисы:**
+- `Scheduler` — планировщик задач
+- `SLOTracker` — трекер SLO
+- `Batcher` — батчер запросов
+- `Quantizer` — квантование
+- `Cache` — семантический кэш
+- `Optimizer` — предиктивный оптимизатор
+
+**Документация:**
+- [Performance Module README](src/modules/performance/README.md)
+
+</details>
+
 </details>
 
 ---
@@ -1307,12 +1458,16 @@ AI-агент для управления проектами. Реализует
 
 ### Backend (Python 3.11+)
 
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white) ![Pydantic](https://img.shields.io/badge/Pydantic-2.9-E92063?logo=pydantic&logoColor=white)
+
 **Core Framework:**
 - FastAPI 0.115.6 — async веб-фреймворк
 - Uvicorn 0.24.0 — ASGI сервер
 - Pydantic 2.9.2 — валидация данных
 
 **Databases:**
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white) ![Neo4j](https://img.shields.io/badge/Neo4j-5.15-008CC1?logo=neo4j&logoColor=white) ![Qdrant](https://img.shields.io/badge/Qdrant-1.7-E92063?logo=qdrant&logoColor=white)
+
 - PostgreSQL 15 — основная БД (metadata, users, wiki)
 - SQLAlchemy 2.0.23 + Alembic 1.13.1 — ORM и миграции
 - Neo4j 5.15 — граф зависимостей (BSL-specific)
@@ -1320,11 +1475,15 @@ AI-агент для управления проектами. Реализует
 - Qdrant 1.7.4 — векторный поиск
 
 **AI/ML:**
+![PyTorch](https://img.shields.io/badge/PyTorch-2.1-EE4C2C?logo=pytorch&logoColor=white) ![OpenAI](https://img.shields.io/badge/OpenAI-API-412991?logo=openai&logoColor=white) ![LangChain](https://img.shields.io/badge/LangChain-0.1-1C3C3C?logo=langchain&logoColor=white)
+
 - OpenAI 1.54.3, Transformers ≥4.36.0, PyTorch ≥2.1.0
 - Sentence-Transformers 3.2.1, LangChain ≥0.1.0
 - Kimi (Moonshot AI), Qwen, GigaChat, YandexGPT, Ollama
 
 **Communication:**
+![gRPC](https://img.shields.io/badge/gRPC-1.60-244C5A?logo=grpc&logoColor=white) ![NATS](https://img.shields.io/badge/NATS-2.10-37A5CC?logo=nats&logoColor=white) ![Socket.IO](https://img.shields.io/badge/Socket.IO-4.7-010101?logo=socket.io&logoColor=white)
+
 - gRPC ≥1.60.0 — Desktop ↔ Backend
 - NATS 2.10 — event-driven architecture ⭐
 - Socket.IO — real-time WebSocket
@@ -1344,6 +1503,8 @@ AI-агент для управления проектами. Реализует
 
 ### Frontend (React + TypeScript)
 
+![React](https://img.shields.io/badge/React-18.2-61DAFB?logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite&logoColor=white) ![Tailwind](https://img.shields.io/badge/Tailwind-3.3-06B6D4?logo=tailwindcss&logoColor=white)
+
 - React 18.2.0, TypeScript 5.3.3, Vite 7.2.4
 - Radix UI, TailwindCSS 3.3.6
 - Zustand 4.4.7, TanStack Query 5.12.0
@@ -1352,11 +1513,15 @@ AI-агент для управления проектами. Реализует
 
 ### Desktop Client (.NET 9)
 
+![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white) ![C#](https://img.shields.io/badge/C%23-12.0-239120?logo=csharp&logoColor=white) ![Avalonia](https://img.shields.io/badge/Avalonia-11.0-B9281E?logo=avalonia&logoColor=white)
+
 - .NET 9, Avalonia UI, C# 12
 - gRPC Client, MCP Integration
 - Cross-platform: Windows ✅ | macOS 🚧 | Linux 🚧
 
 ### Infrastructure (Docker)
+
+![Docker](https://img.shields.io/badge/Docker-24.0-2496ED?logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/Nginx-1.25-009639?logo=nginx&logoColor=white) ![MinIO](https://img.shields.io/badge/MinIO-RELEASE-C72E49?logo=minio&logoColor=white)
 
 - PostgreSQL 15-alpine, Redis 7-alpine
 - Neo4j 5.15-community (APOC + GDS)
